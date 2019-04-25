@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MethodScript language Eclipse plugin
+Bundle-SymbolicName: MethodScript.eclipse;singleton:=true
+Bundle-Version: 0.0.1.qualifier
+Bundle-Vendor: io.github.pieter12345
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.metaborg.spoofax.eclipse
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

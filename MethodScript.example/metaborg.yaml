@@ -1,0 +1,13 @@
+---
+id: io.github.pieter12345:MethodScript.example:0.0.1-SNAPSHOT
+name: MethodScript
+dependencies:
+  compile:
+  - io.github.pieter12345:MethodScript:0.0.1-SNAPSHOT
+debug:
+  typesmart: false
+runtime:
+  nabl2:
+    debug: analysis files
+build:
+  useBuildSystemSpec: true
