@@ -1,13 +1,10 @@
 module MethodScript
 
 imports
-  
-  Common
+	Common
 
 context-free start-symbols
-  
-  Start
+	Start
 
 context-free syntax
-  
-  Start.Empty = <>
+	Start.Empty = <>

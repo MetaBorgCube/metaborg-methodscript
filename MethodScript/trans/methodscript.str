@@ -1,16 +1,15 @@
 module methodscript
 
 imports
-  
-  completion/completion
-  pp
-  outline
-  analysis
+	completion/completion
+	pp
+	outline
+	analysis
 
-rules // Debugging
-  
-  debug-show-aterm:
-    (node, _, _, path, project-path) -> (filename, result)
-    with
-      filename := <guarantee-extension(|"aterm")> path
-    ; result   := node
+// Debugging.
+rules
+	debug-show-aterm:
+		(node, _, _, path, project-path) -> (filename, result)
+		with
+			filename := <guarantee-extension(|"aterm")> path
+			; result := node
