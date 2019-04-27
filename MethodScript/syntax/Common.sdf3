@@ -7,7 +7,7 @@ lexical syntax
 	VAR            = "$" [a-zA-Z0-9\_]+
 	IVAR           = "@" [a-zA-Z0-9\_]+
 	PROC-ID        = "_" [a-zA-Z0-9] [a-zA-Z0-9\_]*
-	FUNC-ID        = [a-zA-Z0-9\_]+
+	FUNC-ID        = [a-zA-Z0-9] [a-zA-Z0-9\_]* // TODO - Do internal functions exist that start with a '_'?
 	LABEL          = STRING
 	LABEL          = SMART-STRING // TODO - Support this? SS's with a variable in them eval to 'smart_string' in labels.
 	LABEL          = BARE-STRING
@@ -31,6 +31,14 @@ lexical syntax
 	NewLineEOF     = [\n\r]
 	NewLineEOF     = EOF
 	EOF            = ""
+	
+	// Exclude function IDs that have custom handling.
+	FUNC-ID = "array" {reject}
+	FUNC-ID = "associative_array" {reject}
+	
+//	// Exclude keywords.
+//	BARE-STRING = "true" {reject}
+//	BARE-STRING = "false" {reject}
 
 lexical restrictions
 	
@@ -43,7 +51,7 @@ lexical restrictions
 	IVAR          -/- [a-zA-Z0-9\_]
 	PROC-ID       -/- [a-zA-Z0-9\_]
 	FUNC-ID       -/- [a-zA-Z0-9\_]
-	BARE-STRING   -/- [a-zA-Z0-9\_]
+	BARE-STRING   -/- [a-zA-Z0-9\_\(]
 	
 	// EOF may not be followed by any char.
 	EOF           -/- ~[]
