@@ -13,14 +13,22 @@ context-free syntax
 	Start.Ms = (Statement)*
 //	Start.AutoIncludeMs = <> // TODO - Implement.
 	
+	/*
+	 * Statement: Single coherent code that does not result in a value. Cannot be used as Exp.
+	 * SExp: Statement that resolves to some value. Can be used as Statement and as Exp.
+	 * Exp: Expression that resolves to some value. Cannot be used as Statement.
+	 */
+	 Statement.SExp = <<SExp><SemiColon?>
+	 >
+	 Exp.SExp = SExp
+	
 	// Statements. TODO - Implement all statements from the API.
-	OptionalSemiColon.SemiColon = ";"
-	OptionalSemiColon.None = ""
-	// TODO - Move if's to Exp or only allow one Statement in both cases for Exp?
-	Exp.If = <if(<Exp>) {
+	// Branching statements.
+	// TODO - Decide whether to allow or disallow non-{} code in branching statements.
+	Statement.If = <if(<Exp>) {
 		<(Statement)*>
 	}>
-	Exp.IfElse = <if(<Exp>) {
+	Statement.IfElse = <if(<Exp>) {
 		<(Statement)*>
 	} else {
 		<(Statement)*>
@@ -28,31 +36,106 @@ context-free syntax
 	Statement.While = <while(<Exp>) {
 		<(Statement)*>
 	}>
-//	Statement.For = "for" "(" Statement ";" Statement ";" Statement ")" "{" Statement "}"
-	Statement.ArrayPush = <<Exp>[] = <Exp><OptionalSemiColon>>
-	/*
-	 * TODO - Keep Exp and MultiExp or just make one Exp that accepts * expressions?
-	 * This makes a block of expressions a single Statement. Is that desired?
-	 */
-	Statement.Exp = <<Exp><OptionalSemiColon
-	>>
-//	Statement.MultiExp = <<Exp><OptionalSemiColon>
-//	(<Exp><OptionalSemiColon>
-//	)+>
+	Statement.DoWhile = <do {
+		<(Statement)*>
+	while(<Exp>)<SemiColon?>>
+	// TODO - Rename for and foreach nodes? Add optional else case to them or keep them separated?
+	// TODO - Decide whether to support the actual forelse() and foreachelse() functions as well.
+	Statement.For1 = <for(<IVAR> = <Exp>; <Exp>; <Exp>) {
+		<(Statement)*>
+	}>
+	Statement.For2 = <for(<IVAR> = <Exp>, <Exp>, <Exp>) {
+		<(Statement)*>
+	}>
+	Statement.ForElse1 = <for(<IVAR> = <Exp>; <Exp>; <Exp>) {
+		<(Statement)*>
+	} else {
+		<(Statement)*>
+	}>
+	Statement.ForElse2 = <for(<IVAR> = <Exp>, <Exp>, <Exp>) {
+		<(Statement)*>
+	} else {
+		<(Statement)*>
+	}>
+	// "foreach(@value in @array) {code}".
+	Statement.ForEach1 = <foreach(<IVAR> in <Exp>) {
+		<(Statement)*>
+	}>
+	// "foreach(@array as @value) {code}".
+	Statement.ForEach2 = <foreach(<Exp> as <IVAR>) {
+		<(Statement)*>
+	}>
+	// "foreach(@array, @value) {code}".
+	Statement.ForEach3 = <foreach(<Exp>, <IVAR>) {
+		<(Statement)*>
+	}>
+	// "foreach(@key: @value in @array) {code}".
+	Statement.ForEach4 = <foreach(<IVAR>: <IVAR> in <Exp>) {
+		<(Statement)*>
+	}>
+	// "foreach(@array, @key, @value) {code}".
+	Statement.ForEach5 = <foreach(<Exp>, <IVAR>, <IVAR>) {
+		<(Statement)*>
+	}>
+	// "foreach(@value in @array) {code} else {code}".
+	Statement.ForEachElse1 = <foreach(<IVAR> in <Exp>) {
+		<(Statement)*>
+	} else {
+		<(Statement)*>
+	}>
+	// "foreach(@array as @value) {code} else {code}".
+	Statement.ForEachElse2 = <foreach(<Exp> as <IVAR>) {
+		<(Statement)*>
+	} else {
+		<(Statement)*>
+	}>
+	// "foreach(@array, @value) {code} else {code}".
+	Statement.ForEachElse3 = <foreach(<Exp>, <IVAR>) {
+		<(Statement)*>
+	} else {
+		<(Statement)*>
+	}>
+	// "foreach(@key: @value in @array) {code} else {code}".
+	Statement.ForEachElse4 = <foreach(<IVAR>: <IVAR> in <Exp>) {
+		<(Statement)*>
+	} else {
+		<(Statement)*>
+	}>
+	// "foreach(@array, @key, @value) {code} else {code}".
+	Statement.ForEachElse5 = <foreach(<Exp>, <IVAR>, <IVAR>) {
+		<(Statement)*>
+	} else {
+		<(Statement)*>
+	}>
+	Statement.Break = <break(<Exp?>)> // break([numLoops]).
+	Statement.Continue = <continue(<Exp?>)> // continue([numLoopsSkipped]).
+	Statement.Return = <return(<Exp?>)> // return([value]).
+	
+	// Other statements.
+	Statement.ArrayPush = <<Exp>[] = <Exp><SemiColon?>>
+	Statement.ProcDecl = <proc <PROC-ID>(<{IVAR ","}*>) {
+		<(Statement)*>
+	}>
+	
+	SemiColon.SemiColon = ";"
+	
+	OptionalKeyVar.None = <>
+	OptionalKeyVar.KeyVar = IVAR
 	
 	// Expressions. TODO - Implement all expressions from the API.
 	// Arithmetic operators.
 	Exp.Plus = <<Exp> + <Exp>> {left}
-	Exp.Minus = <<Exp> - <Exp>> {left, prefer}
+	Exp.Minus = <<Exp> - <Exp>> {left}
 	Exp.Times = <<Exp> * <Exp>> {left}
 	Exp.Div = <<Exp> / <Exp>> {left}
 	Exp.Mod = <<Exp> % <Exp>> {left}
 	Exp.Pow = <<Exp> ** <Exp>> {left}
-	Exp.Inc = <++<Exp>>
-	Exp.PostInc = <<Exp>++>
-	Exp.Dec = <--<Exp>>
-	Exp.PostDec = <<Exp>-->
-	Exp.Neg = <-<Exp>> {avoid}
+	Exp.Neg = <-<Exp>>
+	
+	SExp.Inc = <++<IVAR>>
+	SExp.PostInc = <<IVAR>++>
+	SExp.Dec = <--<IVAR>>
+	SExp.PostDec = <<IVAR>-->
 	
 	// String operators.
 	Exp.Concat = <<Exp> . <Exp>> {left} // TODO - Check associativity.
@@ -87,37 +170,49 @@ context-free syntax
 	Exp.False = "false"
 	Exp.Null = "null"
 	
-	Exp.IVarAssign = <<IVAR> = <Exp>>
-	Exp.ArraySet = <<Exp>[<Exp>] = <Exp>> {left} // TODO - Check associativity.
+	// Branching operators.
+	Exp.Ternary = <if(<Exp>) {<Exp>} else {<Exp>}> // "@val = if(cond) {exp1} else {exp2}".
+	
+	// Casts.
+	Exp.BoolCast = <boolean(<Exp>)>
+	Exp.DoubleCast = <double(<Exp>)>
+	Exp.IntCast = <integer(<Exp>)>
+	// TODO - Implement all casts.
+	
+	SExp.IVarAssign = <<IVAR> = <Exp>>
+	SExp.ArraySet = <<Exp>[<Exp>] = <Exp>> {left} // TODO - Check associativity.
 	Exp.ArrayGet = <<Exp>[<Exp>]> {left} // TODO - Check associativity.
 	Exp.ArrayClone = <<Exp>[]> // Maps to array_deep_clone(array).
-	Exp.ArraySlice = <<Exp>[<INT>..<INT>]>
+	Exp.ArraySlice = <<Exp>[<INT>..<INT>]> // TODO - Move Exp.Slice out of there and make this ArrayGet(..., Slice()).
 	Exp.Array = <array(<{ArrayEntry ","}*>)>
 	Exp.AssocArray = <associative_array(<{ArrayEntry ","}*>)>
 	ArrayEntry.Entry = <<LABEL>: <Exp>>
 	ArrayEntry.Val = Exp
-	// TODO - Give Statement function arguments a different label?
-	Exp.ProcCall = <<PROC-ID>(<{Exp ","}*>)> {left} // TODO - Check associativity.
-	Exp.FuncCall = <<FUNC-ID>(<{(Statement)+ ","}*>)> {left} // TODO - Check associativity.
+	
+	// TODO - Define all functions that take code as an argument?
+	SExp.ProcCall = <<PROC-ID>(<{Exp ","}*>)> {left} // TODO - Check associativity.
+	SExp.FuncCall = <<FUNC-ID>(<{FuncArg ","}*>)> {left} // TODO - Check associativity.
+	FuncArg.SExpArg = SExp
+	FuncArg.ExpArg = Exp
+	FuncArg.StatementsArg = (Statement)+
+	
+	// Brackets. These are allowed around statements and expressions.
+	// TODO - Allow brackets around multiple statements. Could define a Statement.Block for this.
 	Exp = <(<Exp>)> {bracket}
+	SExp = <(<SExp>)> {bracket}
+	Statement = <(<Statement>)> {bracket}
 
 context-free priorities
-	// Binary operator priorities (tested): {**} > {*, /, %} > {+, -, .} > {>, <, >=, <=} > {==, !=, ===, !==}
-	// > {&&&} > {|||} > {&&} > {||} > {assign, array_set}.
-	// Unary operator priorities (tested): {array_clone, array_get, array_slice} > {neg} > {postinc, postdec}
-	// > {inc, dec} > {not}.
-	Exp.Pow > {left: Exp.Times Exp.Div Exp.Mod} > {left: Exp.Plus Exp.Minus Exp.Concat}
-			> {Exp.Gt Exp.Lt Exp.Gte Exp.Lte} > {Exp.Equals Exp.NotEquals Exp.Sequals Exp.NotSequals}
-			> Exp.Dand > Exp.Dor > Exp.And > Exp.Or > {Exp.IVarAssign Exp.ArraySet},
-	{Exp.ArrayClone Exp.ArrayGet Exp.ArraySlice} > Exp.Neg > {Exp.PostInc Exp.PostDec} > {Exp.Inc Exp.Dec} > Exp.Not
+	// Operator priorities (tested): {array_clone, array_get, array_slice} > {neg, not} > {**} > {*, /, %} > {+, -, .}
+	// > {>, <, >=, <=} > {==, !=, ===, !==} > {&&&} > {|||} > {&&} > {||} > {assign, array_set}.
+	// Unary operator priorities (tested): {neg} > {postinc, postdec} > {inc, dec} > {not}.
+	{Exp.ArrayClone Exp.ArrayGet Exp.ArraySlice}
+			> {Exp.Neg Exp.Not}
+			> Exp.Pow
+			> {left: Exp.Times Exp.Div Exp.Mod}
+			> {left: Exp.Plus Exp.Minus Exp.Concat}
+			> {Exp.Gt Exp.Lt Exp.Gte Exp.Lte}
+			> {Exp.Equals Exp.NotEquals Exp.Sequals Exp.NotSequals}
+			> Exp.Dand > Exp.Dor > Exp.And > Exp.Or,
 	
-//	Exp+ = Exp+ Exp <1> .> Exp.Neg,
-//	Exp+ = Exp <0> .> Exp.Neg
-//	Exp.Minus <0> .> Exp.Neg,
-
-//	Exp = Exp "-" Exp <0> .> Exp.Neg,
-//	Exp = Exp "-" Exp <1> .> Exp.Neg,
-//	Exp = Exp "-" Exp <2> .> Exp.Neg,
-//	Exp = Exp "-" Exp <3> .> Exp.Neg,
-//	Exp = Exp "-" Exp <4> .> Exp.Neg,
-//	Exp = Exp "-" Exp <5> .> Exp.Neg
+	FuncArg.SExpArg > FuncArg.ExpArg > FuncArg.StatementsArg

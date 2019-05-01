@@ -35,6 +35,9 @@ lexical syntax
 	// Exclude function IDs that have custom handling.
 	FUNC-ID = "array" {reject}
 	FUNC-ID = "associative_array" {reject}
+	FUNC-ID = "break" {reject}
+	FUNC-ID = "continue" {reject}
+	FUNC-ID = "return" {reject}
 	
 //	// Exclude keywords.
 //	BARE-STRING = "true" {reject}
