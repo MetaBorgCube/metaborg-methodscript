@@ -1,29 +1,49 @@
 module Common
 
 lexical syntax
-	ID             = [a-zA-Z] [a-zA-Z0-9]* 
-	INT            = "-"? [0-9]+ 
-	STRING         = "\"" StringChar* "\"" 
-	StringChar     = ~[\"\n] 
-	StringChar     = "\\\"" 
-	StringChar     = BackSlashChar 
-	BackSlashChar  = "\\" 
-	LAYOUT         = [\ \t\n\r] 
-	CommentChar    = [\*] 
-	LAYOUT         = "/*" InsideComment* "*/" 
-	InsideComment  = ~[\*] 
-	InsideComment  = CommentChar 
-	LAYOUT         = "//" ~[\n\r]* NewLineEOF 
-	NewLineEOF     = [\n\r] 
-	NewLineEOF     = EOF 
-	EOF            =  
+	ID             = [a-zA-Z] [a-zA-Z0-9\_]*
+	INT            = "-"? [0-9]+
+	FLOAT          = "-"? [0-9]+ "." [0-9]+ // TODO - This should probably accept everything that Double.parseDouble() accepts.
+	VAR            = "$" [a-zA-Z0-9\_]+
+	IVAR           = "@" [a-zA-Z0-9\_]+
+	PROC-ID        = "_" [a-zA-Z0-9] [a-zA-Z0-9\_]*
+	FUNC-ID        = [a-zA-Z0-9\_]+
+	LABEL          = STRING
+	LABEL          = SMART-STRING // TODO - Support this? SS's with a variable in them eval to 'smart_string' in labels.
+	LABEL          = BARE-STRING
+	STRING         = "'" StringChar* "'"
+	SMART-STRING   = "\"" SmartStringChar* "\"" // TODO - Implement smart string features.
+	BARE-STRING    = [a-zA-Z0-9\_]+ // TODO - Bare strings can also contain §, ±, etc. But not any operator/brace/bracket.
+	StringChar     = ~[\']
+	StringChar     = "\\'"
+	StringChar     = BackSlashChar // TODO - Check if necessary.
+	SmartStringChar= ~[\"]
+	SmartStringChar= "\\\""
+	SmartStringChar= BackSlashChar // TODO - Check if necessary.
+	BackSlashChar  = "\\"
+	LAYOUT         = [\ \t\n\r]
+	CommentChar    = [\*]
+	LAYOUT         = "/*" InsideComment* "*/"
+	InsideComment  = ~[\*]
+	InsideComment  = CommentChar
+	LAYOUT         = "//" ~[\n\r]* NewLineEOF
+	LAYOUT         = "#" ~[\n\r]* NewLineEOF
+	NewLineEOF     = [\n\r]
+	NewLineEOF     = EOF
+	EOF            = ""
 
 lexical restrictions
 	
 	// Ensure greedy matching for lexicals.
 	CommentChar   -/- [\/]
-	INT           -/- [0-9]
+	INT           -/- [0-9\.]
+	FLOAT         -/- [0-9\.]
 	ID            -/- [a-zA-Z0-9\_]
+	VAR           -/- [a-zA-Z0-9\_]
+	IVAR          -/- [a-zA-Z0-9\_]
+	PROC-ID       -/- [a-zA-Z0-9\_]
+	FUNC-ID       -/- [a-zA-Z0-9\_]
+	BARE-STRING   -/- [a-zA-Z0-9\_]
 	
 	// EOF may not be followed by any char.
 	EOF           -/- ~[]

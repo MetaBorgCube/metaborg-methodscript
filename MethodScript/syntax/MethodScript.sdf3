@@ -6,5 +6,92 @@ imports
 context-free start-symbols
 	Start
 
+sorts Start Statement Exp
 context-free syntax
 	Start.Empty = <>
+	Start.Msa = <> // TODO - Implement.
+	Start.Ms = (Statement)*
+	Start.AutoIncludeMs = <> // TODO - Implement.
+	
+	// Statements. TODO - Implement all statements from the API.
+	OptionalSemiColon.SemiColon = ";"
+	OptionalSemiColon.None = ""
+	// TODO - Move if's to Exp or only allow one Statement in both cases for Exp?
+	Exp.If = <if(<Exp>) {
+		<(Statement)*>
+	}>
+	Exp.IfElse = <if(<Exp>) {
+		<(Statement)*>
+	} else {
+		<(Statement)*>
+	}>
+	Statement.While = <while(<Exp>) {
+		<(Statement)*>
+	}>
+//	Statement.For = "for" "(" Statement ";" Statement ";" Statement ")" "{" Statement "}"
+	Statement.ArrayPush = <<IVAR>[] = <Exp><OptionalSemiColon>>
+	Statement.Exp = <<Exp><OptionalSemiColon>>
+	
+	// Expressions. TODO - Implement all expressions from the API.
+	// Arithmetic operators.
+	Exp.Plus = <<Exp> + <Exp>> {left}
+	Exp.Minus = <<Exp> - <Exp>> {left}
+	Exp.Times = <<Exp> * <Exp>> {left}
+	Exp.Div = <<Exp> / <Exp>> {left}
+	Exp.Mod = <<Exp> % <Exp>> {left}
+	Exp.Inc = <++<Exp>>
+	Exp.PostInc = <<Exp>++>
+	Exp.Dec = <--<Exp>>
+	Exp.PostDec = <<Exp>-->
+	
+	// String operators.
+	Exp.Concat = <<Exp> . <Exp>> {left} // TODO - Check associativity.
+	
+	// Logical operators.
+	Exp.And = <<Exp> && <Exp>> {left}
+	Exp.Or = <<Exp> || <Exp>> {left}
+	Exp.Not = <!<Exp>>
+	
+	// Comparison operators.
+	Exp.Equals     = <<Exp> ==  <Exp>> {left}
+	Exp.NotEquals  = <<Exp> != <Exp>>  {left}
+	Exp.Sequals    = <<Exp> === <Exp>> {left}
+	Exp.NotSequals = <<Exp> !== <Exp>> {left}
+	Exp.Lt         = <<Exp> \< <Exp>>  {left}
+	Exp.Lte        = <<Exp> \<= <Exp>> {left}
+	Exp.Gt         = <<Exp> \> <Exp>>  {left}
+	Exp.Gte        = <<Exp> \>= <Exp>> {left}
+	
+	// Variables.
+	Exp.IVar = IVAR
+	Exp.Var = VAR
+	
+	// Static values.
+	Exp.Int = INT
+	Exp.Float = FLOAT
+	Exp.String = STRING
+	Exp.SmartString = SMART-STRING
+	Exp.True = "true"
+	Exp.False = "false"
+	
+	Exp.IVarAssign = <<IVAR> = <Exp><OptionalSemiColon>>
+	Exp.ArraySet = <<IVAR>[<Exp>] = <Exp><OptionalSemiColon>> {left} // TODO - Check associativity.
+	Exp.ArrayGet = <<Exp>[<Exp>]> {left} // TODO - Check associativity.
+	Exp.Array = <array(<{ArrayEntry ","}*>)>
+	Exp.AssocArray = <associative_array(<{ArrayEntry ","}*>)>
+	ArrayEntry.Entry = <<LABEL>: <Exp>>
+	ArrayEntry.Val = Exp
+	// TODO - Differentiate procs from functions here? Could be done at a later step as well.
+	// TODO - Give Statement function arguments a different label?
+//	Exp.ProcCall = <<PROC-ID>(<{Exp ","}*>)> {left} // TODO - Check associativity.
+	Exp.FuncCall = <<FUNC-ID>(<{(Statement)* ","}*>)> {left} // TODO - Check associativity.
+	Exp = <(<Exp>)> {bracket}
+
+context-free priorities
+	// TODO - Infer priorities from source code or from example code and list them here. Current prio's are examples.
+	Exp.Times > Exp.Plus,
+	Exp.Times > Exp.Minus,
+	Exp.Plus > Exp.Lt,
+	Exp.Minus > Exp.Lt,
+	Exp.Lt > Exp.And
+	
