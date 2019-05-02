@@ -171,8 +171,23 @@ context-free syntax
 		<Statement+>
 	)<SemiColon?>>
 	
-	// TODO - Implement switch(). This is in some cases an Exp.
-//	Statement.SwitchCase = ...
+	// TODO - Implement switch(). Statement when it contains Statements, Exp when it contains a single Exp in each case.
+	// TODO - Determine what to do when some cases have a single exp and some return or throw an exception or so.
+	// TODO - Fix ambiguity in Exp/Statement code (both can lead to SExp).
+	SExp.SwitchCaseLegacy = <switch(<Exp><SwitchCaseLegacy*><SwitchCaseDefaultLegacy?>
+	)>
+	SwitchCaseLegacy.ExpCase = <,
+		<Exp>,
+			<Exp+>>
+	SwitchCaseLegacy.StatementCase = <,
+		<Exp>,
+			<Statement+>>
+	SwitchCaseDefaultLegacy.ExpDefault = <,
+		<Exp>,
+			<Exp>>
+	SwitchCaseDefaultLegacy.StatementDefault = <,
+		<Exp>,
+			<Statement+>>
 	
 	Statement.Break = <break(<Exp?>)> // break([numLoops]).
 	Statement.Continue = <continue(<Exp?>)> // continue([numLoopsSkipped]).
@@ -272,6 +287,7 @@ context-free syntax
 	SExp.ArraySet = <<Exp>[<Exp>] = <Exp>> // TODO - Check associativity.
 	Exp.ArrayGet = <<Exp>[<Exp>]> // TODO - Check associativity.
 	Exp.ArrayClone = <<Exp>[]> // Maps to array_deep_clone(array).
+	// TODO - Allow INT and <"-"<INT>> in Slice.
 	Exp.ArraySlice = <<Exp>[<INT>..<INT>]> // TODO - Move Exp.Slice out of there and make this ArrayGet(..., Slice()).
 	Exp.Array = <array(<{ArrayEntry ","}*>)>
 	Exp.AssocArray = <associative_array(<{ArrayEntry ","}*>)>
