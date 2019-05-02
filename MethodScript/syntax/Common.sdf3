@@ -38,6 +38,17 @@ lexical syntax
 	FUNC-ID = "break" {reject}
 	FUNC-ID = "continue" {reject}
 	FUNC-ID = "return" {reject}
+	FUNC-ID = "if" {reject}
+	FUNC-ID = "while" {reject}
+	FUNC-ID = "dowhile" {reject}
+	FUNC-ID = "for" {reject}
+	FUNC-ID = "forelse" {reject}
+	FUNC-ID = "bind" {reject}
+	FUNC-ID = "die" {reject}
+	FUNC-ID = "proc" {reject}
+	FUNC-ID = "closure" {reject}
+	FUNC-ID = "iclosure" {reject}
+	FUNC-ID = "rclosure" {reject}
 	
 //	// Exclude keywords.
 //	BARE-STRING = "true" {reject}
@@ -67,4 +78,5 @@ context-free restrictions
 	// Ensure greedy matching for comments.
 	LAYOUT? -/- [\ \t\n\r]
 	LAYOUT? -/- [\/].[\/]
+	LAYOUT? -/- [\#]
 	LAYOUT? -/- [\/].[\*]
