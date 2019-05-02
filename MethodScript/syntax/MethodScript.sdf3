@@ -6,11 +6,10 @@ imports
 context-free start-symbols
 	Start
 
-sorts Start Statement Exp
 context-free syntax
 	Start.Empty = <>
 //	Start.Msa = <> // TODO - Implement.
-	Start.Ms = Statement*
+	Start.Ms = Statement+
 //	Start.AutoIncludeMs = <> // TODO - Implement.
 	
 	/*
