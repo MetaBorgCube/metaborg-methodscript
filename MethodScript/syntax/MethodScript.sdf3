@@ -337,3 +337,4 @@ context-free priorities
 			> {non-assoc: Exp.Gt Exp.Lt Exp.Gte Exp.Lte}
 			> {Exp.Equals Exp.NotEquals Exp.Sequals Exp.NotSequals}
 			> Exp.Dand > Exp.Dor > Exp.And > Exp.Or
+			> {SExp.IVarAssign SExp.ArraySet}
