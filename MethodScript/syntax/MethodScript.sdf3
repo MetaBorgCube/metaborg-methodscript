@@ -323,7 +323,6 @@ context-free syntax
 	// Brackets. These are allowed around statements and expressions.
 	// TODO - Allow brackets around multiple statements. Could define a Statement.Block for this.
 	Exp = <(<Exp>)> {bracket}
-	SExp = <(<SExp>)> {bracket}
 //	Statement = <(<Statement>)> {bracket} // TODO - Remove if properly handled by Statement.Block.
 
 context-free priorities
