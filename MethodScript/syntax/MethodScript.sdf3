@@ -234,14 +234,14 @@ context-free syntax
 	Exp.Not = <!<Exp>>
 	
 	// Comparison operators.
-	Exp.Equals     = <<Exp> ==  <Exp>> {left}
-	Exp.NotEquals  = <<Exp> != <Exp>>  {left}
-	Exp.Sequals    = <<Exp> === <Exp>> {left}
-	Exp.NotSequals = <<Exp> !== <Exp>> {left}
-	Exp.Lt         = <<Exp> \< <Exp>>  {left}
-	Exp.Lte        = <<Exp> \<= <Exp>> {left}
-	Exp.Gt         = <<Exp> \> <Exp>>  {left}
-	Exp.Gte        = <<Exp> \>= <Exp>> {left}
+	Exp.Equals     = <<Exp> ==  <Exp>> {left} // TODO - Keep left of set to non-assoc (accept nested equals or not)?
+	Exp.NotEquals  = <<Exp> != <Exp>>  {left} // TODO - Keep left of set to non-assoc (accept nested equals or not)?
+	Exp.Sequals    = <<Exp> === <Exp>> {left} // TODO - Keep left of set to non-assoc (accept nested equals or not)?
+	Exp.NotSequals = <<Exp> !== <Exp>> {left} // TODO - Keep left of set to non-assoc (accept nested equals or not)?
+	Exp.Lt         = <<Exp> \< <Exp>>  {non-assoc}
+	Exp.Lte        = <<Exp> \<= <Exp>> {non-assoc}
+	Exp.Gt         = <<Exp> \> <Exp>>  {non-assoc}
+	Exp.Gte        = <<Exp> \>= <Exp>> {non-assoc}
 	
 	// Variables.
 	Exp.IVar = IVAR
@@ -269,8 +269,8 @@ context-free syntax
 	// TODO - Implement all casts.
 	
 	SExp.IVarAssign = <<IVAR> = <Exp>>
-	SExp.ArraySet = <<Exp>[<Exp>] = <Exp>> {left} // TODO - Check associativity.
-	Exp.ArrayGet = <<Exp>[<Exp>]> {left} // TODO - Check associativity.
+	SExp.ArraySet = <<Exp>[<Exp>] = <Exp>> // TODO - Check associativity.
+	Exp.ArrayGet = <<Exp>[<Exp>]> // TODO - Check associativity.
 	Exp.ArrayClone = <<Exp>[]> // Maps to array_deep_clone(array).
 	Exp.ArraySlice = <<Exp>[<INT>..<INT>]> // TODO - Move Exp.Slice out of there and make this ArrayGet(..., Slice()).
 	Exp.Array = <array(<{ArrayEntry ","}*>)>
@@ -279,8 +279,8 @@ context-free syntax
 	ArrayEntry.Val = Exp
 	
 	// Procedure and function calls. Functions that accept code blocks as an argument should be defined separately.
-	SExp.ProcCall = <<PROC-ID>(<{Exp ","}*>)> {left} // TODO - Check associativity.
-	SExp.FuncCall = <<FUNC-ID>(<{Exp ","}*>)> {left} // TODO - Check associativity.
+	SExp.ProcCall = <<PROC-ID>(<{Exp ","}*>)>
+	SExp.FuncCall = <<FUNC-ID>(<{Exp ","}*>)>
 	
 	// Closures.
 	// TODO - Closures accept IVARs as first arguments, but also assigns. Make a choice in what to accept here.
@@ -314,13 +314,11 @@ context-free priorities
 	// Operator priorities (tested): {array_clone, array_get, array_slice} > {neg, not} > {**} > {*, /, %} > {+, -, .}
 	// > {>, <, >=, <=} > {==, !=, ===, !==} > {&&&} > {|||} > {&&} > {||} > {assign, array_set}.
 	// Unary operator priorities (tested): {neg} > {postinc, postdec} > {inc, dec} > {not}.
-	{Exp.ArrayClone Exp.ArraySlice} // + Exp.ArrayGet
+	{Exp.ArrayClone Exp.ArrayGet Exp.ArraySlice}
 			> {Exp.Neg Exp.Not}
 			> Exp.Pow
 			> {left: Exp.Times Exp.Div Exp.Mod}
 			> {left: Exp.Plus Exp.Minus Exp.Concat}
-			> {Exp.Gt Exp.Lt Exp.Gte Exp.Lte}
+			> {non-assoc: Exp.Gt Exp.Lt Exp.Gte Exp.Lte}
 			> {Exp.Equals Exp.NotEquals Exp.Sequals Exp.NotSequals}
-			> Exp.Dand > Exp.Dor > Exp.And > Exp.Or,
-	
-	Exp.ArrayGet > Exp.Plus
+			> Exp.Dand > Exp.Dor > Exp.And > Exp.Or
