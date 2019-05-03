@@ -1,0 +1,100 @@
+module test
+
+language MethodScript
+start symbol Exp
+
+test parse add [[
+	1 + 2
+]] parse succeeds
+
+test parse add negative [[
+	1 + -2
+]] parse succeeds
+
+test parse add negative 2 [[
+	-1 + 2
+]] parse succeeds
+
+test parse subtract [[
+	1 - 2
+]] parse succeeds
+
+test parse subtract negative [[
+	1 - -2
+]] parse succeeds
+
+test parse subtract negative 2 [[
+	-1 - 2
+]] parse succeeds
+
+test parse multiply [[
+	1 * 2
+]] parse succeeds
+
+test parse multiply negative [[
+	1 * -2
+]] parse succeeds
+
+test parse multiply negative 2 [[
+	-1 * 2
+]] parse succeeds
+
+test parse divide [[
+	1 / 2
+]] parse succeeds
+
+test parse divide negative [[
+	1 / -2
+]] parse succeeds
+
+test parse divide negative 2 [[
+	-1 / 2
+]] parse succeeds
+
+test parse mod [[
+	1 % 2
+]] parse succeeds
+
+test parse mod negative [[
+	1 % -2
+]] parse succeeds
+
+test parse mod negative 2 [[
+	-1 % 2
+]] parse succeeds
+
+test parse pow [[
+	1 ** 2
+]] parse succeeds
+
+test parse pow negative [[
+	1 ** -2
+]] parse succeeds
+
+test parse pow negative 2 [[
+	-1 ** 2
+]] parse succeeds
+
+test parse inc [[
+	++@a
+]] parse succeeds
+
+test parse dec [[
+	--@a
+]] parse succeeds
+
+test parse postinc [[
+	@a++
+]] parse succeeds
+
+test parse postdec [[
+	@a--
+]] parse succeeds
+
+test parse neg [[
+	-1
+]] parse succeeds
+
+test parse neg 2 [[
+	-@a
+]] parse succeeds
