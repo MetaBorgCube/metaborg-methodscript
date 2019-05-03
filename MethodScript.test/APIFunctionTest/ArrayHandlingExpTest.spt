@@ -1,0 +1,24 @@
+module test
+
+language MethodScript
+start symbol Exp
+
+test parse array_get [[
+	@a[0]
+]] parse succeeds
+
+test parse array_set [[
+	@a[0] = 1
+]] parse succeeds
+
+test parse cslice [[
+	1..5
+]] parse succeeds
+
+test parse cslice negative [[
+	0..-1
+]] parse succeeds
+
+test parse array_push [[
+	@a[] = 1
+]] parse fails
