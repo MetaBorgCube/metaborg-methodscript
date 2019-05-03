@@ -282,6 +282,11 @@ context-free syntax
 	// TODO - Implement all casts.
 	
 	SExp.IVarAssign = <<IVAR> = <Exp>>
+	SExp.IVarPlusAssign = <<IVAR> += <Exp>>
+	SExp.IVarMinusAssign = <<IVAR> -= <Exp>>
+	SExp.IVarTimesAssign = <<IVAR> *= <Exp>>
+	SExp.IVarDivAssign = <<IVAR> /= <Exp>>
+	SExp.IVarConcatAssign = <<IVAR> .= <Exp>>
 	SExp.ArraySet = <<Exp>[<Exp>] = <Exp>> // TODO - Check associativity.
 	Exp.ArrayGet = <<Exp>[<Exp>]> // TODO - Check associativity.
 	Exp.ArrayClone = <<Exp>[]> // Maps to array_deep_clone(array).
@@ -334,4 +339,5 @@ context-free priorities
 			> {non-assoc: Exp.Gt Exp.Lt Exp.Gte Exp.Lte}
 			> {Exp.Equals Exp.NotEquals Exp.Sequals Exp.NotSequals}
 			> Exp.Dand > Exp.Dor > Exp.And > Exp.Or
-			> {SExp.IVarAssign SExp.ArraySet}
+			> {SExp.IVarAssign SExp.ArraySet SExp.IVarPlusAssign SExp.IVarMinusAssign
+					SExp.IVarTimesAssign SExp.IVarDivAssign SExp.IVarConcatAssign}
