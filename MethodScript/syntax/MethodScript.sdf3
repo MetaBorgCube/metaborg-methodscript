@@ -183,10 +183,8 @@ context-free syntax
 		<Exp>,
 			<Statement+>>
 	SwitchCaseDefaultLegacy.ExpDefault = <,
-		<Exp>,
 			<Exp>>
 	SwitchCaseDefaultLegacy.StatementDefault = <,
-		<Exp>,
 			<Statement+>>
 	
 	Statement.Break = <break(<Exp?>)> // break([numLoops]).
