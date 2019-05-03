@@ -287,8 +287,7 @@ context-free syntax
 	SExp.ArraySet = <<Exp>[<Exp>] = <Exp>> // TODO - Check associativity.
 	Exp.ArrayGet = <<Exp>[<Exp>]> // TODO - Check associativity.
 	Exp.ArrayClone = <<Exp>[]> // Maps to array_deep_clone(array).
-	// TODO - Allow INT and <"-"<INT>> in Slice.
-	Exp.ArraySlice = <<Exp>[<INT>..<INT>]> // TODO - Move Exp.Slice out of there and make this ArrayGet(..., Slice()).
+	Exp.Slice = <<SIGNED-INT>..<SIGNED-INT>>
 	Exp.Array = <array(<{ArrayEntry ","}*>)>
 	Exp.AssocArray = <associative_array(<{ArrayEntry ","}*>)>
 	ArrayEntry.Entry = <<LABEL>: <Exp>>
@@ -326,10 +325,10 @@ context-free syntax
 //	Statement = <(<Statement>)> {bracket} // TODO - Remove if properly handled by Statement.Block.
 
 context-free priorities
-	// Operator priorities (tested): {array_clone, array_get, array_slice} > {neg, not} > {**} > {*, /, %} > {+, -, .}
+	// Operator priorities (tested): {array_clone, array_get} > {neg, not} > {**} > {*, /, %} > {+, -, .}
 	// > {>, <, >=, <=} > {==, !=, ===, !==} > {&&&} > {|||} > {&&} > {||} > {assign, array_set}.
 	// Unary operator priorities (tested): {neg} > {postinc, postdec} > {inc, dec} > {not}.
-	{Exp.ArrayClone Exp.ArrayGet Exp.ArraySlice}
+	{Exp.ArrayClone Exp.ArrayGet}
 			> {Exp.Neg Exp.Not}
 			> Exp.Pow
 			> {left: Exp.Times Exp.Div Exp.Mod}
