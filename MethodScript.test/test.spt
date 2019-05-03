@@ -1,7 +1,0 @@
-module test
-
-language MethodScript
-
-test parse [[
-
-]] parse succeeds
