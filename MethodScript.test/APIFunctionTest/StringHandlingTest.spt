@@ -1,0 +1,12 @@
+module test
+
+language MethodScript
+start symbol Exp
+
+test parse concat chain [[
+	'Hello'.'World'.'Hello'.'World'
+]] parse succeeds
+
+test parse concat [[
+	'Hello'.'World'
+]] parse succeeds

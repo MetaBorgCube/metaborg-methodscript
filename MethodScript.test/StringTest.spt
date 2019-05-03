@@ -1,0 +1,24 @@
+module test
+
+language MethodScript
+start symbol Exp
+
+test parse empty string [[
+	''
+]] parse succeeds
+
+test parse string [[
+	'my string'
+]] parse succeeds
+
+test parse empty smart string [[
+	""
+]] parse succeeds
+
+test parse smart string [[
+	"my string"
+]] parse succeeds
+
+test parse smart string with variable [[
+	"my string @var test"
+]] parse succeeds
