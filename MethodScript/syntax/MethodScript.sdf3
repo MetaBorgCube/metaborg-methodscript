@@ -237,7 +237,7 @@ context-free syntax
 	SExp.PostDec = <<IVAR>-->
 	
 	// String operators.
-	Exp.Concat = <<Exp> . <Exp>> {left} // TODO - Check associativity.
+	Exp.Concat = <<Exp> . <Exp>> {left}
 	
 	// Logical operators.
 	Exp.And = <<Exp> && <Exp>> {left}
@@ -247,10 +247,10 @@ context-free syntax
 	Exp.Not = <!<Exp>>
 	
 	// Comparison operators.
-	Exp.Equals     = <<Exp> ==  <Exp>> {left} // TODO - Keep left of set to non-assoc (accept nested equals or not)?
-	Exp.NotEquals  = <<Exp> != <Exp>>  {left} // TODO - Keep left of set to non-assoc (accept nested equals or not)?
-	Exp.Sequals    = <<Exp> === <Exp>> {left} // TODO - Keep left of set to non-assoc (accept nested equals or not)?
-	Exp.NotSequals = <<Exp> !== <Exp>> {left} // TODO - Keep left of set to non-assoc (accept nested equals or not)?
+	Exp.Equals     = <<Exp> ==  <Exp>> {left}
+	Exp.NotEquals  = <<Exp> != <Exp>>  {left}
+	Exp.Sequals    = <<Exp> === <Exp>> {left}
+	Exp.NotSequals = <<Exp> !== <Exp>> {left}
 	Exp.Lt         = <<Exp> \< <Exp>>  {non-assoc}
 	Exp.Lte        = <<Exp> \<= <Exp>> {non-assoc}
 	Exp.Gt         = <<Exp> \> <Exp>>  {non-assoc}
