@@ -59,33 +59,21 @@ context-free syntax
 		<Statement+>
 	, <Exp>)<SemiColon?>>
 	
-	// TODO - Rename for and foreach nodes? Add optional else case to them or keep them separated?
-	// TODO - Decide whether to support the actual forelse() and foreachelse() functions as well.
-	Statement.For1 = <for(<IVAR> = <Exp>; <Exp>; <Exp>) {
+	Statement.For = <for(<Exp>, <Exp>, <Exp>) {
 		<Statement*>
 	}>
 	
-	Statement.For2 = <for(<IVAR> = <Exp>, <Exp>, <Exp>) {
-		<Statement*>
-	}>
-	
-	Statement.ForLegacy = <for(<IVAR> = <Exp>, <Exp>, <Exp>,
+	Statement.ForLegacy = <for(<Exp>, <Exp>, <Exp>,
 		<Statement+>
 	)<SemiColon?>>
 	
-	Statement.ForElse1 = <for(<IVAR> = <Exp>; <Exp>; <Exp>) {
+	Statement.ForElse = <for(<Exp>, <Exp>, <Exp>) {
 		<Statement*>
 	} else {
 		<Statement*>
 	}>
 	
-	Statement.ForElse2 = <for(<IVAR> = <Exp>, <Exp>, <Exp>) {
-		<Statement*>
-	} else {
-		<Statement*>
-	}>
-	
-	Statement.ForElseLegacy = <forelse(<IVAR> = <Exp>, <Exp>, <Exp>,
+	Statement.ForElseLegacy = <forelse(<Exp>, <Exp>, <Exp>,
 		<Statement+>
 	,
 		<Statement+>
@@ -213,7 +201,7 @@ context-free syntax
 	SExp.BindLegacy = <bind(<Exp>, <Exp>, <Exp>, <IVAR><BindParam*>,
 		<Statement*>
 	)>
-	BindParam.Param = <, <Exp>>
+	BindParam.BindParam = <, <Exp>>
 	
 	Statement.Block = <(
 		<Statement*>
