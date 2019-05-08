@@ -5,6 +5,7 @@ imports
 	pp
 	outline
 	analysis
+	desugar
 
 // Debugging.
 rules
@@ -13,3 +14,9 @@ rules
 		with
 			filename := <guarantee-extension(|"aterm")> path
 			; result := node
+	
+	editor-desugar:
+		(_, _, ast, path, project-path) -> (filename, result)
+		with
+			filename := <guarantee-extension(|"desugared.aterm")> path
+			; result := <desugar-all> ast

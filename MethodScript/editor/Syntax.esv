@@ -14,8 +14,9 @@ language
 
 menus
 	menu: "Syntax" (openeditor)
-		action: "Format"					= editor-format (source)
-		action: "Show parsed AST" = debug-show-aterm (source)
+		action: "Format"                = editor-format (source)
+		action: "Show parsed AST"       = debug-show-aterm (source)
+		action: "Show desugared syntax" = editor-desugar (source)
 
 views
 	outline view: editor-outline (source)

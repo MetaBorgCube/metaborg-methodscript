@@ -1,0 +1,72 @@
+module desugar
+
+imports
+	src-gen/signatures/MethodScript-sig
+
+signature
+	sorts
+		UnOp
+		UnExp
+		BinOp
+		BinExp
+	
+	constructors
+		If : Exp * [Statement] * [Statement] -> If
+		DoWhile : Exp * [Statement] -> DoWhile
+		For : Exp * Exp * Statement * [Statement] * [Statement] -> For
+		ForEach : IVAR * IVAR * Exp * [Statement] * [Statement] -> ForEach
+
+strategies
+	desugar-all = innermost(desugar)
+
+rules
+	
+	// Desugar semicolon out of SExp statements.
+	desugar: SExp(e, _) -> SExp(e)
+	
+	// Desugar 'if' to If(cond, ifCode, elseCode).
+	desugar: If(cond, ifCode)                        -> If(cond, ifCode, None())
+	desugar: IfLegacy(cond, ifCode, _)               -> If(cond, ifCode, None())
+	desugar: IfElse(cond, ifCode, elseCode)          -> If(cond, ifCode, elseCode)
+	desugar: IfElseLegacy(cond, ifCode, elseCode, _) -> If(cond, ifCode, elseCode)
+	
+	// Desugar 'while' to While(cond, code).
+	desugar: WhileLegacy(cond, code, _) -> While(cond, code)
+	
+	// Desugar 'dowhile' to DoWhile(code, cond).
+	desugar: DoWhile(code, cond, _) -> DoWhile(code, cond)
+	desugar: DoWhileLegacy(code, cond, _) -> DoWhile(code, cond)
+	
+	// Desugar 'for' to For(assign, cond, exp, code, elseCode).
+	desugar: For(assign, cond, exp, code)                        -> For(assign, cond, exp, code, None())
+	desugar: ForLegacy(assign, cond, exp, code, _)               -> For(assign, cond, exp, code, None())
+	desugar: ForElse(assign, cond, exp, code, elseCode)          -> For(assign, cond, exp, code, elseCode)
+	desugar: ForElseLegacy(assign, cond, exp, code, elseCode, _) -> For(assign, cond, exp, code, elseCode)
+	
+	// Desugar 'foreach' to ForEach(key, val, array, code, elseCode).
+	desugar: ForEach1(val, array, code)                             -> ForEach(None(), val, array, code, None())
+	desugar: ForEach2(array, val, code)                             -> ForEach(None(), val, array, code, None())
+	desugar: ForEach3(array, val, code)                             -> ForEach(None(), val, array, code, None())
+	desugar: ForEach4(key, val, array, code)                        -> ForEach(key   , val, array, code, None())
+	desugar: ForEach5(array, key, val, code)                        -> ForEach(key   , val, array, code, None())
+	desugar: ForEachLegacy1(array, val, code, _)                    -> ForEach(None(), val, array, code, None())
+	desugar: ForEachLegacy2(array, key, val, code, _)               -> ForEach(key   , val, array, code, None())
+	desugar: ForEachElse1(val, array, code, elseCode)               -> ForEach(None(), val, array, code, elseCode)
+	desugar: ForEachElse2(array, val, code, elseCode)               -> ForEach(None(), val, array, code, elseCode)
+	desugar: ForEachElse3(array, val, code, elseCode)               -> ForEach(None(), val, array, code, elseCode)
+	desugar: ForEachElse4(key, val, array, code, elseCode)          -> ForEach(key   , val, array, code, elseCode)
+	desugar: ForEachElse5(array, key, val, code, elseCode)          -> ForEach(key   , val, array, code, elseCode)
+	desugar: ForEachElseLegacy1(array, val, code, elseCode, _)      -> ForEach(None(), val, array, code, elseCode)
+	desugar: ForEachElseLegacy2(array, key, val, code, elseCode, _) -> ForEach(key   , val, array, code, elseCode)
+	
+	// Desugar 'switch' to ...
+	// TODO - Finish switch case SDF3 implementation and desugar.
+	
+	// Desugar 'proc' to ProcDecl(name, vars, code).
+	desugar: ProcDecl2(name, vars, code)         -> ProcDecl(name, vars, code)
+	desugar: ProcDeclLegacy(name, vars, code, _) -> ProcDecl(name, vars, code)
+	desugar: ProcArgVar(var)                     -> var
+	
+	// Desugar 'bind' to Bind(name, prio, filter, var, params, code).
+	desugar: BindLegacy(name, prio, filter, var, params, code) -> Bind(name, prio, filter, var, params, code)
+	desugar: BindParam(param)                                  -> param
