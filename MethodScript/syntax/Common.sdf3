@@ -33,22 +33,66 @@ lexical syntax
 	NewLineEOF     = EOF
 	EOF            = ""
 	
-	// Exclude function IDs that have custom handling.
-	FUNC-ID = "array" {reject}
-	FUNC-ID = "associative_array" {reject}
+	/* Exclude function IDs that have custom handling.
+	 * This list contains all interesting functions for implementing the core of the language,
+	 * but not all of them will have custom handling, so some are commented out.
+	 */
+	
+	// Exclude ArrayHandling functions.
+//	FUNC-ID = "array_get" {reject}
+//	FUNC-ID = "array_push" {reject}
+//	FUNC-ID = "array_set" {reject}
+//	FUNC-ID = "cslice" {reject}
+	
+	// Exclude BasicLogic functions.
+//	FUNC-ID = "and" {reject}
+//	FUNC-ID = "dand" {reject}
+//	FUNC-ID = "dor" {reject}
+//	FUNC-ID = "equals" {reject}
+//	FUNC-ID = "equals_ic" {reject}
+//	FUNC-ID = "gt" {reject}
+//	FUNC-ID = "gte" {reject}
+//	FUNC-ID = "lt" {reject}
+//	FUNC-ID = "lte" {reject}
+//	FUNC-ID = "nand" {reject}
+//	FUNC-ID = "nequals" {reject}
+//	FUNC-ID = "nequals_ic" {reject}
+//	FUNC-ID = "nor" {reject}
+//	FUNC-ID = "not" {reject}
+//	FUNC-ID = "or" {reject}
+//	FUNC-ID = "ref_equals" {reject}
+//	FUNC-ID = "sequals" {reject}
+//	FUNC-ID = "sequals_ic" {reject}
+//	FUNC-ID = "snequals" {reject}
+	
+	// Exclude Cmdline functions.
+//	FUNC-ID = "exit" {reject}
+	
+	// Exclude ControlFlow functions.
 	FUNC-ID = "break" {reject}
+	FUNC-ID = "call_proc" {reject}
+	FUNC-ID = "call_proc_array" {reject}
 	FUNC-ID = "continue" {reject}
-	FUNC-ID = "return" {reject}
-	FUNC-ID = "if" {reject}
-	FUNC-ID = "while" {reject}
+	FUNC-ID = "die" {reject}
 	FUNC-ID = "dowhile" {reject}
 	FUNC-ID = "for" {reject}
+	FUNC-ID = "foreach" {reject}
+	FUNC-ID = "foreachelse" {reject}
 	FUNC-ID = "forelse" {reject}
-	FUNC-ID = "bind" {reject}
-	FUNC-ID = "die" {reject}
-	FUNC-ID = "proc" {reject}
+	FUNC-ID = "if" {reject}
+	FUNC-ID = "ifelse" {reject}
+	FUNC-ID = "return" {reject}
+	FUNC-ID = "switch" {reject}
+	FUNC-ID = "while" {reject}
+	
+	// Exclude DataHandling functions (excluding casts).
+	FUNC-ID = "array" {reject}
+	FUNC-ID = "assign" {reject}
+	FUNC-ID = "associative_array" {reject}
 	FUNC-ID = "closure" {reject}
+//	FUNC-ID = "eval" {reject}
 	FUNC-ID = "iclosure" {reject}
+	FUNC-ID = "proc" {reject}
 	FUNC-ID = "rclosure" {reject}
 	
 	// Exclude cast functions.
@@ -57,9 +101,40 @@ lexical syntax
 	FUNC-ID = "integer" {reject}
 	FUNC-ID = "string" {reject}
 	
-//	// Exclude keywords.
-//	BARE-STRING = "true" {reject}
-//	BARE-STRING = "false" {reject}
+	// Exclude EventBinding functions.
+	FUNC-ID = "bind" {reject}
+//	FUNC-ID = "cancel" {reject}
+//	FUNC-ID = "consume" {reject}
+//	FUNC-ID = "is_cancelled" {reject}
+//	FUNC-ID = "is_consumed" {reject}
+//	FUNC-ID = "is_locked" {reject}
+//	FUNC-ID = "lock" {reject}
+//	FUNC-ID = "modify_event" {reject}
+	
+	// Exclude Exceptions functions.
+//	FUNC-ID = "complex_try" {reject}
+//	FUNC-ID = "get_stack_trace" {reject}
+//	FUNC-ID = "throw" {reject}
+//	FUNC-ID = "try" {reject}
+	
+	// Exclude Math functions.
+//	FUNC-ID = "add" {reject}
+//	FUNC-ID = "dec" {reject}
+//	FUNC-ID = "divide" {reject}
+//	FUNC-ID = "inc" {reject}
+//	FUNC-ID = "mod" {reject}
+//	FUNC-ID = "multiply" {reject}
+//	FUNC-ID = "neg" {reject}
+//	FUNC-ID = "postdec" {reject}
+//	FUNC-ID = "postinc" {reject}
+//	FUNC-ID = "pow" {reject}
+//	FUNC-ID = "subtract" {reject}
+	
+	// Exclude StringHandling functions.
+//	FUNC-ID = "concat" {reject}
+	
+	// Exclude Threading functions.
+//	FUNC-ID = "synchronized" {reject}
 
 lexical restrictions
 	
@@ -73,7 +148,7 @@ lexical restrictions
 	IVAR          -/- [a-zA-Z0-9\_]
 	PROC-ID       -/- [a-zA-Z0-9\_]
 	FUNC-ID       -/- [a-zA-Z0-9\_]
-	BARE-STRING   -/- [a-zA-Z0-9\_\(]
+	BARE-STRING   -/- [a-zA-Z0-9\_]
 	
 	// EOF may not be followed by any char.
 	EOF           -/- ~[]
