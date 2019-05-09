@@ -11,10 +11,65 @@ signature
 		BinExp
 	
 	constructors
+		
+		// Shared.
+		UnExp : UnOp * Exp -> UnExp
+		BinExp : BinOp * Exp * Exp -> BinExp
+		
+		// ArrayHandling.
+		ArrayPush : Exp * Exp -> ArrayPush
+		
+		ArrayClone : BinOp
+		ArrayGet : BinOp
+		
+		// BasicLogic.
+		And     : BinOp
+		Or      : BinOp
+		Dand    : BinOp
+		Dor     : BinOp
+		Not     : UnOp
+		
+		Equals  : BinOp
+		Sequals : BinOp
+		
+		Lt      : BinOp
+		Lte     : BinOp
+		Gt      : BinOp
+		Gte     : BinOp
+		
+		// ControlFlow.
 		If : Exp * [Statement] * [Statement] -> If
 		DoWhile : Exp * [Statement] -> DoWhile
 		For : Exp * Exp * Statement * [Statement] * [Statement] -> For
 		ForEach : IVAR * IVAR * Exp * [Statement] * [Statement] -> ForEach
+		
+		// DataHandling.
+		// None.
+		
+		// EventBinding.
+		Cancel : Exp -> Cancel
+		Consume : Consume
+		Lock : [Exp] -> Lock
+		
+		// Exceptions.
+		// None.
+		
+		// Math.
+		Add      : BinOp
+		Subtract : BinOp
+		Multiply : BinOp
+		Divide   : BinOp
+		Mod      : BinOp
+		Pow      : BinOp
+		Neg      : UnOp
+		
+		Inc     : UnOp
+		PostInc : UnOp
+		Dec     : UnOp
+		PostDec : UnOp
+		
+		// StringHandling.
+		Concat : BinOp
 
 strategies
 	desugar-all = innermost(desugar)
@@ -24,10 +79,18 @@ rules
 	// Desugar semicolon out of SExp statements.
 	desugar: SExp(e, _) -> SExp(e)
 	
+	// Desugar SExp node.
+	desugar: SExp(e) -> e
+	
 	// Desugar ArrayHandling nodes.
+	desugar: ArrayPush(array, val, _)        -> ArrayPush(array, val)
+	desugar: ArrayPushLegacy(array, val, _)  -> ArrayPush(array, val)
 	desugar: ArrayCloneLegacy(array)         -> ArrayClone(array)
 	desugar: ArrayGetLegacy(array, ind)      -> ArrayGet(array, ind)
 	desugar: ArraySetLegacy(array, ind, val) -> ArraySet(array, ind, val)
+	
+	desugar: ArrayClone(e)     -> UnExp(ArrayClone(), e)
+	desugar: ArrayGet(e1, e2)  -> BinExp(ArrayGet(), e1, e2)
 	
 	// Desugar BasicLogic nodes.
 	desugar: AndLegacy(e1, e2)  -> And(e1, e2)
@@ -52,6 +115,20 @@ rules
 	desugar: GtLegacy(e1, e2)  -> Gt(e1, e2)
 	desugar: GteLegacy(e1, e2) -> Gte(e1, e2)
 	
+	desugar: And(e1, e2)  -> BinExp(And(), e1, e2)
+	desugar: Or(e1, e2)   -> BinExp(Or(), e1, e2)
+	desugar: Dand(e1, e2) -> BinExp(Dand(), e1, e2)
+	desugar: Dor(e1, e2)  -> BinExp(Dor(), e1, e2)
+	desugar: Not(e)       -> UnExp(Not(), e)
+	
+	desugar: Equals(e1, e2)  -> BinExp(Equals(), e1, e2)
+	desugar: Sequals(e1, e2) -> BinExp(Sequals(), e1, e2)
+	
+	desugar: Lt(e1, e2)  -> BinExp(Lt(), e1, e2)
+	desugar: Lte(e1, e2) -> BinExp(Lte(), e1, e2)
+	desugar: Gt(e1, e2)  -> BinExp(Gt(), e1, e2)
+	desugar: Gte(e1, e2) -> BinExp(Gte(), e1, e2)
+	
 	// Desugar ControlFlow nodes.
 	// Desugar 'if' to If(cond, ifCode, elseCode).
 	desugar: If(cond, ifCode)                        -> If(cond, ifCode, None())
@@ -63,7 +140,7 @@ rules
 	desugar: WhileLegacy(cond, code, _) -> While(cond, code)
 	
 	// Desugar 'dowhile' to DoWhile(code, cond).
-	desugar: DoWhile(code, cond, _) -> DoWhile(code, cond)
+	desugar: DoWhile(code, cond, _)       -> DoWhile(code, cond)
 	desugar: DoWhileLegacy(code, cond, _) -> DoWhile(code, cond)
 	
 	// Desugar 'for' to For(assign, cond, exp, code, elseCode).
@@ -100,6 +177,8 @@ rules
 	desugar: ProcDeclLegacy(name, vars, code, _) -> ProcDecl(name, vars, code)
 	desugar: ProcArgVar(var)                     -> var
 	
+	desugar: ArrayValEntry(exp) -> exp
+	
 	// Desugar 'closure' types.
 	desugar: ClosureLegacy(vars, code, _)  -> Closure(vars, code)
 	desugar: IClosureLegacy(vars, code, _) -> IClosure(vars, code)
@@ -107,16 +186,22 @@ rules
 	desugar: ClosureVar(var)               -> var
 	
 	// Desugar 'assign'.
-	desugar: IVarAddAssign(var, exp)      -> IVarAssign(var, Add(var, exp))
-	desugar: IVarSubtractAssign(var, exp) -> IVarAssign(var, Subtract(var, exp))
-	desugar: IVarMultiplyAssign(var, exp) -> IVarAssign(var, Multiply(var, exp))
-	desugar: IVarDivideAssign(var, exp)   -> IVarAssign(var, Divide(var, exp))
-	desugar: IVarConcatAssign(var, exp)   -> IVarAssign(var, Concat(var, exp))
+	desugar: IVarAddAssign(ivarName, exp)      -> IVarAssign(IVar(ivarName), Add(IVar(ivarName), exp))
+	desugar: IVarSubtractAssign(ivarName, exp) -> IVarAssign(IVar(ivarName), Subtract(IVar(ivarName), exp))
+	desugar: IVarMultiplyAssign(ivarName, exp) -> IVarAssign(IVar(ivarName), Multiply(IVar(ivarName), exp))
+	desugar: IVarDivideAssign(ivarName, exp)   -> IVarAssign(IVar(ivarName), Divide(IVar(ivarName), exp))
+	desugar: IVarConcatAssign(ivarName, exp)   -> IVarAssign(IVar(ivarName), Concat(IVar(ivarName), exp))
 	
 	// Desugar EventBinding nodes.
+	desugar: Cancel(exp, _) -> Cancel(exp)
+	desugar: Consume(_) -> Consume()
+	desugar: Lock(exps, _) -> Lock(exps)
+	
 	// Desugar 'bind' to Bind(name, prio, filter, var, params, code).
 	desugar: BindLegacy(name, prio, filter, var, params, code) -> Bind(name, prio, filter, var, params, code)
 	desugar: BindParam(param)                                  -> param
+	
+	desugar: ModifyEventArg(arg) -> arg
 	
 	// Desugar Math nodes.
 	desugar: AddLegacy(e1, e2)      -> Add(e1, e2)
@@ -132,9 +217,24 @@ rules
 	desugar: DecLegacy(var)     -> Dec(var)
 	desugar: PostDecLegacy(var) -> PostDec(var)
 	
+	desugar: Add(e1, e2)      -> BinExp(Add(), e1, e2)
+	desugar: Subtract(e1, e2) -> BinExp(Subtract(), e1, e2)
+	desugar: Multiply(e1, e2) -> BinExp(Multiply(), e1, e2)
+	desugar: Divide(e1, e2)   -> BinExp(Divide(), e1, e2)
+	desugar: Mod(e1, e2)      -> BinExp(Mod(), e1, e2)
+	desugar: Pow(e1, e2)      -> BinExp(Pow(), e1, e2)
+	desugar: Neg(e)           -> UnExp(Neg(), e)
+	
+	desugar: Inc(ivarName)     -> UnExp(Inc(), IVar(ivarName))
+	desugar: PostInc(ivarName) -> UnExp(PostInc(), IVar(ivarName))
+	desugar: Dec(ivarName)     -> UnExp(Dec(), IVar(ivarName))
+	desugar: PostDec(ivarName) -> UnExp(PostDec(), IVar(ivarName))
+	
 	// Desugar StringHandling nodes.
 	// Desugar 'concat(arg1, arg2, ...)' to Concat(Concat(arg1, arg2), arg3).
 	desugar: ConcatLegacy([arg | []]) -> arg
 	desugar: ConcatLegacy(args) -> Concat(ConcatLegacy(head), tail)
 		where [tail | reverseHead] := <reverse> args
 		where head := <reverse> reverseHead
+	
+	desugar: Concat(e1, e2) -> BinExp(Concat(), e1, e2)
