@@ -1,0 +1,17 @@
+module Exceptions
+
+imports
+	Common
+	MethodScript
+
+context-free syntax
+	// TODO - Implement.
+	
+	// Statements.
+	// complex_try(), throw() and try().
+	
+	// Expressions.
+	// get_stack_trace().
+	
+	// Statement expressions.
+	// None.

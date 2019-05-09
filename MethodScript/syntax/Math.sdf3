@@ -1,0 +1,25 @@
+module Math
+
+imports
+	Common
+	MethodScript
+
+context-free syntax
+	
+	// Statements.
+	// None.
+	
+	// Expressions.
+	Exp.Plus = <<Exp> + <Exp>> {left}
+	Exp.Minus = <<Exp> - <Exp>> {left}
+	Exp.Times = <<Exp> * <Exp>> {left}
+	Exp.Div = <<Exp> / <Exp>> {left}
+	Exp.Mod = <<Exp> % <Exp>> {left}
+	Exp.Pow = <<Exp> ** <Exp>> {left}
+	Exp.Neg = <-<Exp>>
+	
+	// Statement expressions.
+	SExp.Inc = <++<IVAR>>
+	SExp.PostInc = <<IVAR>++>
+	SExp.Dec = <--<IVAR>>
+	SExp.PostDec = <<IVAR>-->

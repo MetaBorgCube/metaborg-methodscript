@@ -39,6 +39,7 @@ lexical syntax
 	 */
 	
 	// Exclude ArrayHandling functions.
+//	FUNC-ID = "array_deep_clone" {reject}
 //	FUNC-ID = "array_get" {reject}
 //	FUNC-ID = "array_push" {reject}
 //	FUNC-ID = "array_set" {reject}

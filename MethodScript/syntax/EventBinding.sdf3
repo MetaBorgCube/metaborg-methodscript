@@ -1,0 +1,32 @@
+module EventBinding
+
+imports
+	Common
+	MethodScript
+
+context-free syntax
+	
+	// Statements.
+	Statement.Cancel = <cancel(<Exp?>)<SemiColon?>>
+	Statement.Consume = <consume()<SemiColon?>>
+	Statement.Lock = <lock(<{Exp ","}*>)<SemiColon?>>
+	
+	// Expressions.
+	Exp.IsCancelled = <is_cancelled()>
+	Exp.IsConsumed = <is_consumed()>
+	Exp.isLocked = <is_locked(<Exp>)>
+	
+	// Statement expressions.
+	
+	// "bind(eventName, options, prefilter, eventObj, [customParams], code)".
+	// customParams may be IVARs, but also IVAR assignments (@var = ...).
+	SExp.Bind = <bind(<Exp>, <Exp>, <Exp>, <IVAR><BindParam*>) {
+		<Statement*>
+	}>
+	SExp.BindLegacy = <bind(<Exp>, <Exp>, <Exp>, <IVAR><BindParam*>,
+		<Statement*>
+	)>
+	BindParam.BindParam = <, <Exp>>
+	
+	SExp.ModifyEvent = <modify_event(<Exp>, <Exp><ModifyEventArg?>)>
+	ModifyEventArg.ModifyEventArg = <, <Exp>>

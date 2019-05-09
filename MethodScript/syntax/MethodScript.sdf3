@@ -2,6 +2,14 @@ module MethodScript
 
 imports
 	Common
+	ArrayHandling
+	BasicLogic
+	ControlFlow
+	DataHandling
+	EventBinding
+	Exceptions
+	Math
+	StringHandling
 
 context-free start-symbols
 	Start Statement Exp
@@ -17,232 +25,17 @@ context-free syntax
 	 * SExp: Statement that resolves to some value. Can be used as Statement and as Exp.
 	 * Exp: Expression that resolves to some value. Cannot be used as Statement.
 	 */
-	 Statement.SExp = <<SExp><SemiColon?>
-	 >
-	 Exp.SExp = SExp
+	Statement.SExp = <<SExp><SemiColon?>
+	>
+	Exp.SExp = SExp
+	SemiColon.SemiColon = ";"
 	
-	// Statements. TODO - Implement all statements from the API.
-	// Branching statements.
-	Statement.If = <if(<Exp>) {
-		<Statement*>
-	}>
-	
-	Statement.IfLegacy = <if(<Exp>,
-		<Statement+>
-	)<SemiColon?>>
-	
-	Statement.IfElse = <if(<Exp>) {
-		<Statement*>
-	} else {
-		<Statement*>
-	}>
-	
-	Statement.IfElseLegacy = <if(<Exp>,
-		<Statement+>
-	,
-		<Statement+>
-	)<SemiColon?>>
-	
-	Statement.While = <while(<Exp>) {
-		<Statement*>
-	}>
-	
-	Statement.WhileLegacy = <while(<Exp>,
-		<Statement+>
-	)<SemiColon?>>
-	
-	Statement.DoWhile = <do {
-		<Statement*>
-	while(<Exp>)<SemiColon?>>
-	
-	Statement.DoWhileLegacy = <dowhile(
-		<Statement+>
-	, <Exp>)<SemiColon?>>
-	
-	Statement.For = <for(<Exp>, <Exp>, <Exp>) {
-		<Statement*>
-	}>
-	
-	Statement.ForLegacy = <for(<Exp>, <Exp>, <Exp>,
-		<Statement+>
-	)<SemiColon?>>
-	
-	Statement.ForElse = <for(<Exp>, <Exp>, <Exp>) {
-		<Statement*>
-	} else {
-		<Statement*>
-	}>
-	
-	Statement.ForElseLegacy = <forelse(<Exp>, <Exp>, <Exp>,
-		<Statement+>
-	,
-		<Statement+>
-	)<SemiColon?>>
-	
-	// "foreach(@value in @array) {code}".
-	Statement.ForEach1 = <foreach(<IVAR> in <Exp>) {
-		<Statement*>
-	}>
-	
-	// "foreach(@array as @value) {code}".
-	Statement.ForEach2 = <foreach(<Exp> as <IVAR>) {
-		<Statement*>
-	}>
-	
-	// "foreach(@array, @value) {code}".
-	Statement.ForEach3 = <foreach(<Exp>, <IVAR>) {
-		<Statement*>
-	}>
-	
-	// "foreach(@key: @value in @array) {code}".
-	Statement.ForEach4 = <foreach(<IVAR>: <IVAR> in <Exp>) {
-		<Statement*>
-	}>
-	
-	// "foreach(@array, @key, @value) {code}".
-	Statement.ForEach5 = <foreach(<Exp>, <IVAR>, <IVAR>) {
-		<Statement*>
-	}>
-	
-	Statement.ForEachLegacy1 = <foreach(<Exp>, <IVAR>,
-		<Statement+>
-	)<SemiColon?>>
-	
-	Statement.ForEachLegacy2 = <foreach(<Exp>, <IVAR>, <IVAR>,
-		<Statement+>
-	)<SemiColon?>>
-	
-	// "foreach(@value in @array) {code} else {code}".
-	Statement.ForEachElse1 = <foreach(<IVAR> in <Exp>) {
-		<Statement*>
-	} else {
-		<Statement*>
-	}>
-	
-	// "foreach(@array as @value) {code} else {code}".
-	Statement.ForEachElse2 = <foreach(<Exp> as <IVAR>) {
-		<Statement*>
-	} else {
-		<Statement*>
-	}>
-	
-	// "foreach(@array, @value) {code} else {code}".
-	Statement.ForEachElse3 = <foreach(<Exp>, <IVAR>) {
-		<Statement*>
-	} else {
-		<Statement*>
-	}>
-	
-	// "foreach(@key: @value in @array) {code} else {code}".
-	Statement.ForEachElse4 = <foreach(<IVAR>: <IVAR> in <Exp>) {
-		<Statement*>
-	} else {
-		<Statement*>
-	}>
-	
-	// "foreach(@array, @key, @value) {code} else {code}".
-	Statement.ForEachElse5 = <foreach(<Exp>, <IVAR>, <IVAR>) {
-		<Statement*>
-	} else {
-		<Statement*>
-	}>
-	
-	Statement.ForEachElseLegacy1 = <foreachelse(<Exp>, <IVAR>,
-		<Statement+>
-	,
-		<Statement+>
-	)<SemiColon?>>
-	
-	Statement.ForEachElseLegacy2 = <foreachelse(<Exp>, <IVAR>, <IVAR>,
-		<Statement+>
-	,
-		<Statement+>
-	)<SemiColon?>>
-	
-	// TODO - Implement switch(). Statement when it contains Statements, Exp when it contains a single Exp in each case.
-	// TODO - Determine what to do when some cases have a single exp and some return or throw an exception or so.
-	// TODO - Fix ambiguity in Exp/Statement code (both can lead to SExp).
-	SExp.SwitchCaseLegacy = <switch(<Exp><SwitchCaseLegacy*><SwitchCaseDefaultLegacy?>
-	)>
-	SwitchCaseLegacy.ExpCase = <,
-		<Exp>,
-			<Exp+>>
-	SwitchCaseLegacy.StatementCase = <,
-		<Exp>,
-			<Statement+>>
-	SwitchCaseDefaultLegacy.ExpDefault = <,
-			<Exp>>
-	SwitchCaseDefaultLegacy.StatementDefault = <,
-			<Statement+>>
-	
-	Statement.Break = <break(<Exp?>)> // break([numLoops]).
-	Statement.Continue = <continue(<Exp?>)> // continue([numLoopsSkipped]).
-	Statement.Return = <return(<Exp?>)> // return([value]).
-	Statement.Die = <die(<Exp?>)> // die([message]).
-	
-	// Other statements.
-	Statement.ArrayPush = <<Exp>[] = <Exp><SemiColon?>>
-	Statement.ProcDecl = <proc <PROC-ID>(<{IVAR ","}*>) {
-		<Statement*>
-	}>
-	Statement.ProcDecl2 = <proc(<Exp><ProcArgVar*>) {
-		<Statement*>
-	}>
-	Statement.ProcDeclLegacy = <proc(<Exp><ProcArgVar*>,
-		<Statement+>
-	)<SemiColon?>>
-	ProcArgVar.ProcArgVar = <, <IVAR>>
-	
-	// "bind(eventName, options, prefilter, eventObj, [customParams], code)".
-	// customParams may be IVARs, but also IVAR assignments (@var = ...). TODO - Implement more strictly.
-	SExp.Bind = <bind(<Exp>, <Exp>, <Exp>, <IVAR><BindParam*>) {
-		<Statement*>
-	}>
-	SExp.BindLegacy = <bind(<Exp>, <Exp>, <Exp>, <IVAR><BindParam*>,
-		<Statement*>
-	)>
-	BindParam.BindParam = <, <Exp>>
-	
+	// Statements.
 	Statement.Block = <(
 		<Statement*>
 	)>
 	
-	SemiColon.SemiColon = ";"
-	
-	// Expressions. TODO - Implement all expressions from the API.
-	// Arithmetic operators.
-	Exp.Plus = <<Exp> + <Exp>> {left}
-	Exp.Minus = <<Exp> - <Exp>> {left}
-	Exp.Times = <<Exp> * <Exp>> {left}
-	Exp.Div = <<Exp> / <Exp>> {left}
-	Exp.Mod = <<Exp> % <Exp>> {left}
-	Exp.Pow = <<Exp> ** <Exp>> {left}
-	Exp.Neg = <-<Exp>>
-	
-	SExp.Inc = <++<IVAR>>
-	SExp.PostInc = <<IVAR>++>
-	SExp.Dec = <--<IVAR>>
-	SExp.PostDec = <<IVAR>-->
-	
-	// String operators.
-	Exp.Concat = <<Exp> . <Exp>> {left}
-	
-	// Logical operators.
-	Exp.And = <<Exp> && <Exp>> {left}
-	Exp.Or = <<Exp> || <Exp>> {left}
-	Exp.Dand = <<Exp> &&& <Exp>> {left}
-	Exp.Dor = <<Exp> ||| <Exp>> {left}
-	Exp.Not = <!<Exp>>
-	
-	// Comparison operators.
-	Exp.Equals     = <<Exp> ==  <Exp>> {left}
-	Exp.NotEquals  = <<Exp> != <Exp>>  {left}
-	Exp.Sequals    = <<Exp> === <Exp>> {left}
-	Exp.NotSequals = <<Exp> !== <Exp>> {left}
-	Exp.Lt         = <<Exp> \< <Exp>>  {non-assoc}
-	Exp.Lte        = <<Exp> \<= <Exp>> {non-assoc}
-	Exp.Gt         = <<Exp> \> <Exp>>  {non-assoc}
-	Exp.Gte        = <<Exp> \>= <Exp>> {non-assoc}
+	// Expressions.
 	
 	// Variables.
 	Exp.IVar = IVAR
@@ -257,63 +50,11 @@ context-free syntax
 	Exp.False = "false"
 	Exp.Null = "null"
 	
-	// Branching operators.
-	Exp.Ternary = <if(<Exp>) {<Exp>} else {<Exp>}> // "@val = if(cond) {exp1} else {exp2}".
-	Exp.TernaryLegacy = <if(<Exp>, <Exp>, <Exp>)> // "@val = if(cond, exp1, exp2}".
-	
-	// Casts.
-	Exp.BoolCast = <boolean(<Exp>)>
-	Exp.DoubleCast = <double(<Exp>)>
-	Exp.IntCast = <integer(<Exp>)>
-	Exp.StringCast = <string(<Exp>)>
-//	Exp.SmartStringCast = <smart_string(<Exp>)> // TODO - Only accepts hard-coded string as arg, so this isn't a cast?
-	// TODO - Implement all casts.
-	
-	SExp.IVarAssign = <<IVAR> = <Exp>>
-	SExp.IVarPlusAssign = <<IVAR> += <Exp>>
-	SExp.IVarMinusAssign = <<IVAR> -= <Exp>>
-	SExp.IVarTimesAssign = <<IVAR> *= <Exp>>
-	SExp.IVarDivAssign = <<IVAR> /= <Exp>>
-	SExp.IVarConcatAssign = <<IVAR> .= <Exp>>
-	SExp.ArraySet = <<Exp>[<Exp>] = <Exp>> // TODO - Check associativity.
-	Exp.ArrayGet = <<Exp>[<Exp>]> // TODO - Check associativity.
-	Exp.ArrayClone = <<Exp>[]> // Maps to array_deep_clone(array).
-	Exp.Slice = <<SIGNED-INT>..<SIGNED-INT>>
-	Exp.Array = <array(<{ArrayEntry ","}*>)>
-	Exp.AssocArray = <associative_array(<{ArrayEntry ","}*>)>
-	ArrayEntry.Entry = <<LABEL>: <Exp>>
-	ArrayEntry.Val = Exp
-	
-	// Procedure and function calls. Functions that accept code blocks as an argument should be defined separately.
-	SExp.ProcCall = <<PROC-ID>(<{Exp ","}*>)>
+	// Function calls. Functions that accept code blocks as an argument should be defined separately.
 	SExp.FuncCall = <<FUNC-ID>(<{Exp ","}*>)>
 	
-	// Closures.
-	// TODO - Closures accept IVARs as first arguments, but also assigns. Make a choice in what to accept here.
-	Exp.Closure = <closure(<{Exp ","}*>) {
-		<Statement*>
-	}>
-	Exp.ClosureLegacy = <closure(<ClosureVar*>
-		<Statement+>
-	)<SemiColon?>>
-	Exp.IClosure = <iclosure(<{Exp ","}*>) {
-		<Statement*>
-	}>
-	Exp.IClosureLegacy = <iclosure(<ClosureVar*>
-		<Statement+>
-	)<SemiColon?>>
-	Exp.RClosure = <rclosure(<{Exp ","}*>) {
-		<Statement*>
-	}>
-	Exp.RClosureLegacy = <rclosure(<ClosureVar*>
-		<Statement+>
-	)<SemiColon?>>
-	ClosureVar.ClosureVar = <<Exp>, > // TODO - Fix trailing whitespace if it matters for pretty-printing.
-	
 	// Brackets. These are allowed around statements and expressions.
-	// TODO - Allow brackets around multiple statements. Could define a Statement.Block for this.
 	Exp = <(<Exp>)> {bracket}
-//	Statement = <(<Statement>)> {bracket} // TODO - Remove if properly handled by Statement.Block.
 
 context-free priorities
 	// Operator priorities (tested): {array_clone, array_get} > {neg, not} > {**} > {*, /, %} > {+, -, .}

@@ -1,0 +1,172 @@
+module ControlFlow
+
+imports
+	Common
+	MethodScript
+
+context-free syntax
+	
+	// Statements.
+	Statement.If = <if(<Exp>) {
+		<Statement*>
+	}>
+	
+	Statement.IfLegacy = <if(<Exp>,
+		<Statement+>
+	)<SemiColon?>>
+	
+	Statement.IfElse = <if(<Exp>) {
+		<Statement*>
+	} else {
+		<Statement*>
+	}>
+	
+	Statement.IfElseLegacy = <if(<Exp>,
+		<Statement+>
+	,
+		<Statement+>
+	)<SemiColon?>>
+	
+	Statement.While = <while(<Exp>) {
+		<Statement*>
+	}>
+	
+	Statement.WhileLegacy = <while(<Exp>,
+		<Statement+>
+	)<SemiColon?>>
+	
+	Statement.DoWhile = <do {
+		<Statement*>
+	while(<Exp>)<SemiColon?>>
+	
+	Statement.DoWhileLegacy = <dowhile(
+		<Statement+>
+	, <Exp>)<SemiColon?>>
+	
+	Statement.For = <for(<Exp>, <Exp>, <Exp>) {
+		<Statement*>
+	}>
+	
+	Statement.ForLegacy = <for(<Exp>, <Exp>, <Exp>,
+		<Statement+>
+	)<SemiColon?>>
+	
+	Statement.ForElse = <for(<Exp>, <Exp>, <Exp>) {
+		<Statement*>
+	} else {
+		<Statement*>
+	}>
+	
+	Statement.ForElseLegacy = <forelse(<Exp>, <Exp>, <Exp>,
+		<Statement+>
+	,
+		<Statement+>
+	)<SemiColon?>>
+	
+	// "foreach(@value in @array) {code}".
+	Statement.ForEach1 = <foreach(<IVAR> in <Exp>) {
+		<Statement*>
+	}>
+	
+	// "foreach(@array as @value) {code}".
+	Statement.ForEach2 = <foreach(<Exp> as <IVAR>) {
+		<Statement*>
+	}>
+	
+	// "foreach(@array, @value) {code}".
+	Statement.ForEach3 = <foreach(<Exp>, <IVAR>) {
+		<Statement*>
+	}>
+	
+	// "foreach(@key: @value in @array) {code}".
+	Statement.ForEach4 = <foreach(<IVAR>: <IVAR> in <Exp>) {
+		<Statement*>
+	}>
+	
+	// "foreach(@array, @key, @value) {code}".
+	Statement.ForEach5 = <foreach(<Exp>, <IVAR>, <IVAR>) {
+		<Statement*>
+	}>
+	
+	Statement.ForEachLegacy1 = <foreach(<Exp>, <IVAR>,
+		<Statement+>
+	)<SemiColon?>>
+	
+	Statement.ForEachLegacy2 = <foreach(<Exp>, <IVAR>, <IVAR>,
+		<Statement+>
+	)<SemiColon?>>
+	
+	// "foreach(@value in @array) {code} else {code}".
+	Statement.ForEachElse1 = <foreach(<IVAR> in <Exp>) {
+		<Statement*>
+	} else {
+		<Statement*>
+	}>
+	
+	// "foreach(@array as @value) {code} else {code}".
+	Statement.ForEachElse2 = <foreach(<Exp> as <IVAR>) {
+		<Statement*>
+	} else {
+		<Statement*>
+	}>
+	
+	// "foreach(@array, @value) {code} else {code}".
+	Statement.ForEachElse3 = <foreach(<Exp>, <IVAR>) {
+		<Statement*>
+	} else {
+		<Statement*>
+	}>
+	
+	// "foreach(@key: @value in @array) {code} else {code}".
+	Statement.ForEachElse4 = <foreach(<IVAR>: <IVAR> in <Exp>) {
+		<Statement*>
+	} else {
+		<Statement*>
+	}>
+	
+	// "foreach(@array, @key, @value) {code} else {code}".
+	Statement.ForEachElse5 = <foreach(<Exp>, <IVAR>, <IVAR>) {
+		<Statement*>
+	} else {
+		<Statement*>
+	}>
+	
+	Statement.ForEachElseLegacy1 = <foreachelse(<Exp>, <IVAR>,
+		<Statement+>
+	,
+		<Statement+>
+	)<SemiColon?>>
+	
+	Statement.ForEachElseLegacy2 = <foreachelse(<Exp>, <IVAR>, <IVAR>,
+		<Statement+>
+	,
+		<Statement+>
+	)<SemiColon?>>
+	
+	// TODO - Implement switch(). Statement when it contains Statements, Exp when it contains a single Exp in each case.
+	// TODO - Determine what to do when some cases have a single exp and some return or throw an exception or so.
+	// TODO - Fix ambiguity in Exp/Statement code (both can lead to SExp).
+	SExp.SwitchCaseLegacy = <switch(<Exp><SwitchCaseLegacy*><SwitchCaseDefaultLegacy?>
+	)>
+	SwitchCaseLegacy.ExpCase = <,
+		<Exp>,
+			<Exp+>>
+	SwitchCaseLegacy.StatementCase = <,
+		<Exp>,
+			<Statement+>>
+	SwitchCaseDefaultLegacy.ExpDefault = <,
+			<Exp>>
+	SwitchCaseDefaultLegacy.StatementDefault = <,
+			<Statement+>>
+	
+	Statement.Break = <break(<Exp?>)> // break([numLoops]).
+	Statement.Continue = <continue(<Exp?>)> // continue([numLoopsSkipped]).
+	Statement.Return = <return(<Exp?>)> // return([value]).
+	Statement.Die = <die(<Exp?>)> // die([message]).
+	
+	// Expressions.
+	Exp.Ternary = <if(<Exp>) {<Exp>} else {<Exp>}> // "@val = if(cond) {exp1} else {exp2}".
+	Exp.TernaryLegacy = <if(<Exp>, <Exp>, <Exp>)> // "@val = if(cond, exp1, exp2}".
+	
+	// Statement expressions.
+	SExp.ProcCall = <<PROC-ID>(<{Exp ","}*>)>

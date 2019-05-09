@@ -1,0 +1,18 @@
+module ArrayHandling
+
+imports
+	Common
+	MethodScript
+
+context-free syntax
+	
+	// Statements.
+	Statement.ArrayPush = <<Exp>[] = <Exp><SemiColon?>>
+	
+	// Expressions.
+	Exp.ArrayClone = <<Exp>[]> // Maps to array_deep_clone(array).
+	Exp.ArrayGet = <<Exp>[<Exp>]>
+	Exp.Slice = <<SIGNED-INT>..<SIGNED-INT>>
+	
+	// Statement expressions.
+	SExp.ArraySet = <<Exp>[<Exp>] = <Exp>>

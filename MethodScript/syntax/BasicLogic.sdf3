@@ -1,0 +1,32 @@
+module BasicLogic
+
+imports
+	Common
+	MethodScript
+
+context-free syntax
+	
+	// Statements.
+	// None.
+	
+	// Expressions.
+	
+	// Logical operators.
+	Exp.And = <<Exp> && <Exp>> {left}
+	Exp.Or = <<Exp> || <Exp>> {left}
+	Exp.Dand = <<Exp> &&& <Exp>> {left}
+	Exp.Dor = <<Exp> ||| <Exp>> {left}
+	Exp.Not = <!<Exp>>
+	
+	// Comparison operators.
+	// Excluding equals_ic(), nequals_ic(), nand(), nor(), ref_equals() and sequals_ic().
+	Exp.Equals     = <<Exp> ==  <Exp>> {left}
+	Exp.NotEquals  = <<Exp> != <Exp>>  {left}
+	Exp.Sequals    = <<Exp> === <Exp>> {left}
+	Exp.NotSequals = <<Exp> !== <Exp>> {left}
+	Exp.Lt         = <<Exp> \< <Exp>>  {non-assoc}
+	Exp.Lte        = <<Exp> \<= <Exp>> {non-assoc}
+	Exp.Gt         = <<Exp> \> <Exp>>  {non-assoc}
+	Exp.Gte        = <<Exp> \>= <Exp>> {non-assoc}
+	
+	// Statement expressions.

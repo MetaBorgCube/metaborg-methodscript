@@ -1,0 +1,16 @@
+module StringHandling
+
+imports
+	Common
+	MethodScript
+
+context-free syntax
+	
+	// Statements.
+	// None.
+	
+	// Expressions.
+	Exp.Concat = <<Exp> . <Exp>> {left}
+	
+	// Statement expressions.
+	// None.

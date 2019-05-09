@@ -1,0 +1,62 @@
+module DataHandling
+
+imports
+	Common
+	MethodScript
+
+context-free syntax
+	
+	// Statements.
+	Statement.ProcDecl = <proc <PROC-ID>(<{IVAR ","}*>) {
+		<Statement*>
+	}>
+	Statement.ProcDecl2 = <proc(<Exp><ProcArgVar*>) {
+		<Statement*>
+	}>
+	Statement.ProcDeclLegacy = <proc(<Exp><ProcArgVar*>,
+		<Statement+>
+	)<SemiColon?>>
+	ProcArgVar.ProcArgVar = <, <IVAR>>
+	
+	// Array constructor expressions.
+	Exp.Array = <array(<{ArrayEntry ","}*>)>
+	Exp.AssocArray = <associative_array(<{ArrayEntry ","}*>)>
+	ArrayEntry.Entry = <<LABEL>: <Exp>>
+	ArrayEntry.Val = Exp
+	
+	// Cast expressions.
+	Exp.BoolCast = <boolean(<Exp>)>
+	Exp.DoubleCast = <double(<Exp>)>
+	Exp.IntCast = <integer(<Exp>)>
+	Exp.StringCast = <string(<Exp>)>
+	
+	// Closure expressions.
+	// TODO - Closures accept IVARs as first arguments, but also assigns. Make a choice in what to accept here.
+	Exp.Closure = <closure(<{Exp ","}*>) {
+		<Statement*>
+	}>
+	Exp.ClosureLegacy = <closure(<ClosureVar*>
+		<Statement+>
+	)<SemiColon?>>
+	Exp.IClosure = <iclosure(<{Exp ","}*>) {
+		<Statement*>
+	}>
+	Exp.IClosureLegacy = <iclosure(<ClosureVar*>
+		<Statement+>
+	)<SemiColon?>>
+	Exp.RClosure = <rclosure(<{Exp ","}*>) {
+		<Statement*>
+	}>
+	Exp.RClosureLegacy = <rclosure(<ClosureVar*>
+		<Statement+>
+	)<SemiColon?>>
+	ClosureVar.ClosureVar = <<Exp>, > // TODO - Fix trailing whitespace if it matters for pretty-printing.
+	
+	// Assign statement expressions.
+	SExp.IVarAssign = <<IVAR> = <Exp>>
+	SExp.IVarPlusAssign = <<IVAR> += <Exp>>
+	SExp.IVarMinusAssign = <<IVAR> -= <Exp>>
+	SExp.IVarTimesAssign = <<IVAR> *= <Exp>>
+	SExp.IVarDivAssign = <<IVAR> /= <Exp>>
+	SExp.IVarConcatAssign = <<IVAR> .= <Exp>>
+	
