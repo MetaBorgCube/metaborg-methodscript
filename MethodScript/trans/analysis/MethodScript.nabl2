@@ -1,0 +1,16 @@
+module analysis/MethodScript
+
+imports
+	signatures/-
+
+rules
+	
+	// Scope initialization.
+	init ^ (s) :=
+		new s.
+	
+	// MethodScript program.
+	[[ Empty() ^ (s) ]] :=
+		true.
+	[[ Ms(statements) ^ (s) ]] :=
+		Map1[[ statements ^ (s) ]].

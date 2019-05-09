@@ -3,14 +3,13 @@ module analysis
 imports
 	nabl2/api
 	nabl2/runtime
-
-	static-semantics
-
+	analysis/MethodScript
+	desugar
 	pp
 
 // Analysis.
 rules
-	editor-analyze = nabl2-analyze(id)
+	editor-analyze = nabl2-analyze(desugar-all)
 
 // Debugging.
 rules
