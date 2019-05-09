@@ -5,12 +5,12 @@ imports
 	completion/colorer/MethodScript-cc-esv
 
 language
-	table				 : target/metaborg/sdf.tbl
+	table         : target/metaborg/sdf.tbl
 	start symbols : Start
 	
-	line comment	: "//"
+	line comment  : "//"
 	block comment : "/*" * "*/"
-	fences				: [ ] ( ) { }
+	fences        : [ ] ( ) { }
 
 menus
 	menu: "Syntax" (openeditor)
