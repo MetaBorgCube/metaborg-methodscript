@@ -14,7 +14,7 @@ context-free syntax
 	// Expressions.
 	Exp.IsCancelled = <is_cancelled()>
 	Exp.IsConsumed = <is_consumed()>
-	Exp.isLocked = <is_locked(<Exp>)>
+	Exp.IsLocked = <is_locked(<Exp>)>
 	
 	// Statement expressions.
 	

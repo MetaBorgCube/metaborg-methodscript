@@ -25,11 +25,11 @@ context-free syntax
 	Exp.NotLegacy  = <not(<Exp>)>
 	
 	Exp.NandLegacy = <nand(<Exp>, <Exp>)>
-	Exp.NorLegacy = <nor(<Exp>, <Exp>)>
+	Exp.NorLegacy  = <nor(<Exp>, <Exp>)>
 	
 	// Comparison operators.
 	// Excluding equals_ic(), nequals_ic(), nand(), nor(), ref_equals() and sequals_ic().
-	Exp.Equals     = <<Exp> ==  <Exp>> {left}
+	Exp.Equals     = <<Exp> == <Exp>>  {left}
 	Exp.NotEquals  = <<Exp> != <Exp>>  {left}
 	Exp.Sequals    = <<Exp> === <Exp>> {left}
 	Exp.NotSequals = <<Exp> !== <Exp>> {left}

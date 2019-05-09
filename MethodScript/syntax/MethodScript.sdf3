@@ -42,10 +42,10 @@ context-free syntax
 	Exp.Var = VAR
 	
 	// Static values.
-	Exp.Int = INT
-	Exp.Float = FLOAT
-	Exp.String = STRING
-	Exp.SmartString = SMART-STRING
+	Exp.IntVal = INT
+	Exp.FloatVal = FLOAT
+	Exp.StringVal = STRING
+	Exp.SmartStringVal = SMART-STRING
 	Exp.True = "true"
 	Exp.False = "false"
 	Exp.Null = "null"

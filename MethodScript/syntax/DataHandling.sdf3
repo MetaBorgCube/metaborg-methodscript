@@ -21,8 +21,8 @@ context-free syntax
 	// Array constructor expressions.
 	Exp.Array = <array(<{ArrayEntry ","}*>)>
 	Exp.AssocArray = <associative_array(<{ArrayEntry ","}*>)>
-	ArrayEntry.Entry = <<LABEL>: <Exp>>
-	ArrayEntry.Val = Exp
+	ArrayEntry.ArrayLabelEntry = <<LABEL>: <Exp>>
+	ArrayEntry.ArrayValEntry = Exp
 	
 	// Cast expressions.
 	Exp.BoolCast = <boolean(<Exp>)>
