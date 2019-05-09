@@ -104,13 +104,13 @@ lexical syntax
 	
 	// Exclude EventBinding functions.
 	FUNC-ID = "bind" {reject}
-//	FUNC-ID = "cancel" {reject}
-//	FUNC-ID = "consume" {reject}
-//	FUNC-ID = "is_cancelled" {reject}
-//	FUNC-ID = "is_consumed" {reject}
-//	FUNC-ID = "is_locked" {reject}
-//	FUNC-ID = "lock" {reject}
-//	FUNC-ID = "modify_event" {reject}
+	FUNC-ID = "cancel" {reject}
+	FUNC-ID = "consume" {reject}
+	FUNC-ID = "is_cancelled" {reject}
+	FUNC-ID = "is_consumed" {reject}
+	FUNC-ID = "is_locked" {reject}
+	FUNC-ID = "lock" {reject}
+	FUNC-ID = "modify_event" {reject}
 	
 	// Exclude Exceptions functions.
 //	FUNC-ID = "complex_try" {reject}
