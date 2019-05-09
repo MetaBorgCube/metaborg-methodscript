@@ -24,6 +24,35 @@ rules
 	// Desugar semicolon out of SExp statements.
 	desugar: SExp(e, _) -> SExp(e)
 	
+	// Desugar ArrayHandling nodes.
+	desugar: ArrayCloneLegacy(array)         -> ArrayClone(array)
+	desugar: ArrayGetLegacy(array, ind)      -> ArrayGet(array, ind)
+	desugar: ArraySetLegacy(array, ind, val) -> ArraySet(array, ind, val)
+	
+	// Desugar BasicLogic nodes.
+	desugar: AndLegacy(e1, e2)  -> And(e1, e2)
+	desugar: OrLegacy(e1, e2)   -> Or(e1, e2)
+	desugar: DandLegacy(e1, e2) -> Dand(e1, e2)
+	desugar: DorLegacy(e1, e2)  -> Dor(e1, e2)
+	desugar: NotLegacy(e1)      -> Not(e1)
+	
+	desugar: NandLegacy(e1, e2) -> Not(And(e1, e2))
+	desugar: NorLegacy(e1, e2)  -> Not(Or(e1, e2))
+	
+	desugar: EqualsLegacy(e1, e2)     -> Equals(e1, e2)
+	desugar: NotEqualsLegacy(e1, e2)  -> NotEquals(e1, e2)
+	desugar: SequalsLegacy(e1, e2)    -> Sequals(e1, e2)
+	desugar: NotSequalsLegacy(e1, e2) -> NotSequals(e1, e2)
+	
+	desugar: NotEquals(e1, e2)  -> Not(Equals(e1, e2))
+	desugar: NotSequals(e1, e2) -> Not(Sequals(e1, e2))
+	
+	desugar: LtLegacy(e1, e2)  -> Lt(e1, e2)
+	desugar: LteLegacy(e1, e2) -> Lte(e1, e2)
+	desugar: GtLegacy(e1, e2)  -> Gt(e1, e2)
+	desugar: GteLegacy(e1, e2) -> Gte(e1, e2)
+	
+	// Desugar ControlFlow nodes.
 	// Desugar 'if' to If(cond, ifCode, elseCode).
 	desugar: If(cond, ifCode)                        -> If(cond, ifCode, None())
 	desugar: IfLegacy(cond, ifCode, _)               -> If(cond, ifCode, None())
@@ -62,27 +91,50 @@ rules
 	// Desugar 'switch' to ...
 	// TODO - Finish switch case SDF3 implementation and desugar.
 	
+	// Desugar ternary operator.
+	desugar: TernaryLegacy(cond, v1, v2) -> Ternary(cond, v1, v2)
+	
+	// Desugar DataHandling nodes.
 	// Desugar 'proc' to ProcDecl(name, vars, code).
 	desugar: ProcDecl2(name, vars, code)         -> ProcDecl(name, vars, code)
 	desugar: ProcDeclLegacy(name, vars, code, _) -> ProcDecl(name, vars, code)
 	desugar: ProcArgVar(var)                     -> var
-	
-	// Desugar 'bind' to Bind(name, prio, filter, var, params, code).
-	desugar: BindLegacy(name, prio, filter, var, params, code) -> Bind(name, prio, filter, var, params, code)
-	desugar: BindParam(param)                                  -> param
-	
-	// Desugar ternary operator.
-	desugar: TernaryLegacy(cond, v1, v2) -> Ternary(cond, v1, v2)
-	
-	// Desugar 'assign'.
-	desugar: IVarPlusAssign(var, exp) -> IVarAssign(var, Plus(var, exp))
-	desugar: IVarMinusAssign(var, exp) -> IVarAssign(var, Minus(var, exp))
-	desugar: IVarTimesAssign(var, exp) -> IVarAssign(var, Times(var, exp))
-	desugar: IVarDivAssign(var, exp) -> IVarAssign(var, Div(var, exp))
-	desugar: IVarConcatAssign(var, exp) -> IVarAssign(var, Concat(var, exp))
 	
 	// Desugar 'closure' types.
 	desugar: ClosureLegacy(vars, code, _)  -> Closure(vars, code)
 	desugar: IClosureLegacy(vars, code, _) -> IClosure(vars, code)
 	desugar: RClosureLegacy(vars, code, _) -> RClosure(vars, code)
 	desugar: ClosureVar(var)               -> var
+	
+	// Desugar 'assign'.
+	desugar: IVarAddAssign(var, exp)      -> IVarAssign(var, Add(var, exp))
+	desugar: IVarSubtractAssign(var, exp) -> IVarAssign(var, Subtract(var, exp))
+	desugar: IVarMultiplyAssign(var, exp) -> IVarAssign(var, Multiply(var, exp))
+	desugar: IVarDivideAssign(var, exp)   -> IVarAssign(var, Divide(var, exp))
+	desugar: IVarConcatAssign(var, exp)   -> IVarAssign(var, Concat(var, exp))
+	
+	// Desugar EventBinding nodes.
+	// Desugar 'bind' to Bind(name, prio, filter, var, params, code).
+	desugar: BindLegacy(name, prio, filter, var, params, code) -> Bind(name, prio, filter, var, params, code)
+	desugar: BindParam(param)                                  -> param
+	
+	// Desugar Math nodes.
+	desugar: AddLegacy(e1, e2)      -> Add(e1, e2)
+	desugar: SubtractLegacy(e1, e2) -> Subtract(e1, e2)
+	desugar: MultiplyLegacy(e1, e2) -> Multiply(e1, e2)
+	desugar: DivideLegacy(e1, e2)   -> Divide(e1, e2)
+	desugar: ModLegacy(e1, e2)      -> Mod(e1, e2)
+	desugar: PowLegacy(e1, e2)      -> Pow(e1, e2)
+	desugar: NegLegacy(exp)         -> Neg(exp)
+	
+	desugar: IncLegacy(var)     -> Inc(var)
+	desugar: PostIncLegacy(var) -> PostInc(var)
+	desugar: DecLegacy(var)     -> Dec(var)
+	desugar: PostDecLegacy(var) -> PostDec(var)
+	
+	// Desugar StringHandling nodes.
+	// Desugar 'concat(arg1, arg2, ...)' to Concat(Concat(arg1, arg2), arg3).
+	desugar: ConcatLegacy([arg | []]) -> arg
+	desugar: ConcatLegacy(args) -> Concat(ConcatLegacy(head), tail)
+		where [tail | reverseHead] := <reverse> args
+		where head := <reverse> reverseHead

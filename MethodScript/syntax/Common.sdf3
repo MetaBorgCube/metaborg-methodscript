@@ -39,32 +39,32 @@ lexical syntax
 	 */
 	
 	// Exclude ArrayHandling functions.
-//	FUNC-ID = "array_deep_clone" {reject}
-//	FUNC-ID = "array_get" {reject}
-//	FUNC-ID = "array_push" {reject}
-//	FUNC-ID = "array_set" {reject}
-//	FUNC-ID = "cslice" {reject}
+	FUNC-ID = "array_deep_clone" {reject}
+	FUNC-ID = "array_get" {reject}
+	FUNC-ID = "array_push" {reject}
+	FUNC-ID = "array_set" {reject}
+	FUNC-ID = "cslice" {reject}
 	
 	// Exclude BasicLogic functions.
-//	FUNC-ID = "and" {reject}
-//	FUNC-ID = "dand" {reject}
-//	FUNC-ID = "dor" {reject}
-//	FUNC-ID = "equals" {reject}
+	FUNC-ID = "and" {reject}
+	FUNC-ID = "dand" {reject}
+	FUNC-ID = "dor" {reject}
+	FUNC-ID = "equals" {reject}
 //	FUNC-ID = "equals_ic" {reject}
-//	FUNC-ID = "gt" {reject}
-//	FUNC-ID = "gte" {reject}
-//	FUNC-ID = "lt" {reject}
-//	FUNC-ID = "lte" {reject}
-//	FUNC-ID = "nand" {reject}
-//	FUNC-ID = "nequals" {reject}
+	FUNC-ID = "gt" {reject}
+	FUNC-ID = "gte" {reject}
+	FUNC-ID = "lt" {reject}
+	FUNC-ID = "lte" {reject}
+	FUNC-ID = "nand" {reject}
+	FUNC-ID = "nequals" {reject}
 //	FUNC-ID = "nequals_ic" {reject}
-//	FUNC-ID = "nor" {reject}
-//	FUNC-ID = "not" {reject}
-//	FUNC-ID = "or" {reject}
+	FUNC-ID = "nor" {reject}
+	FUNC-ID = "not" {reject}
+	FUNC-ID = "or" {reject}
 //	FUNC-ID = "ref_equals" {reject}
-//	FUNC-ID = "sequals" {reject}
+	FUNC-ID = "sequals" {reject}
 //	FUNC-ID = "sequals_ic" {reject}
-//	FUNC-ID = "snequals" {reject}
+	FUNC-ID = "snequals" {reject}
 	
 	// Exclude Cmdline functions.
 //	FUNC-ID = "exit" {reject}
@@ -119,20 +119,20 @@ lexical syntax
 //	FUNC-ID = "try" {reject}
 	
 	// Exclude Math functions.
-//	FUNC-ID = "add" {reject}
-//	FUNC-ID = "dec" {reject}
-//	FUNC-ID = "divide" {reject}
-//	FUNC-ID = "inc" {reject}
-//	FUNC-ID = "mod" {reject}
-//	FUNC-ID = "multiply" {reject}
-//	FUNC-ID = "neg" {reject}
-//	FUNC-ID = "postdec" {reject}
-//	FUNC-ID = "postinc" {reject}
-//	FUNC-ID = "pow" {reject}
-//	FUNC-ID = "subtract" {reject}
+	FUNC-ID = "add" {reject}
+	FUNC-ID = "dec" {reject}
+	FUNC-ID = "divide" {reject}
+	FUNC-ID = "inc" {reject}
+	FUNC-ID = "mod" {reject}
+	FUNC-ID = "multiply" {reject}
+	FUNC-ID = "neg" {reject}
+	FUNC-ID = "postdec" {reject}
+	FUNC-ID = "postinc" {reject}
+	FUNC-ID = "pow" {reject}
+	FUNC-ID = "subtract" {reject}
 	
 	// Exclude StringHandling functions.
-//	FUNC-ID = "concat" {reject}
+	FUNC-ID = "concat" {reject}
 	
 	// Exclude Threading functions.
 //	FUNC-ID = "synchronized" {reject}

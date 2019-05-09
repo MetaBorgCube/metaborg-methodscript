@@ -170,3 +170,6 @@ context-free syntax
 	
 	// Statement expressions.
 	SExp.ProcCall = <<PROC-ID>(<{Exp ","}*>)>
+	SExp.ProcCallDynamic = <call_proc(<Exp><ProcCallArg*>)>
+	SExp.ProcCallDynamicArray = <call_proc_array(<Exp>, <Exp>)>
+	ProcCallArg.ProcCallArg = <, <Exp>>

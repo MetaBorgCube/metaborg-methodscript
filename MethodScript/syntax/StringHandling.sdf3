@@ -11,6 +11,7 @@ context-free syntax
 	
 	// Expressions.
 	Exp.Concat = <<Exp> . <Exp>> {left}
+	Exp.ConcatLegacy = <concat(<{Exp ","}+>)>
 	
 	// Statement expressions.
 	// None.

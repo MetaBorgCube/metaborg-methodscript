@@ -53,10 +53,10 @@ context-free syntax
 	ClosureVar.ClosureVar = <<Exp>, > // TODO - Fix trailing whitespace if it matters for pretty-printing.
 	
 	// Assign statement expressions.
-	SExp.IVarAssign = <<IVAR> = <Exp>>
-	SExp.IVarPlusAssign = <<IVAR> += <Exp>>
-	SExp.IVarMinusAssign = <<IVAR> -= <Exp>>
-	SExp.IVarTimesAssign = <<IVAR> *= <Exp>>
-	SExp.IVarDivAssign = <<IVAR> /= <Exp>>
-	SExp.IVarConcatAssign = <<IVAR> .= <Exp>>
+	SExp.IVarAssign         = <<IVAR> = <Exp>>
+	SExp.IVarAddAssign      = <<IVAR> += <Exp>>
+	SExp.IVarSubtractAssign = <<IVAR> -= <Exp>>
+	SExp.IVarMultiplyAssign = <<IVAR> *= <Exp>>
+	SExp.IVarDivideAssign   = <<IVAR> /= <Exp>>
+	SExp.IVarConcatAssign   = <<IVAR> .= <Exp>>
 	

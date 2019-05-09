@@ -63,10 +63,10 @@ context-free priorities
 	{Exp.ArrayClone Exp.ArrayGet}
 			> {Exp.Neg Exp.Not}
 			> Exp.Pow
-			> {left: Exp.Times Exp.Div Exp.Mod}
-			> {left: Exp.Plus Exp.Minus Exp.Concat}
+			> {left: Exp.Multiply Exp.Divide Exp.Mod}
+			> {left: Exp.Add Exp.Subtract Exp.Concat}
 			> {non-assoc: Exp.Gt Exp.Lt Exp.Gte Exp.Lte}
 			> {Exp.Equals Exp.NotEquals Exp.Sequals Exp.NotSequals}
 			> Exp.Dand > Exp.Dor > Exp.And > Exp.Or
-			> {SExp.IVarAssign SExp.ArraySet SExp.IVarPlusAssign SExp.IVarMinusAssign
-					SExp.IVarTimesAssign SExp.IVarDivAssign SExp.IVarConcatAssign}
+			> {SExp.IVarAssign SExp.ArraySet SExp.IVarAddAssign SExp.IVarSubtractAssign
+					SExp.IVarMultiplyAssign SExp.IVarDivideAssign SExp.IVarConcatAssign}

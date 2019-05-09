@@ -12,11 +12,20 @@ context-free syntax
 	// Expressions.
 	
 	// Logical operators.
-	Exp.And = <<Exp> && <Exp>> {left}
-	Exp.Or = <<Exp> || <Exp>> {left}
+	Exp.And  = <<Exp> && <Exp>> {left}
+	Exp.Or   = <<Exp> || <Exp>> {left}
 	Exp.Dand = <<Exp> &&& <Exp>> {left}
-	Exp.Dor = <<Exp> ||| <Exp>> {left}
-	Exp.Not = <!<Exp>>
+	Exp.Dor  = <<Exp> ||| <Exp>> {left}
+	Exp.Not  = <!<Exp>>
+	
+	Exp.AndLegacy  = <and(<Exp>, <Exp>)>
+	Exp.OrLegacy   = <or(<Exp>, <Exp>)>
+	Exp.DandLegacy = <dand(<Exp>, <Exp>)>
+	Exp.DorLegacy  = <dor(<Exp>, <Exp>)>
+	Exp.NotLegacy  = <not(<Exp>)>
+	
+	Exp.NandLegacy = <nand(<Exp>, <Exp>)>
+	Exp.NorLegacy = <nor(<Exp>, <Exp>)>
 	
 	// Comparison operators.
 	// Excluding equals_ic(), nequals_ic(), nand(), nor(), ref_equals() and sequals_ic().
@@ -24,9 +33,20 @@ context-free syntax
 	Exp.NotEquals  = <<Exp> != <Exp>>  {left}
 	Exp.Sequals    = <<Exp> === <Exp>> {left}
 	Exp.NotSequals = <<Exp> !== <Exp>> {left}
+	
 	Exp.Lt         = <<Exp> \< <Exp>>  {non-assoc}
 	Exp.Lte        = <<Exp> \<= <Exp>> {non-assoc}
 	Exp.Gt         = <<Exp> \> <Exp>>  {non-assoc}
 	Exp.Gte        = <<Exp> \>= <Exp>> {non-assoc}
+	
+	Exp.EqualsLegacy     = <equals(<Exp>, <Exp>)>
+	Exp.NotEqualsLegacy  = <nequals(<Exp>, <Exp>)>
+	Exp.SequalsLegacy    = <sequals(<Exp>, <Exp>)>
+	Exp.NotSequalsLegacy = <snequals(<Exp>, <Exp>)>
+	
+	Exp.LtLegacy         = <lt(<Exp>, <Exp>)>
+	Exp.LteLegacy        = <lte(<Exp>, <Exp>)>
+	Exp.GtLegacy         = <gt(<Exp>, <Exp>)>
+	Exp.GteLegacy        = <gte(<Exp>, <Exp>)>
 	
 	// Statement expressions.

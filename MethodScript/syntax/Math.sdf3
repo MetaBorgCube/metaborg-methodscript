@@ -10,16 +10,29 @@ context-free syntax
 	// None.
 	
 	// Expressions.
-	Exp.Plus = <<Exp> + <Exp>> {left}
-	Exp.Minus = <<Exp> - <Exp>> {left}
-	Exp.Times = <<Exp> * <Exp>> {left}
-	Exp.Div = <<Exp> / <Exp>> {left}
-	Exp.Mod = <<Exp> % <Exp>> {left}
-	Exp.Pow = <<Exp> ** <Exp>> {left}
-	Exp.Neg = <-<Exp>>
+	Exp.Add      = <<Exp> + <Exp>> {left}
+	Exp.Subtract = <<Exp> - <Exp>> {left}
+	Exp.Multiply = <<Exp> * <Exp>> {left}
+	Exp.Divide   = <<Exp> / <Exp>> {left}
+	Exp.Mod      = <<Exp> % <Exp>> {left}
+	Exp.Pow      = <<Exp> ** <Exp>> {left}
+	Exp.Neg      = <-<Exp>>
+	
+	Exp.AddLegacy      = <add(<Exp>, <Exp>)>
+	Exp.SubtractLegacy = <subtract(<Exp>, <Exp>)>
+	Exp.MultiplyLegacy = <multiply(<Exp>, <Exp>)>
+	Exp.DivideLegacy   = <divide(<Exp>, <Exp>)>
+	Exp.ModLegacy      = <mod(<Exp>, <Exp>)>
+	Exp.PowLegacy      = <pow(<Exp>, <Exp>)>
+	Exp.NegLegacy      = <neg(<Exp>)>
 	
 	// Statement expressions.
-	SExp.Inc = <++<IVAR>>
+	SExp.Inc     = <++<IVAR>>
 	SExp.PostInc = <<IVAR>++>
-	SExp.Dec = <--<IVAR>>
+	SExp.Dec     = <--<IVAR>>
 	SExp.PostDec = <<IVAR>-->
+	
+	SExp.IncLegacy     = <inc(<IVAR>)>
+	SExp.PostIncLegacy = <postinc(<IVAR>)>
+	SExp.DecLegacy     = <dec(<IVAR>)>
+	SExp.PostDecLegacy = <postdec(<IVAR>)>

@@ -8,11 +8,17 @@ context-free syntax
 	
 	// Statements.
 	Statement.ArrayPush = <<Exp>[] = <Exp><SemiColon?>>
+	Statement.ArrayPushLegacy = <array_push(<Exp>, <Exp>)<SemiColon?>>
 	
 	// Expressions.
 	Exp.ArrayClone = <<Exp>[]> // Maps to array_deep_clone(array).
+	Exp.ArrayCloneLegacy = <array_deep_clone(<Exp>)>
 	Exp.ArrayGet = <<Exp>[<Exp>]>
-	Exp.Slice = <<SIGNED-INT>..<SIGNED-INT>>
+	Exp.ArrayGetLegacy = <array_get(<Exp>, <Exp>)>
+	// TODO - Merge these slices or leave them (one allows variable arguments).
+	Exp.SliceStatic = <<SIGNED-INT>..<SIGNED-INT>>
+	Exp.SliceDynamic = <cslice(<Exp>, <Exp>)>
 	
 	// Statement expressions.
 	SExp.ArraySet = <<Exp>[<Exp>] = <Exp>>
+	SExp.ArraySetLegacy = <array_set(<Exp>, <Exp>, <Exp>)>
