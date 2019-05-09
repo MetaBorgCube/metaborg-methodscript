@@ -1,7 +1,7 @@
 module desugar
 
 imports
-	src-gen/signatures/MethodScript-sig
+	src-gen/signatures/-
 
 signature
 	sorts
