@@ -14,3 +14,252 @@ rules
 		true.
 	[[ Ms(statements) ^ (s) ]] :=
 		Map1[[ statements ^ (s) ]].
+	
+	// Variable references.
+	[[ IVar(varName) ^ (s) ]] :=
+		IVar{varName} -> s, // varName is a reference in s.
+		IVar{varName} |-> d | error $[Cannot find variable: [varName]].
+	[[ Var(varName) ^ (s) ]] :=
+		Var{varName} -> s, // varName is a reference in s.
+		Var{varName} |-> d | error $[Cannot find variable: [varName]].
+	
+	// Static values.
+	[[ IntVal(_) ^ (s) ]] :=
+		true.
+	[[ FloatVal(_) ^ (s) ]] :=
+		true.
+	[[ StringVal(_) ^ (s) ]] :=
+		true.
+	[[ SmartStringVal(_) ^ (s) ]] :=
+		true.
+	[[ True() ^ (s) ]] :=
+		true.
+	[[ False() ^ (s) ]] :=
+		true.
+	[[ Null() ^ (s) ]] :=
+		true.
+	
+	// Unary and binary expressions.
+	[[UnExp(_, e) ^ (s) ]] :=
+		[[ e ^ (s) ]].
+	[[BinExp(_, e1, e2) ^ (s) ]] :=
+		[[ e1 ^ (s) ]],
+		[[ e2 ^ (s) ]].
+	
+	// Generic optional node arguments.
+	[[ None() ^ (s) ]] :=
+		true.
+	
+	// Statement brackets.
+	[[ Block(statements) ^ (s) ]] :=
+		Map1[[ statements ^ (s) ]].
+	
+	// Function calls.
+	[[ FuncCall(funcName, argExps) ^ (s) ]] :=
+		// TODO - Check against API to see whether a function exists?
+		// TODO - Obtain type info from the API somehow?
+		Map1[[ argExps ^ (s) ]].
+	
+	// ArrayHandling nodes.
+	[[ ArrayPush(arrayExp, valExp) ^ (s) ]] :=
+		[[ arrayExp ^ (s) ]],
+		[[ valExp ^ (s) ]].
+	
+	[[ ArrayClone(arrayExp) ^ (s) ]] :=
+		[[ arrayExp ^ (s) ]].
+	
+	[[ ArrayGet(arrayExp, indExp) ^ (s) ]] :=
+		[[ arrayExp ^ (s) ]],
+		[[ indExp ^ (s) ]].
+	
+	[[ SliceStatic(val1, val2) ^ (s) ]] :=
+		true.
+	
+	[[ SliceDynamic(exp1, exp2) ^ (s) ]] :=
+		[[ exp1 ^ (s) ]],
+		[[ exp2 ^ (s) ]].
+	
+	[[ ArraySet(arrayExp, indExp, valExp) ^ (s) ]] :=
+		[[ arrayExp ^ (s) ]],
+		[[ indExp ^ (s) ]],
+		[[ valExp ^ (s) ]].
+	
+	// BasicLogic nodes.
+	// None (handled through UnOp and BinOp).
+	
+	// ControlFlow nodes.
+	[[ If(cond, ifCode, None()) ^ (s) ]] :=
+		[[ cond ^ (s) ]],
+		Map1[[ ifCode ^ (s) ]].
+	[[ If(cond, ifCode, elseCode) ^ (s) ]] :=
+		[[ cond ^ (s) ]],
+		Map1[[ ifCode ^ (s) ]],
+		Map1[[ elseCode ^ (s) ]].
+	
+	[[ While(cond, code) ^ (s) ]] :=
+		[[ cond ^ (s) ]],
+		Map1[[ code ^ (s) ]].
+	
+	[[ DoWhile(code, cond) ^ (s) ]] :=
+		Map1[[ code ^ (s) ]],
+		[[ cond ^ (s) ]].
+	
+	[[ For(assign, cond, exp, code, None()) ^ (s) ]] :=
+		[[ assign ^ (s) ]],
+		[[ cond ^ (s) ]],
+		[[ exp ^ (s) ]],
+		Map1[[ code ^ (s) ]].
+	[[ For(assign, cond, exp, code, elseCode) ^ (s) ]] :=
+		[[ assign ^ (s) ]],
+		[[ cond ^ (s) ]],
+		[[ exp ^ (s) ]],
+		Map1[[ code ^ (s) ]],
+		Map1[[ elseCode ^ (s) ]].
+	
+	[[ ForEach(keyName, valName, exp, code, None()) ^ (s) ]] :=
+		IVar{keyName} <- s,
+		IVar{valName} <- s,
+		[[ key ^ (s) ]],
+		[[ val ^ (s) ]],
+		[[ array ^ (s) ]],
+		Map1[[ code ^ (s) ]].
+	[[ ForEach(keyName, valName, exp, code, elseCode) ^ (s) ]] :=
+		IVar{keyName} <- s,
+		IVar{valName} <- s,
+		[[ key ^ (s) ]],
+		[[ val ^ (s) ]],
+		[[ array ^ (s) ]],
+		Map1[[ code ^ (s) ]],
+		Map1[[ elseCode ^ (s) ]].
+	
+	// TODO - Implement SwitchCase.
+//	[[ SwitchCase(...) ^ (s) ]] := ...
+	
+	[[ Break(numLoops) ^ (s) ]] :=
+		[[ numLoops ^ (s) ]].
+	[[ Continue(numLoopsSkipped) ^ (s) ]] :=
+		[[ numLoopsSkipped ^ (s) ]].
+	[[ Return(Some(exp)) ^ (s) ]] :=
+		[[ exp ^ (s) ]].
+	[[ Return(None()) ^ (s) ]] :=
+		true.
+	[[ Die(Some(exp)) ^ (s) ]] :=
+		[[ exp ^ (s) ]].
+	[[ Die(None()) ^ (s) ]] :=
+		true.
+	
+	[[ Ternary(cond, ifExp, elseExp) ^ (s) ]] :=
+		[[ cond ^ (s) ]],
+		[[ ifExp ^ (s) ]],
+		[[ elseExp ^ (s) ]].
+	
+	[[ ProcCall(procName, argExps) ^ (s) ]] :=
+		// TODO - Do argument length check. Warn about mismatching arg size?
+		// The MS compiler simply ignores too many arguments and assigns null to undefined args.
+		Proc{procName} |-> d | error $[Cannot find procedure: [procName]],
+		Map1[[ argExps ^ (s) ]].
+	
+	[[ ProcCallDynamic(procNameExp, argExps) ^ (s) ]] :=
+		[[ procNameExp ^ (s) ]],
+		Map1[[ argExps ^ (s) ]].
+	
+	[[ ProcCallDynamicArray(procNameExp, argsArray) ^ (s) ]] :=
+		[[ procNameExp ^ (s) ]],
+		[[ argsArray ^ (s) ]].
+	
+	// DataHandling nodes.
+	[[ ProcDecl(procName, vars, code) ^ (s) ]] :=
+		Proc{procName} <- s, // Store proc declaration.
+		new proc_scope,
+		// TODO - Add vars to proc_scope.
+		Map1[[ code ^ (proc_scope) ]].
+	
+	[[ Array(entries) ^ (s) ]] :=
+		Map1[[entries ^ (s)]]. // TODO - Check for duplicate keys?
+	[[ AssocArray(entries) ^ (s) ]] :=
+		Map1[[entries ^ (s)]]. // TODO - Check for duplicate keys?
+	[[ ArrayLabelEntry(_, valExp) ^ (s) ]] :=
+		[[ valExp ^ (s) ]].
+	
+	[[ BoolCast(exp) ^ (s) ]] :=
+		[[ exp ^ (s) ]].
+	[[ DoubleCast(exp) ^ (s) ]] :=
+		[[ exp ^ (s) ]].
+	[[ IntCast(exp) ^ (s) ]] :=
+		[[ exp ^ (s) ]].
+	[[ StringCast(exp) ^ (s) ]] :=
+		[[ exp ^ (s) ]].
+	
+	[[ Closure(vars, code) ^ (s) ]] :=
+		new closure_scope,
+		closure_scope ---> s,
+		// TODO - Add vars to closure_scope.
+		Map1[[code ^ (closure_scope)]].
+	[[ IClosure(vars, code) ^ (s) ]] :=
+		new closure_scope,
+		// TODO - Add vars to closure_scope.
+		Map1[[code ^ (closure_scope)]].
+	[[ RClosure(vars, code) ^ (s) ]] :=
+		new closure_scope,
+		// TODO - Add vars to closure_scope.
+		Map1[[code ^ (closure_scope)]].
+	
+//	[[ IVarAssign(varName, valExp) ^ (s) ]] :=
+//		IVar{varName} -> s, // varName is a reference in s.
+//		IVar{varName} |-> d,
+//		[[valExp ^ (s)]].
+	[[ IVarAssign(varName, valExp) ^ (s) ]] :=
+		IVar{varName} <- s,
+		[[valExp ^ (s)]].
+	
+	// EventBinding nodes.
+	[[ Cancel(None()) ^ (s) ]] :=
+		true.
+	[[ Cancel(exp) ^ (s) ]] :=
+		[[ exp ^ (s) ]].
+	
+	[[ Consume() ^ (s) ]] :=
+		true.
+	
+	[[ Lock(exps) ^ (s) ]] :=
+		Map1[[ exps ^ (s) ]].
+	
+	[[ IsCancelled() ^ (s) ]] :=
+		true.
+	
+	[[ IsConsumed() ^ (s) ]] :=
+		true.
+	
+	[[ IsLocked(exp) ^ (s) ]] :=
+		[[ exp ^ (s) ]].
+	
+	[[ Bind(name, prio, filter, eventVarName, params, codeStatements) ^ (s) ]] :=
+		[[ name ^ (s) ]],
+		[[ prio ^ (s) ]],
+		[[ filter ^ (s) ]],
+		new scope_bind,
+		IVar{eventVarName} <- scope_bind,
+//		IVar{eventVarName} : Array(),
+		new scope_params,
+		scope_params ---> s, // Add 'scope_params' as child of 's'.
+		scope_bind ---> scope_params, // Add 'scope_bind' as child of 'scope_params'.
+		Map1[[ params ^ (scope_params) ]], // TODO - Turn params into declarations in scope_params somehow.
+		Map1[[ codeStatements ^ (scope_bind) ]].
+	
+	[[ ModifyEvent(paramExp, valExp, throwOnFailExp) ^ (s) ]] :=
+		[[ paramExp ^ (s) ]],
+		[[ valExp ^ (s) ]],
+		[[ throwOnFailExp ^ (s) ]].
+	
+	// Exceptions nodes.
+	// TODO - Implement.
+	
+	// Math nodes.
+	// None (handled through UnOp and BinOp).
+	
+	// StringHandling nodes.
+	// None (handled through BinOp).
+
+signature
+	name resolution
+		namespaces Var IVar Proc
