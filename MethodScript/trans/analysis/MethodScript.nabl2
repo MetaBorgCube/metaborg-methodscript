@@ -19,173 +19,173 @@ rules
 		scope_file ---> scope_global,
 		
 		distinct/name D(scope_global)/Proc | error $[Duplicate procedure declaration: [NAME]] @NAMES,
-		Map1[[ statements ^ (scope_file) ]].
+		Map1[[ statements ^ (scope_file, scope_global) ]].
 	
 	// Variable references.
-	[[ IVar(varName) ^ (s) ]] :=
+	[[ IVar(varName) ^ (s, scope_global) ]] :=
 		IVar{varName} -> s, // varName is a reference in s.
 		IVar{varName} |-> d | error $[Cannot find variable: [varName]].
-	[[ Var(varName) ^ (s) ]] :=
+	[[ Var(varName) ^ (s, scope_global) ]] :=
 		Var{varName} -> s, // varName is a reference in s.
 		Var{varName} |-> d | error $[Cannot find variable: [varName]].
 	
 	// IVariable parameters.
 	// With 1 scope, the param is declared and resolved in the same scope.
 	// With 2 scopes, the param is declared in the second scope and its value resolved in the first.
-	[[ IVarParam(varName) ^ (s) ]] :=
+	[[ IVarParam(varName) ^ (s, scope_global) ]] :=
 		IVar{varName@s} <- s.
-	[[ IVarAssignParam(varName, valExp) ^ (s) ]] :=
+	[[ IVarAssignParam(varName, valExp) ^ (s, scope_global) ]] :=
 		IVar{varName@s} <- s,
-		[[ valExp ^ (s) ]].
-	[[ IVarScopeParam(varName) ^ (scope_parent, scope_params) ]] :=
+		[[ valExp ^ (s, scope_global) ]].
+	[[ IVarScopeParam(varName) ^ (scope_parent, scope_params, scope_global) ]] :=
 		IVar{varName} <- scope_params.
-	[[ IVarAssignScopeParam(varName, valExp) ^ (scope_parent, scope_params) ]] :=
+	[[ IVarAssignScopeParam(varName, valExp) ^ (scope_parent, scope_params, scope_global) ]] :=
 		IVar{varName} <- scope_params,
-		[[ valExp ^ (scope_parent) ]].
+		[[ valExp ^ (scope_parent, scope_global) ]].
 	
 	// Static values.
-	[[ IntVal(_) ^ (s) ]] :=
+	[[ IntVal(_) ^ (s, scope_global) ]] :=
 		true.
-	[[ FloatVal(_) ^ (s) ]] :=
+	[[ FloatVal(_) ^ (s, scope_global) ]] :=
 		true.
-	[[ StringVal(_) ^ (s) ]] :=
+	[[ StringVal(_) ^ (s, scope_global) ]] :=
 		true.
-	[[ SmartStringVal(_) ^ (s) ]] :=
+	[[ SmartStringVal(_) ^ (s, scope_global) ]] :=
 		true.
-	[[ True() ^ (s) ]] :=
+	[[ True() ^ (s, scope_global) ]] :=
 		true.
-	[[ False() ^ (s) ]] :=
+	[[ False() ^ (s, scope_global) ]] :=
 		true.
-	[[ Null() ^ (s) ]] :=
+	[[ Null() ^ (s, scope_global) ]] :=
 		true.
 	
 	// Unary and binary expressions.
-	[[UnExp(_, e) ^ (s) ]] :=
-		[[ e ^ (s) ]].
-	[[BinExp(_, e1, e2) ^ (s) ]] :=
-		[[ e1 ^ (s) ]],
-		[[ e2 ^ (s) ]].
+	[[UnExp(_, e) ^ (s, scope_global) ]] :=
+		[[ e ^ (s, scope_global) ]].
+	[[BinExp(_, e1, e2) ^ (s, scope_global) ]] :=
+		[[ e1 ^ (s, scope_global) ]],
+		[[ e2 ^ (s, scope_global) ]].
 	
 	// Generic optional node arguments.
-	[[ None() ^ (s) ]] :=
+	[[ None() ^ (s, scope_global) ]] :=
 		true.
 	
 	// Statement brackets.
-	[[ Block(statements) ^ (s) ]] :=
-		Map1[[ statements ^ (s) ]].
+	[[ Block(statements) ^ (s, scope_global) ]] :=
+		Map1[[ statements ^ (s, scope_global) ]].
 	
 	// Function calls.
-	[[ FuncCall(funcName, argExps) ^ (s) ]] :=
+	[[ FuncCall(funcName, argExps) ^ (s, scope_global) ]] :=
 		// TODO - Check against API to see whether a function exists?
 		// TODO - Obtain type info from the API somehow?
-		Map1[[ argExps ^ (s) ]].
+		Map1[[ argExps ^ (s, scope_global) ]].
 	
 	// ArrayHandling nodes.
-	[[ ArrayPush(arrayExp, valExp) ^ (s) ]] :=
-		[[ arrayExp ^ (s) ]],
-		[[ valExp ^ (s) ]].
+	[[ ArrayPush(arrayExp, valExp) ^ (s, scope_global) ]] :=
+		[[ arrayExp ^ (s, scope_global) ]],
+		[[ valExp ^ (s, scope_global) ]].
 	
-	[[ ArrayClone(arrayExp) ^ (s) ]] :=
-		[[ arrayExp ^ (s) ]].
+	[[ ArrayClone(arrayExp) ^ (s, scope_global) ]] :=
+		[[ arrayExp ^ (s, scope_global) ]].
 	
-	[[ ArrayGet(arrayExp, indExp) ^ (s) ]] :=
-		[[ arrayExp ^ (s) ]],
-		[[ indExp ^ (s) ]].
+	[[ ArrayGet(arrayExp, indExp) ^ (s, scope_global) ]] :=
+		[[ arrayExp ^ (s, scope_global) ]],
+		[[ indExp ^ (s, scope_global) ]].
 	
-	[[ SliceStatic(val1, val2) ^ (s) ]] :=
+	[[ SliceStatic(val1, val2) ^ (s, scope_global) ]] :=
 		true.
 	
-	[[ SliceDynamic(exp1, exp2) ^ (s) ]] :=
-		[[ exp1 ^ (s) ]],
-		[[ exp2 ^ (s) ]].
+	[[ SliceDynamic(exp1, exp2) ^ (s, scope_global) ]] :=
+		[[ exp1 ^ (s, scope_global) ]],
+		[[ exp2 ^ (s, scope_global) ]].
 	
-	[[ ArraySet(arrayExp, indExp, valExp) ^ (s) ]] :=
-		[[ arrayExp ^ (s) ]],
-		[[ indExp ^ (s) ]],
-		[[ valExp ^ (s) ]].
+	[[ ArraySet(arrayExp, indExp, valExp) ^ (s, scope_global) ]] :=
+		[[ arrayExp ^ (s, scope_global) ]],
+		[[ indExp ^ (s, scope_global) ]],
+		[[ valExp ^ (s, scope_global) ]].
 	
 	// BasicLogic nodes.
 	// None (handled through UnOp and BinOp).
 	
 	// ControlFlow nodes.
-	[[ If(cond, ifCode, None()) ^ (s) ]] :=
-		[[ cond ^ (s) ]],
-		Map1[[ ifCode ^ (s) ]].
-	[[ If(cond, ifCode, elseCode) ^ (s) ]] :=
-		[[ cond ^ (s) ]],
-		Map1[[ ifCode ^ (s) ]],
-		Map1[[ elseCode ^ (s) ]].
+	[[ If(cond, ifCode, None()) ^ (s, scope_global) ]] :=
+		[[ cond ^ (s, scope_global) ]],
+		Map1[[ ifCode ^ (s, scope_global) ]].
+	[[ If(cond, ifCode, elseCode) ^ (s, scope_global) ]] :=
+		[[ cond ^ (s, scope_global) ]],
+		Map1[[ ifCode ^ (s, scope_global) ]],
+		Map1[[ elseCode ^ (s, scope_global) ]].
 	
-	[[ While(cond, code) ^ (s) ]] :=
-		[[ cond ^ (s) ]],
-		Map1[[ code ^ (s) ]].
+	[[ While(cond, code) ^ (s, scope_global) ]] :=
+		[[ cond ^ (s, scope_global) ]],
+		Map1[[ code ^ (s, scope_global) ]].
 	
-	[[ DoWhile(code, cond) ^ (s) ]] :=
-		Map1[[ code ^ (s) ]],
-		[[ cond ^ (s) ]].
+	[[ DoWhile(code, cond) ^ (s, scope_global) ]] :=
+		Map1[[ code ^ (s, scope_global) ]],
+		[[ cond ^ (s, scope_global) ]].
 	
-	[[ For(assign, cond, exp, code, None()) ^ (s) ]] :=
-		[[ assign ^ (s) ]],
-		[[ cond ^ (s) ]],
-		[[ exp ^ (s) ]],
-		Map1[[ code ^ (s) ]].
-	[[ For(assign, cond, exp, code, elseCode) ^ (s) ]] :=
-		[[ assign ^ (s) ]],
-		[[ cond ^ (s) ]],
-		[[ exp ^ (s) ]],
-		Map1[[ code ^ (s) ]],
-		Map1[[ elseCode ^ (s) ]].
+	[[ For(assign, cond, exp, code, None()) ^ (s, scope_global) ]] :=
+		[[ assign ^ (s, scope_global) ]],
+		[[ cond ^ (s, scope_global) ]],
+		[[ exp ^ (s, scope_global) ]],
+		Map1[[ code ^ (s, scope_global) ]].
+	[[ For(assign, cond, exp, code, elseCode) ^ (s, scope_global) ]] :=
+		[[ assign ^ (s, scope_global) ]],
+		[[ cond ^ (s, scope_global) ]],
+		[[ exp ^ (s, scope_global) ]],
+		Map1[[ code ^ (s, scope_global) ]],
+		Map1[[ elseCode ^ (s, scope_global) ]].
 	
-	[[ ForEach(key, val, arrayExp, code, None()) ^ (s) ]] :=
-		[[ key ^ (s) ]],
-		[[ val ^ (s) ]],
-		[[ arrayExp ^ (s) ]],
-		Map1[[ code ^ (s) ]].
-	[[ ForEach(key, val, arrayExp, code, elseCode) ^ (s) ]] :=
-		[[ key ^ (s) ]],
-		[[ val ^ (s) ]],
-		[[ arrayExp ^ (s) ]],
-		Map1[[ code ^ (s) ]],
-		Map1[[ elseCode ^ (s) ]].
+	[[ ForEach(key, val, arrayExp, code, None()) ^ (s, scope_global) ]] :=
+		[[ key ^ (s, scope_global) ]],
+		[[ val ^ (s, scope_global) ]],
+		[[ arrayExp ^ (s, scope_global) ]],
+		Map1[[ code ^ (s, scope_global) ]].
+	[[ ForEach(key, val, arrayExp, code, elseCode) ^ (s, scope_global) ]] :=
+		[[ key ^ (s, scope_global) ]],
+		[[ val ^ (s, scope_global) ]],
+		[[ arrayExp ^ (s, scope_global) ]],
+		Map1[[ code ^ (s, scope_global) ]],
+		Map1[[ elseCode ^ (s, scope_global) ]].
 	
 	// TODO - Implement SwitchCase.
-//	[[ SwitchCase(...) ^ (s) ]] := ...
+//	[[ SwitchCase(...) ^ (s, scope_global) ]] := ...
 	
-	[[ Break(numLoops) ^ (s) ]] :=
-		[[ numLoops ^ (s) ]].
-	[[ Continue(numLoopsSkipped) ^ (s) ]] :=
-		[[ numLoopsSkipped ^ (s) ]].
-	[[ Return(Some(exp)) ^ (s) ]] :=
-		[[ exp ^ (s) ]].
-	[[ Return(None()) ^ (s) ]] :=
+	[[ Break(numLoops) ^ (s, scope_global) ]] :=
+		[[ numLoops ^ (s, scope_global) ]].
+	[[ Continue(numLoopsSkipped) ^ (s, scope_global) ]] :=
+		[[ numLoopsSkipped ^ (s, scope_global) ]].
+	[[ Return(Some(exp)) ^ (s, scope_global) ]] :=
+		[[ exp ^ (s, scope_global) ]].
+	[[ Return(None()) ^ (s, scope_global) ]] :=
 		true.
-	[[ Die(Some(exp)) ^ (s) ]] :=
-		[[ exp ^ (s) ]].
-	[[ Die(None()) ^ (s) ]] :=
+	[[ Die(Some(exp)) ^ (s, scope_global) ]] :=
+		[[ exp ^ (s, scope_global) ]].
+	[[ Die(None()) ^ (s, scope_global) ]] :=
 		true.
 	
-	[[ Ternary(cond, ifExp, elseExp) ^ (s) ]] :=
-		[[ cond ^ (s) ]],
-		[[ ifExp ^ (s) ]],
-		[[ elseExp ^ (s) ]].
+	[[ Ternary(cond, ifExp, elseExp) ^ (s, scope_global) ]] :=
+		[[ cond ^ (s, scope_global) ]],
+		[[ ifExp ^ (s, scope_global) ]],
+		[[ elseExp ^ (s, scope_global) ]].
 	
-	[[ ProcCall(procName, argExps) ^ (s) ]] :=
+	[[ ProcCall(procName, argExps) ^ (s, scope_global) ]] :=
 		// TODO - Do argument length check. Warn about mismatching arg size?
 		// The MS compiler simply ignores too many arguments and assigns null to undefined args.
 		Proc{procName} -> s,
 		Proc{procName} |-> d | error $[Cannot find procedure: [procName]],
-		Map1[[ argExps ^ (s) ]].
+		Map1[[ argExps ^ (s, scope_global) ]].
 	
-	[[ ProcCallDynamic(procNameExp, argExps) ^ (s) ]] :=
-		[[ procNameExp ^ (s) ]],
-		Map1[[ argExps ^ (s) ]].
+	[[ ProcCallDynamic(procNameExp, argExps) ^ (s, scope_global) ]] :=
+		[[ procNameExp ^ (s, scope_global) ]],
+		Map1[[ argExps ^ (s, scope_global) ]].
 	
-	[[ ProcCallDynamicArray(procNameExp, argsArray) ^ (s) ]] :=
-		[[ procNameExp ^ (s) ]],
-		[[ argsArray ^ (s) ]].
+	[[ ProcCallDynamicArray(procNameExp, argsArray) ^ (s, scope_global) ]] :=
+		[[ procNameExp ^ (s, scope_global) ]],
+		[[ argsArray ^ (s, scope_global) ]].
 	
 	// DataHandling nodes.
-	[[ ProcDecl(procName, params, code) ^ (s) ]] :=
+	[[ ProcDecl(procName, params, code) ^ (s, scope_global) ]] :=
 		
 		// Store proc declaration in parent scope.
 		Proc{procName} <- s,
@@ -199,28 +199,28 @@ rules
 		scope_proc ---> scope_params,
 		
 		// Add parameters to params scope.
-		Map1[[ params ^ (s, scope_params) ]],
+		Map1[[ params ^ (s, scope_params, scope_global) ]],
 		
 		// Resolve code in proc scope.
-		Map1[[ code ^ (scope_proc) ]].
+		Map1[[ code ^ (scope_proc, scope_global) ]].
 	
-	[[ Array(entries) ^ (s) ]] :=
-		Map1[[entries ^ (s)]]. // TODO - Check for duplicate keys?
-	[[ AssocArray(entries) ^ (s) ]] :=
-		Map1[[entries ^ (s)]]. // TODO - Check for duplicate keys?
-	[[ ArrayLabelEntry(_, valExp) ^ (s) ]] :=
-		[[ valExp ^ (s) ]].
+	[[ Array(entries) ^ (s, scope_global) ]] :=
+		Map1[[entries ^ (s, scope_global)]]. // TODO - Check for duplicate keys?
+	[[ AssocArray(entries) ^ (s, scope_global) ]] :=
+		Map1[[entries ^ (s, scope_global)]]. // TODO - Check for duplicate keys?
+	[[ ArrayLabelEntry(_, valExp) ^ (s, scope_global) ]] :=
+		[[ valExp ^ (s, scope_global) ]].
 	
-	[[ BoolCast(exp) ^ (s) ]] :=
-		[[ exp ^ (s) ]].
-	[[ DoubleCast(exp) ^ (s) ]] :=
-		[[ exp ^ (s) ]].
-	[[ IntCast(exp) ^ (s) ]] :=
-		[[ exp ^ (s) ]].
-	[[ StringCast(exp) ^ (s) ]] :=
-		[[ exp ^ (s) ]].
+	[[ BoolCast(exp) ^ (s, scope_global) ]] :=
+		[[ exp ^ (s, scope_global) ]].
+	[[ DoubleCast(exp) ^ (s, scope_global) ]] :=
+		[[ exp ^ (s, scope_global) ]].
+	[[ IntCast(exp) ^ (s, scope_global) ]] :=
+		[[ exp ^ (s, scope_global) ]].
+	[[ StringCast(exp) ^ (s, scope_global) ]] :=
+		[[ exp ^ (s, scope_global) ]].
 	
-	[[ Closure(params, code) ^ (s) ]] :=
+	[[ Closure(params, code) ^ (s, scope_global) ]] :=
 		
 		// Add scope_params as child of the parent scope.
 		new scope_params,
@@ -232,12 +232,12 @@ rules
 		
 		// Add parameters to params scope.
 		IVar{"@arguments"} <- scope_params, // Automatically added.
-		Map1[[ params ^ (s, scope_params) ]],
+		Map1[[ params ^ (s, scope_params, scope_global) ]],
 		
 		// Resolve code in closure scope.
-		Map1[[ code ^ (scope_closure) ]].
+		Map1[[ code ^ (scope_closure, scope_global) ]].
 	
-	[[ IClosure(params, code) ^ (s) ]] :=
+	[[ IClosure(params, code) ^ (s, scope_global) ]] :=
 		
 		// Create scope_params.
 		new scope_params,
@@ -248,12 +248,12 @@ rules
 		
 		// Add parameters to params scope.
 		IVar{"@arguments"} <- scope_params, // Automatically added.
-		Map1[[ params ^ (s, scope_params) ]],
+		Map1[[ params ^ (s, scope_params, scope_global) ]],
 		
 		// Resolve code in closure scope.
-		Map1[[ code ^ (scope_closure) ]].
+		Map1[[ code ^ (scope_closure, scope_global) ]].
 	
-	[[ RClosure(params, code) ^ (s) ]] :=
+	[[ RClosure(params, code) ^ (s, scope_global) ]] :=
 		
 		// Create scope_params.
 		new scope_params,
@@ -264,44 +264,44 @@ rules
 		
 		// Add parameters to params scope.
 		IVar{"@arguments"} <- scope_params, // Automatically added.
-		Map1[[ params ^ (s, scope_params) ]],
+		Map1[[ params ^ (s, scope_params, scope_global) ]],
 		
 		// Resolve code in closure scope.
-		Map1[[ code ^ (scope_closure) ]].
+		Map1[[ code ^ (scope_closure, scope_global) ]].
 	
-//	[[ IVarAssign(varName, valExp) ^ (s) ]] :=
+//	[[ IVarAssign(varName, valExp) ^ (s, scope_global) ]] :=
 //		IVar{varName} -> s, // varName is a reference in s.
 //		IVar{varName} |-> d,
-//		[[valExp ^ (s)]].
-	[[ IVarAssign(varName, valExp) ^ (s) ]] :=
+//		[[valExp ^ (s, scope_global)]].
+	[[ IVarAssign(varName, valExp) ^ (s, scope_global) ]] :=
 		IVar{varName@s} <- s,
-		[[ valExp ^ (s) ]].
+		[[ valExp ^ (s, scope_global) ]].
 	
 	// EventBinding nodes.
-	[[ Cancel(None()) ^ (s) ]] :=
+	[[ Cancel(None()) ^ (s, scope_global) ]] :=
 		true.
-	[[ Cancel(exp) ^ (s) ]] :=
-		[[ exp ^ (s) ]].
+	[[ Cancel(exp) ^ (s, scope_global) ]] :=
+		[[ exp ^ (s, scope_global) ]].
 	
-	[[ Consume() ^ (s) ]] :=
-		true.
-	
-	[[ Lock(exps) ^ (s) ]] :=
-		Map1[[ exps ^ (s) ]].
-	
-	[[ IsCancelled() ^ (s) ]] :=
+	[[ Consume() ^ (s, scope_global) ]] :=
 		true.
 	
-	[[ IsConsumed() ^ (s) ]] :=
+	[[ Lock(exps) ^ (s, scope_global) ]] :=
+		Map1[[ exps ^ (s, scope_global) ]].
+	
+	[[ IsCancelled() ^ (s, scope_global) ]] :=
 		true.
 	
-	[[ IsLocked(exp) ^ (s) ]] :=
-		[[ exp ^ (s) ]].
+	[[ IsConsumed() ^ (s, scope_global) ]] :=
+		true.
 	
-	[[ Bind(name, prio, filter, eventVarName, params, code) ^ (s) ]] :=
-		[[ name ^ (s) ]],
-		[[ prio ^ (s) ]],
-		[[ filter ^ (s) ]],
+	[[ IsLocked(exp) ^ (s, scope_global) ]] :=
+		[[ exp ^ (s, scope_global) ]].
+	
+	[[ Bind(name, prio, filter, eventVarName, params, code) ^ (s, scope_global) ]] :=
+		[[ name ^ (s, scope_global) ]],
+		[[ prio ^ (s, scope_global) ]],
+		[[ filter ^ (s, scope_global) ]],
 		
 		// Create scope_params.
 		new scope_params,
@@ -312,15 +312,15 @@ rules
 		
 		// Add event variable and parameters to params scope.
 		IVar{eventVarName} <- scope_params,
-		Map1[[ params ^ (s, scope_params) ]],
+		Map1[[ params ^ (s, scope_params, scope_global) ]],
 		
 		// Resolve code in bind scope.
-		Map1[[ code ^ (scope_bind) ]].
+		Map1[[ code ^ (scope_bind, scope_global) ]].
 	
-	[[ ModifyEvent(paramExp, valExp, throwOnFailExp) ^ (s) ]] :=
-		[[ paramExp ^ (s) ]],
-		[[ valExp ^ (s) ]],
-		[[ throwOnFailExp ^ (s) ]].
+	[[ ModifyEvent(paramExp, valExp, throwOnFailExp) ^ (s, scope_global) ]] :=
+		[[ paramExp ^ (s, scope_global) ]],
+		[[ valExp ^ (s, scope_global) ]],
+		[[ throwOnFailExp ^ (s, scope_global) ]].
 	
 	// Exceptions nodes.
 	// TODO - Implement.
