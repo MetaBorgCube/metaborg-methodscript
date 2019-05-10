@@ -64,80 +64,80 @@ context-free syntax
 	)<SemiColon?>>
 	
 	// "foreach(@value in @array) {code}".
-	Statement.ForEach1 = <foreach(<IVAR> in <Exp>) {
+	Statement.ForEach1 = <foreach(<IVarParam> in <Exp>) {
 		<Statement*>
 	}>
 	
 	// "foreach(@array as @value) {code}".
-	Statement.ForEach2 = <foreach(<Exp> as <IVAR>) {
+	Statement.ForEach2 = <foreach(<Exp> as <IVarParam>) {
 		<Statement*>
 	}>
 	
 	// "foreach(@array, @value) {code}".
-	Statement.ForEach3 = <foreach(<Exp>, <IVAR>) {
+	Statement.ForEach3 = <foreach(<Exp>, <IVarParam>) {
 		<Statement*>
 	}>
 	
 	// "foreach(@key: @value in @array) {code}".
-	Statement.ForEach4 = <foreach(<IVAR>: <IVAR> in <Exp>) {
+	Statement.ForEach4 = <foreach(<IVarParam>: <IVarParam> in <Exp>) {
 		<Statement*>
 	}>
 	
 	// "foreach(@array, @key, @value) {code}".
-	Statement.ForEach5 = <foreach(<Exp>, <IVAR>, <IVAR>) {
+	Statement.ForEach5 = <foreach(<Exp>, <IVarParam>, <IVarParam>) {
 		<Statement*>
 	}>
 	
-	Statement.ForEachLegacy1 = <foreach(<Exp>, <IVAR>,
+	Statement.ForEachLegacy1 = <foreach(<Exp>, <IVarParam>,
 		<Statement+>
 	)<SemiColon?>>
 	
-	Statement.ForEachLegacy2 = <foreach(<Exp>, <IVAR>, <IVAR>,
+	Statement.ForEachLegacy2 = <foreach(<Exp>, <IVarParam>, <IVarParam>,
 		<Statement+>
 	)<SemiColon?>>
 	
 	// "foreach(@value in @array) {code} else {code}".
-	Statement.ForEachElse1 = <foreach(<IVAR> in <Exp>) {
+	Statement.ForEachElse1 = <foreach(<IVarParam> in <Exp>) {
 		<Statement*>
 	} else {
 		<Statement*>
 	}>
 	
 	// "foreach(@array as @value) {code} else {code}".
-	Statement.ForEachElse2 = <foreach(<Exp> as <IVAR>) {
+	Statement.ForEachElse2 = <foreach(<Exp> as <IVarParam>) {
 		<Statement*>
 	} else {
 		<Statement*>
 	}>
 	
 	// "foreach(@array, @value) {code} else {code}".
-	Statement.ForEachElse3 = <foreach(<Exp>, <IVAR>) {
+	Statement.ForEachElse3 = <foreach(<Exp>, <IVarParam>) {
 		<Statement*>
 	} else {
 		<Statement*>
 	}>
 	
 	// "foreach(@key: @value in @array) {code} else {code}".
-	Statement.ForEachElse4 = <foreach(<IVAR>: <IVAR> in <Exp>) {
+	Statement.ForEachElse4 = <foreach(<IVarParam>: <IVarParam> in <Exp>) {
 		<Statement*>
 	} else {
 		<Statement*>
 	}>
 	
 	// "foreach(@array, @key, @value) {code} else {code}".
-	Statement.ForEachElse5 = <foreach(<Exp>, <IVAR>, <IVAR>) {
+	Statement.ForEachElse5 = <foreach(<Exp>, <IVarParam>, <IVarParam>) {
 		<Statement*>
 	} else {
 		<Statement*>
 	}>
 	
-	Statement.ForEachElseLegacy1 = <foreachelse(<Exp>, <IVAR>,
+	Statement.ForEachElseLegacy1 = <foreachelse(<Exp>, <IVarParam>,
 		<Statement+>
 	,
 		<Statement+>
 	)<SemiColon?>>
 	
-	Statement.ForEachElseLegacy2 = <foreachelse(<Exp>, <IVAR>, <IVAR>,
+	Statement.ForEachElseLegacy2 = <foreachelse(<Exp>, <IVarParam>, <IVarParam>,
 		<Statement+>
 	,
 		<Statement+>
