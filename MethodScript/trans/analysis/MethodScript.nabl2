@@ -6,11 +6,11 @@ imports
 rules
 	
 	// Scope initialization.
-	init ^ (s) :=
-		new s.
+	init ^ (scope_global) :=
+		new scope_global.
 	
 	// MethodScript program.
-	[[ Empty() ^ (s) ]] :=
+	[[ Empty() ^ (scope_global) ]] :=
 		true.
 	[[ Ms(statements) ^ (scope_global) ]] :=
 		
@@ -18,7 +18,7 @@ rules
 		new scope_file,
 		scope_file ---> scope_global,
 		
-		distinct/name D(scope_global)/Proc | error $[Duplicate procedure declaration: [NAME]] @NAMES,
+		distinct/name W(scope_global)/Proc | error $[Duplicate procedure declaration: [NAME]] @NAMES,
 		Map1[[ statements ^ (scope_file, scope_global) ]].
 	
 	// Variable references.
@@ -187,8 +187,8 @@ rules
 	// DataHandling nodes.
 	[[ ProcDecl(procName, params, code) ^ (s, scope_global) ]] :=
 		
-		// Store proc declaration in parent scope.
-		Proc{procName} <- s,
+		// Store proc declaration in global scope.
+		Proc{procName} <- scope_global,
 		
 		// Add scope_params as child of the parent scope.
 		new scope_params,
