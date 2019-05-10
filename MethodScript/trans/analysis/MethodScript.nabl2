@@ -12,9 +12,14 @@ rules
 	// MethodScript program.
 	[[ Empty() ^ (s) ]] :=
 		true.
-	[[ Ms(statements) ^ (s) ]] :=
-		distinct/name D(s)/Proc | error $[Duplicate procedure declaration: [NAME]] @NAMES,
-		Map1[[ statements ^ (s) ]].
+	[[ Ms(statements) ^ (scope_global) ]] :=
+		
+		// Create file scope as child of the global scope.
+		new scope_file,
+		scope_file ---> scope_global,
+		
+		distinct/name D(scope_global)/Proc | error $[Duplicate procedure declaration: [NAME]] @NAMES,
+		Map1[[ statements ^ (scope_file) ]].
 	
 	// Variable references.
 	[[ IVar(varName) ^ (s) ]] :=
