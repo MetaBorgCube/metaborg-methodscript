@@ -7,16 +7,19 @@ imports
 context-free syntax
 	
 	// Statements.
-	Statement.ProcDecl = <proc <PROC-ID>(<{IVAR ","}*>) {
+	Statement.ProcDecl = <proc <PROC-ID>(<{IVarScopeParam ","}*>) {
 		<Statement*>
 	}>
-	Statement.ProcDecl2 = <proc(<Exp><ProcArgVar*>) {
+	Statement.ProcDecl2 = <proc(<ProcIdArg><ProcParam*>) {
 		<Statement*>
 	}>
-	Statement.ProcDeclLegacy = <proc(<Exp><ProcArgVar*>,
+	Statement.ProcDeclLegacy = <proc(<ProcIdArg><ProcParam*>,
 		<Statement+>
 	)<SemiColon?>>
-	ProcArgVar.ProcArgVar = <, <IVAR>>
+	ProcParam.ProcParam = <, <IVarScopeParam>>
+	ProcIdArg.ProcIdArgString = <'<PROC-ID>'>
+	ProcIdArg.ProcIdArgSmartString = <"<PROC-ID>">
+	ProcIdArg.ProcIdArgBareString = PROC-ID
 	
 	// Array constructor expressions.
 	Exp.Array = <array(<{ArrayEntry ","}*>)>
@@ -31,26 +34,25 @@ context-free syntax
 	Exp.StringCast = <string(<Exp>)>
 	
 	// Closure expressions.
-	// TODO - Closures accept IVARs as first arguments, but also assigns. Make a choice in what to accept here.
-	Exp.Closure = <closure(<{Exp ","}*>) {
+	Exp.Closure = <closure(<{IVarScopeParam ","}*>) {
 		<Statement*>
 	}>
-	Exp.ClosureLegacy = <closure(<ClosureVar*>
+	Exp.ClosureLegacy = <closure(<ClosureParam*>
 		<Statement+>
 	)<SemiColon?>>
-	Exp.IClosure = <iclosure(<{Exp ","}*>) {
+	Exp.IClosure = <iclosure(<{IVarScopeParam ","}*>) {
 		<Statement*>
 	}>
-	Exp.IClosureLegacy = <iclosure(<ClosureVar*>
+	Exp.IClosureLegacy = <iclosure(<ClosureParam*>
 		<Statement+>
 	)<SemiColon?>>
-	Exp.RClosure = <rclosure(<{Exp ","}*>) {
+	Exp.RClosure = <rclosure(<{IVarScopeParam ","}*>) {
 		<Statement*>
 	}>
-	Exp.RClosureLegacy = <rclosure(<ClosureVar*>
+	Exp.RClosureLegacy = <rclosure(<ClosureParam*>
 		<Statement+>
 	)<SemiColon?>>
-	ClosureVar.ClosureVar = <<Exp>, > // TODO - Fix trailing whitespace if it matters for pretty-printing.
+	ClosureParam.ClosureParam = <<IVarScopeParam>, > // TODO - Fix trailing whitespace if it matters for pretty-printing.
 	
 	// Assign statement expressions.
 	SExp.IVarAssign         = <<IVAR> = <Exp>>

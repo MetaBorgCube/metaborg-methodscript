@@ -26,7 +26,7 @@ context-free syntax
 	SExp.BindLegacy = <bind(<Exp>, <Exp>, <Exp>, <IVAR><BindParam*>,
 		<Statement*>
 	)>
-	BindParam.BindParam = <, <Exp>>
+	BindParam.BindParam = <, <IVarScopeParam>>
 	
 	SExp.ModifyEvent = <modify_event(<Exp>, <Exp><ModifyEventArg?>)>
 	ModifyEventArg.ModifyEventArg = <, <Exp>>

@@ -41,6 +41,14 @@ context-free syntax
 	Exp.IVar = IVAR
 	Exp.Var = VAR
 	
+	// Parameters that use a single scope for declaring and resolving.
+	IVarParam.IVarParam = IVAR
+	IVarParam.IVarAssignParam = <<IVAR> = <Exp>>
+	
+	// Parameters that use a different scope for declaring and resolving.
+	IVarScopeParam.IVarScopeParam = IVAR
+	IVarScopeParam.IVarAssignScopeParam = <<IVAR> = <Exp>>
+	
 	// Static values.
 	Exp.IntVal = INT
 	Exp.FloatVal = FLOAT

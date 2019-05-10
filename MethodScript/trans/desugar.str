@@ -79,7 +79,7 @@ rules
 	// Desugar semicolon out of SExp statements.
 	desugar: SExp(e, _) -> SExp(e)
 	
-	// Desugar SExp node.
+	// Desugar SExp nodes.
 	desugar: SExp(e) -> e
 	
 	// Desugar ArrayHandling nodes.
@@ -173,17 +173,20 @@ rules
 	
 	// Desugar DataHandling nodes.
 	// Desugar 'proc' to ProcDecl(name, vars, code).
-	desugar: ProcDecl2(name, vars, code)         -> ProcDecl(name, vars, code)
-	desugar: ProcDeclLegacy(name, vars, code, _) -> ProcDecl(name, vars, code)
-	desugar: ProcArgVar(var)                     -> var
+	desugar: ProcDecl2(name, params, code)         -> ProcDecl(name, params, code)
+	desugar: ProcDeclLegacy(name, params, code, _) -> ProcDecl(name, params, code)
+	desugar: ProcParam(param)                      -> param
+	desugar: ProcIdArgString(procName)             -> procName
+	desugar: ProcIdArgSmartString(procName)        -> procName
+	desugar: ProcIdArgBareString(procName)         -> procName
 	
 	desugar: ArrayValEntry(exp) -> exp
 	
 	// Desugar 'closure' types.
-	desugar: ClosureLegacy(vars, code, _)  -> Closure(vars, code)
-	desugar: IClosureLegacy(vars, code, _) -> IClosure(vars, code)
-	desugar: RClosureLegacy(vars, code, _) -> RClosure(vars, code)
-	desugar: ClosureVar(var)               -> var
+	desugar: ClosureLegacy(params, code, _)  -> Closure(params, code)
+	desugar: IClosureLegacy(params, code, _) -> IClosure(params, code)
+	desugar: RClosureLegacy(params, code, _) -> RClosure(params, code)
+	desugar: ClosureParam(param)             -> param
 	
 	// Desugar 'assign'.
 	desugar: IVarAddAssign(ivarName, exp)      -> IVarAssign(IVar(ivarName), Add(IVar(ivarName), exp))
