@@ -28,7 +28,7 @@ rules
 	// With 1 scope, the param is declared and resolved in the same scope.
 	// With 2 scopes, the param is declared in the second scope and its value resolved in the first.
 	[[ IVarParam(varName) ^ (s) ]] :=
-		IVar{varName} <- s.
+		IVar{varName@s} <- s.
 	[[ IVarAssignParam(varName, valExp) ^ (s) ]] :=
 		IVar{varName@s} <- s,
 		[[ valExp ^ (s) ]].
