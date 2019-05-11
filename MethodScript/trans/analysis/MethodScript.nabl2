@@ -14,11 +14,12 @@ rules
 		true.
 	[[ Ms(statements) ^ (scope_global) ]] :=
 		
-		// Create file scope as child of the global scope.
+		// Create file scope.
 		new scope_file,
-		scope_file ---> scope_global,
 		
+		// Disallow duplicate procedure declarations.
 		distinct/name W(scope_global)/Proc | error $[Duplicate procedure declaration: [NAME]] @NAMES,
+		
 		Map1[[ statements ^ (scope_file, scope_global) ]].
 	
 	// Variable references.
@@ -172,7 +173,7 @@ rules
 	[[ ProcCall(procName, argExps) ^ (s, scope_global) ]] :=
 		// TODO - Do argument length check. Warn about mismatching arg size?
 		// The MS compiler simply ignores too many arguments and assigns null to undefined args.
-		Proc{procName} -> s,
+		Proc{procName} -> scope_global,
 		Proc{procName} |-> d | error $[Cannot find procedure: [procName]],
 		Map1[[ argExps ^ (s, scope_global) ]].
 	
