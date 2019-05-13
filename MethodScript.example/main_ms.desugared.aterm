@@ -1,0 +1,5252 @@
+Ms(
+  [ Bind(
+      StringVal("'block_place'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          UnExp(
+            Not()
+          , FuncCall("sk_region_exists", [StringVal("'redstone'"), StringVal("'alpha_area'")])
+          )
+        , [Die(None())]
+        , None()
+        )
+      , IVarAssign(
+          "@regionInfo"
+        , BinExp(
+            ArrayGet()
+          , FuncCall("sk_region_info", [StringVal("'alpha_area'"), StringVal("'redstone'")])
+          , IntVal("0")
+          )
+        )
+      , IVarAssign("@plot_coords1", BinExp(ArrayGet(), IVar("@regionInfo"), IntVal("0")))
+      , IVarAssign("@plot_coords2", BinExp(ArrayGet(), IVar("@regionInfo"), IntVal("1")))
+      , IVarAssign("@location", BinExp(ArrayGet(), IVar("@event"), StringVal("'location'")))
+      , IVarAssign(
+          "@x_max"
+        , FuncCall(
+            "max"
+          , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("0"))
+            , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("0"))
+            ]
+          )
+        )
+      , IVarAssign(
+          "@x_min"
+        , FuncCall(
+            "min"
+          , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("0"))
+            , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("0"))
+            ]
+          )
+        )
+      , IVarAssign(
+          "@y_max"
+        , FuncCall(
+            "max"
+          , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("1"))
+            , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("1"))
+            ]
+          )
+        )
+      , IVarAssign(
+          "@y_min"
+        , FuncCall(
+            "min"
+          , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("1"))
+            , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("1"))
+            ]
+          )
+        )
+      , IVarAssign(
+          "@z_max"
+        , FuncCall(
+            "max"
+          , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("2"))
+            , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("2"))
+            ]
+          )
+        )
+      , IVarAssign(
+          "@z_min"
+        , FuncCall(
+            "min"
+          , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("2"))
+            , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("2"))
+            ]
+          )
+        )
+      , If(
+          UnExp(
+            Not()
+          , BinExp(
+              Or()
+            , BinExp(
+                Or()
+              , BinExp(
+                  Or()
+                , BinExp(
+                    Or()
+                  , BinExp(
+                      Or()
+                    , BinExp(
+                        Lt()
+                      , BinExp(ArrayGet(), IVar("@location"), IntVal("0"))
+                      , IVar("@x_min")
+                      )
+                    , BinExp(
+                        Gt()
+                      , BinExp(ArrayGet(), IVar("@location"), IntVal("0"))
+                      , IVar("@x_max")
+                      )
+                    )
+                  , BinExp(
+                      Lt()
+                    , BinExp(ArrayGet(), IVar("@location"), IntVal("1"))
+                    , IVar("@y_min")
+                    )
+                  )
+                , BinExp(
+                    Gt()
+                  , BinExp(ArrayGet(), IVar("@location"), IntVal("1"))
+                  , IVar("@y_max")
+                  )
+                )
+              , BinExp(
+                  Lt()
+                , BinExp(ArrayGet(), IVar("@location"), IntVal("2"))
+                , IVar("@z_min")
+                )
+              )
+            , BinExp(
+                Gt()
+              , BinExp(ArrayGet(), IVar("@location"), IntVal("2"))
+              , IVar("@z_max")
+              )
+            )
+          )
+        , [ IVarAssign(
+              "@allowedBlockMaterials"
+            , Array(
+                [ StringVal("'STONE'")
+                , StringVal("'GRASS_BLOCK'")
+                , StringVal("'DIRT'")
+                , StringVal("'COBBLESTONE'")
+                , StringVal("'OAK_PLANKS'")
+                , StringVal("'OAK_SAPLING'")
+                , StringVal("'BEDROCK'")
+                , StringVal("'SAND'")
+                , StringVal("'GRAVEL'")
+                , StringVal("'GOLD_ORE'")
+                , StringVal("'IRON_ORE'")
+                , StringVal("'COAL_ORE'")
+                , StringVal("'OAK_LOG'")
+                , StringVal("'OAK_LEAVES'")
+                , StringVal("'GLASS'")
+                , StringVal("'WHITE_WOOL'")
+                , StringVal("'DANDELION'")
+                , StringVal("'POPPY'")
+                , StringVal("'BROWN_MUSHROOM'")
+                , StringVal("'RED_MUSHROOM'")
+                , StringVal("'GOLD_BLOCK'")
+                , StringVal("'IRON_BLOCK'")
+                , StringVal("'STONE_SLAB'")
+                , StringVal("'BRICKS'")
+                , StringVal("'TNT'")
+                , StringVal("'BOOKSHELF'")
+                , StringVal("'MOSSY_COBBLESTONE'")
+                , StringVal("'OBSIDIAN'")
+                , StringVal("'TORCH'")
+                , StringVal("'WALL_TORCH'")
+                , StringVal("'FIRE'")
+                , StringVal("'SPAWNER'")
+                , StringVal("'OAK_STAIRS'")
+                , StringVal("'CHEST'")
+                , StringVal("'REDSTONE_WIRE'")
+                , StringVal("'DIAMOND_ORE'")
+                , StringVal("'DIAMOND_BLOCK'")
+                , StringVal("'CRAFTING_TABLE'")
+                , StringVal("'WHEAT'")
+                , StringVal("'FARMLAND'")
+                , StringVal("'FURNACE'")
+                , StringVal("'SIGN'")
+                , StringVal("'WALL_SIGN'")
+                , StringVal("'OAK_DOOR'")
+                , StringVal("'LADDER'")
+                , StringVal("'RAIL'")
+                , StringVal("'COBBLESTONE_STAIRS'")
+                , StringVal("'LEVER'")
+                , StringVal("'STONE_PRESSURE_PLATE'")
+                , StringVal("'OAK_PRESSURE_PLATE'")
+                , StringVal("'IRON_DOOR'")
+                , StringVal("'REDSTONE_ORE'")
+                , StringVal("'REDSTONE_TORCH'")
+                , StringVal("'REDSTONE_WALL_TORCH'")
+                , StringVal("'STONE_BUTTON'")
+                , StringVal("'SNOW_BLOCK'")
+                , StringVal("'ICE'")
+                , StringVal("'SNOW'")
+                , StringVal("'CACTUS'")
+                , StringVal("'CLAY'")
+                , StringVal("'SUGAR_CANE'")
+                , StringVal("'JUKEBOX'")
+                , StringVal("'OAK_FENCE'")
+                , StringVal("'CARVED_PUMPKIN'")
+                , StringVal("'NETHERRACK'")
+                , StringVal("'SOUL_SAND'")
+                , StringVal("'GLOWSTONE'")
+                , StringVal("'NETHER_PORTAL'")
+                , StringVal("'JACK_O_LANTERN'")
+                ]
+              )
+            )
+          , If(
+              UnExp(
+                Not()
+              , FuncCall(
+                  "array_contains"
+                , [IVar("@allowedBlockMaterials"), BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))]
+                )
+              )
+            , [ Cancel(None())
+              , Die(
+                  Some(
+                    BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , BinExp(
+                          Concat()
+                        , FuncCall("color", [StringVal("'c'")])
+                        , StringVal("'You are not allowed to place blocks of material '")
+                        )
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+                      )
+                    , StringVal("' in the Alpha area.'")
+                    )
+                  )
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "equals_ic"
+          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'")), StringVal("'/interpreter'")]
+          )
+        , [ If(
+              UnExp(
+                Not()
+              , BinExp(
+                  Equals()
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                , StringVal("'woesh0007'")
+                )
+              )
+            , [ FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall("colorize", [StringVal("'&cThis command is not available.'")])
+                  ]
+                )
+              , Cancel(None())
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'block_place'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            And()
+          , FuncCall(
+              "string_ends_with"
+            , [BinExp(ArrayGet(), IVar("@event"), StringVal("'block'")), StringVal("'_SLAB'")]
+            )
+          , BinExp(
+              Or()
+            , BinExp(
+                Or()
+              , BinExp(
+                  Or()
+                , FuncCall(
+                    "array_contains"
+                  , [ Array(
+                        [ StringVal("'STICKY_PISTON'")
+                        , StringVal("'PISTON'")
+                        , StringVal("'PISTON_HEAD'")
+                        , StringVal("'REDSTONE_WIRE'")
+                        , StringVal("'REDSTONE_TORCH'")
+                        , StringVal("'REDSTONE_WALL_TORCH'")
+                        , StringVal("'REPEATER'")
+                        , StringVal("'COMPARATOR'")
+                        , StringVal("'SNOW_BLOCK'")
+                        , StringVal("'NETHER_QUARTZ_ORE'")
+                        ]
+                      )
+                    , BinExp(
+                        ArrayGet()
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'against'"))
+                      , StringVal("'name'")
+                      )
+                    ]
+                  )
+                , FuncCall(
+                    "string_ends_with"
+                  , [ BinExp(
+                        ArrayGet()
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'against'"))
+                      , StringVal("'name'")
+                      )
+                    , StringVal("'_WOOL'")
+                    ]
+                  )
+                )
+              , FuncCall(
+                  "string_ends_with"
+                , [ BinExp(
+                      ArrayGet()
+                    , BinExp(ArrayGet(), IVar("@event"), StringVal("'against'"))
+                    , StringVal("'name'")
+                    )
+                  , StringVal("'_CONCRETE'")
+                  ]
+                )
+              )
+            , FuncCall(
+                "string_ends_with"
+              , [ BinExp(
+                    ArrayGet()
+                  , BinExp(ArrayGet(), IVar("@event"), StringVal("'against'"))
+                  , StringVal("'name'")
+                  )
+                , StringVal("'_TERRACOTTA'")
+                ]
+              )
+            )
+          )
+        , [ IVarAssign(
+              "@blockDataStr"
+            , FuncCall(
+                "get_blockdata_string"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+              )
+            )
+          , IVarAssign(
+              "@blockDataStrModified"
+            , FuncCall(
+                "replace"
+              , [IVar("@blockDataStr"), StringVal("'type=bottom'"), StringVal("'type=top'")]
+              )
+            )
+          , If(
+              UnExp(Not(), BinExp(Equals(), IVar("@blockDataStr"), IVar("@blockDataStrModified")))
+            , [ FuncCall(
+                  "set_blockdata_string"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'")), IVar("@blockDataStrModified")]
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_interact'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ IVarAssign("@visitorGroupName", StringVal("'Visitors'"))
+      , IVarAssign("@groups", FuncCall("pgroup", [FuncCall("player", [])]))
+      , If(
+          FuncCall("array_contains_ic", [IVar("@groups"), IVar("@visitorGroupName")])
+        , [ If(
+              BinExp(
+                And()
+              , UnExp(
+                  Not()
+                , BinExp(
+                    Equals()
+                  , BinExp(ArrayGet(), IVar("@event"), StringVal("'action'"))
+                  , StringVal("'right_click_air'")
+                  )
+                )
+              , UnExp(
+                  Not()
+                , BinExp(
+                    Equals()
+                  , BinExp(ArrayGet(), IVar("@event"), StringVal("'action'"))
+                  , StringVal("'left_click_air'")
+                  )
+                )
+              )
+            , [ If(
+                  FuncCall("sk_region_exists", [StringVal("'redstone'"), StringVal("'visitors-area'")])
+                , [ IVarAssign(
+                      "@plot_coords1"
+                    , BinExp(
+                        ArrayGet()
+                      , FuncCall(
+                          "sk_region_info"
+                        , [StringVal("'visitors-area'"), StringVal("'redstone'"), IntVal("0")]
+                        )
+                      , IntVal("0")
+                      )
+                    )
+                  , IVarAssign(
+                      "@plot_coords2"
+                    , BinExp(
+                        ArrayGet()
+                      , FuncCall(
+                          "sk_region_info"
+                        , [StringVal("'visitors-area'"), StringVal("'redstone'"), IntVal("0")]
+                        )
+                      , IntVal("1")
+                      )
+                    )
+                  , IVarAssign("@location", BinExp(ArrayGet(), IVar("@event"), StringVal("'location'")))
+                  , If(
+                      BinExp(
+                        Or()
+                      , BinExp(
+                          Or()
+                        , BinExp(
+                            Or()
+                          , BinExp(
+                              Or()
+                            , BinExp(
+                                Or()
+                              , BinExp(
+                                  Gt()
+                                , BinExp(ArrayGet(), IVar("@location"), IntVal("0"))
+                                , FuncCall(
+                                    "max"
+                                  , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("0"))
+                                    , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("0"))
+                                    ]
+                                  )
+                                )
+                              , BinExp(
+                                  Lt()
+                                , BinExp(ArrayGet(), IVar("@location"), IntVal("0"))
+                                , FuncCall(
+                                    "min"
+                                  , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("0"))
+                                    , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("0"))
+                                    ]
+                                  )
+                                )
+                              )
+                            , BinExp(
+                                Gt()
+                              , BinExp(ArrayGet(), IVar("@location"), IntVal("1"))
+                              , FuncCall(
+                                  "max"
+                                , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("1"))
+                                  , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("1"))
+                                  ]
+                                )
+                              )
+                            )
+                          , BinExp(
+                              Lt()
+                            , BinExp(ArrayGet(), IVar("@location"), IntVal("1"))
+                            , FuncCall(
+                                "min"
+                              , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("1"))
+                                , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("1"))
+                                ]
+                              )
+                            )
+                          )
+                        , BinExp(
+                            Gt()
+                          , BinExp(ArrayGet(), IVar("@location"), IntVal("2"))
+                          , FuncCall(
+                              "max"
+                            , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("2"))
+                              , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("2"))
+                              ]
+                            )
+                          )
+                        )
+                      , BinExp(
+                          Lt()
+                        , BinExp(ArrayGet(), IVar("@location"), IntVal("2"))
+                        , FuncCall(
+                            "min"
+                          , [ BinExp(ArrayGet(), IVar("@plot_coords1"), IntVal("2"))
+                            , BinExp(ArrayGet(), IVar("@plot_coords2"), IntVal("2"))
+                            ]
+                          )
+                        )
+                      )
+                    , [ If(
+                          UnExp(
+                            Not()
+                          , FuncCall(
+                              "array_contains"
+                            , [ Array(
+                                  [StringVal("'STONE_BUTTON'"), StringVal("'OAK_BUTTON'"), StringVal("'STONE_PRESSURE_PLATE'"), StringVal("'OAK_PRESSURE_PLATE'")]
+                                )
+                              , BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+                              ]
+                            )
+                          )
+                        , [ If(
+                              BinExp(
+                                Equals()
+                              , BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+                              , StringVal("'LEVER'")
+                              )
+                            , [ IVarAssign("@regions", FuncCall("sk_regions_at", [IVar("@location")]))
+                              , IVarAssign("@uuid", FuncCall("puuid", [FuncCall("player", [])]))
+                              , IVarAssign("@visitorGroupFlagName", StringVal("'visitor_lever_interact'"))
+                              , IVarAssign("@allowInteraction", True())
+                              , ForEach(
+                                  None()
+                                , IVarParam("@region")
+                                , IVar("@regions")
+                                , [ IVarAssign(
+                                      "@owners"
+                                    , FuncCall(
+                                        "sk_region_owners"
+                                      , [IVar("@region"), BinExp(ArrayGet(), IVar("@location"), IntVal("3"))]
+                                      )
+                                    )
+                                  , IVarAssign(
+                                      "@members"
+                                    , FuncCall(
+                                        "sk_region_members"
+                                      , [IVar("@region"), BinExp(ArrayGet(), IVar("@location"), IntVal("3"))]
+                                      )
+                                    )
+                                  , If(
+                                      BinExp(
+                                        And()
+                                      , BinExp(
+                                          And()
+                                        , BinExp(
+                                            And()
+                                          , UnExp(
+                                              Not()
+                                            , FuncCall(
+                                                "array_contains"
+                                              , [BinExp(ArrayGet(), IVar("@owners"), StringVal("'players'")), IVar("@uuid")]
+                                              )
+                                            )
+                                          , UnExp(
+                                              Not()
+                                            , FuncCall(
+                                                "array_contains"
+                                              , [BinExp(ArrayGet(), IVar("@owners"), StringVal("'groups'")), IVar("@visitorGroupFlagName")]
+                                              )
+                                            )
+                                          )
+                                        , UnExp(
+                                            Not()
+                                          , FuncCall(
+                                              "array_contains"
+                                            , [BinExp(ArrayGet(), IVar("@members"), StringVal("'players'")), IVar("@uuid")]
+                                            )
+                                          )
+                                        )
+                                      , UnExp(
+                                          Not()
+                                        , FuncCall(
+                                            "array_contains"
+                                          , [BinExp(ArrayGet(), IVar("@members"), StringVal("'groups'")), IVar("@visitorGroupFlagName")]
+                                          )
+                                        )
+                                      )
+                                    , [IVarAssign("@allowInteraction", False()), Break(None())]
+                                    , None()
+                                    )
+                                  ]
+                                , [IVarAssign("@allowInteraction", False())]
+                                )
+                              , If(IVar("@allowInteraction"), [Return(None())], None())
+                              ]
+                            , None()
+                            )
+                          , FuncCall(
+                              "tmsg"
+                            , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                              , FuncCall(
+                                  "colorize"
+                                , [BinExp(Concat(), StringVal("'&cYou are not allowed to build here. Please read the signs at /spawn to get more information on how to register, apply and be able to build. \\n'"), StringVal("'&6If you are waiting for your application to be reviewed or if you just want to build something. Type: /visitor'"))]
+                                )
+                              ]
+                            )
+                          , Cancel(None())
+                          ]
+                        , None()
+                        )
+                      ]
+                    , None()
+                    )
+                  ]
+                , None()
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_consume'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            Equals()
+          , BinExp(
+              ArrayGet()
+            , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+            , StringVal("'name'")
+            )
+          , StringVal("'POTION'")
+          )
+        , [ Cancel(None())
+          , FuncCall(
+              "tmsg"
+            , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+              , FuncCall("colorize", [StringVal("'&cPotions are disabled on this server.'")])
+              ]
+            )
+          , FuncCall(
+              "console"
+            , [ BinExp(
+                  Concat()
+                , BinExp(
+                    Concat()
+                  , BinExp(
+                      Concat()
+                    , FuncCall("color", [StringVal("'e'")])
+                    , StringVal("'Player '")
+                    )
+                  , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  )
+                , StringVal("' tried to drink a potion.'")
+                )
+              ]
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'projectile_launch'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "array_contains"
+          , [ Array([StringVal("'SPLASH_POTION'"), StringVal("'LINGERING_POTION'"), StringVal("'TIPPED_ARROW'")])
+            , BinExp(ArrayGet(), IVar("@event"), StringVal("'type'"))
+            ]
+          )
+        , [ Cancel(None())
+          , If(
+              FuncCall(
+                "is_null"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+              )
+            , [FuncCall("console", [FuncCall("colorize", [StringVal("'&eA splashpotion was launced by a dispenser.'")])])]
+            , [ FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall("colorize", [StringVal("'&cSplash potions are disabled on this server.'")])
+                  ]
+                )
+              , FuncCall(
+                  "console"
+                , [ FuncCall(
+                      "colorize"
+                    , [ BinExp(
+                          Concat()
+                        , BinExp(
+                            Concat()
+                          , StringVal("'&ePlayer '")
+                          , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                          )
+                        , StringVal("' tried to throw a splashpotion.'")
+                        )
+                      ]
+                    )
+                  ]
+                )
+              ]
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_interact'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            And()
+          , UnExp(
+              Not()
+            , BinExp(
+                Equals()
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+              , Null()
+              )
+            )
+          , BinExp(
+              Equals()
+            , BinExp(
+                ArrayGet()
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+              , StringVal("'name'")
+              )
+            , StringVal("'EXPERIENCE_BOTTLE'")
+            )
+          )
+        , [ Cancel(None())
+          , FuncCall(
+              "tmsg"
+            , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+              , FuncCall("colorize", [StringVal("'&cPotions are disabled on this server.'")])
+              ]
+            )
+          , FuncCall(
+              "console"
+            , [ FuncCall(
+                  "colorize"
+                , [ BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , StringVal("'&ePlayer '")
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                      )
+                    , StringVal("' tried to use an experience orb potion.'")
+                    )
+                  ]
+                )
+              ]
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_chat'")
+    , Array([ArrayLabelEntry("'priority'", StringVal("'monitor'"))])
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            Or()
+          , IsCancelled()
+          , UnExp(
+              Not()
+            , FuncCall(
+                "ponline"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+              )
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , If(
+          BinExp(
+            And()
+          , BinExp(
+              And()
+            , FuncCall("ponline", [StringVal("'woesh0007'")])
+            , UnExp(Not(), ProcCall("_is_vanished", [StringVal("'woesh0007'")]))
+            )
+          , UnExp(
+              Not()
+            , ProcCall(
+                "_adminchat_get_state"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+              )
+            )
+          )
+        , [ IVarAssign("@featureEnabled", FuncCall("get_value", [StringVal("'woesh0007.awildwoeshappeared'")]))
+          , If(
+              BinExp(
+                And()
+              , FuncCall("is_boolean", [IVar("@featureEnabled")])
+              , IVar("@featureEnabled")
+              )
+            , [ If(
+                  BinExp(
+                    Gt()
+                  , FuncCall(
+                      "reg_count"
+                    , [StringVal("'(w|W)[\\\\W_]*(o|O|0)[\\\\W_]*(e|E|3)[\\\\W_]*(s|S|5)'"), BinExp(ArrayGet(), IVar("@event"), StringVal("'message'"))]
+                    )
+                  , IntVal("0")
+                  )
+                , [ IVarAssign("@coolDown", IntVal("5000"))
+                  , FuncCall(
+                      "set_timeout"
+                    , [ IntVal("500")
+                      , Closure(
+                          []
+                        , [ IVarAssign("@lastTimeRan", FuncCall("import", [StringVal("'woesh0007.aWildWoeshAppeared.time'")]))
+                          , If(
+                              FuncCall("is_numeric", [IVar("@lastTimeRan")])
+                            , [ If(
+                                  BinExp(
+                                    Gte()
+                                  , BinExp(Subtract(), FuncCall("time", []), IVar("@lastTimeRan"))
+                                  , IVar("@coolDown")
+                                  )
+                                , [ FuncCall("broadcast", [FuncCall("colorize", [StringVal("'&6A wild woesh appeared!'")])])
+                                  , FuncCall("export", [StringVal("'woesh0007.aWildWoeshAppeared.time'"), FuncCall("time", [])])
+                                  ]
+                                , None()
+                                )
+                              ]
+                            , [ FuncCall("broadcast", [FuncCall("colorize", [StringVal("'&6A wild woesh appeared!'")])])
+                              , FuncCall("export", [StringVal("'woesh0007.aWildWoeshAppeared.time'"), FuncCall("time", [])])
+                              ]
+                            )
+                          ]
+                        )
+                      ]
+                    )
+                  ]
+                , None()
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      , IVarAssign("@woeshBotEnabled", FuncCall("import", [StringVal("'woesh0007.woeshbot.enabled'")]))
+      , IVarAssign(
+          "@woeshBotEnabled"
+        , BinExp(
+            Or()
+          , BinExp(
+              Or()
+            , FuncCall("is_null", [IVar("@woeshBotEnabled")])
+            , UnExp(Not(), FuncCall("is_boolean", [IVar("@woeshBotEnabled")]))
+            )
+          , IVar("@woeshBotEnabled")
+          )
+        )
+      , If(
+          UnExp(
+            Not()
+          , BinExp(
+              Equals()
+            , FuncCall(
+                "array_size"
+              , [ FuncCall(
+                    "reg_match"
+                  , [ StringVal("'woeshbot'")
+                    , FuncCall(
+                        "to_lower"
+                      , [BinExp(ArrayGet(), IVar("@event"), StringVal("'message'"))]
+                      )
+                    ]
+                  )
+                ]
+              )
+            , IntVal("0")
+            )
+          )
+        , [ IVarAssign(
+              "@messageStripped"
+            , FuncCall(
+                "reg_replace"
+              , [ StringVal("'\\\\W'")
+                , StringVal("''")
+                , FuncCall(
+                    "reg_replace"
+                  , [ StringVal("'([\\\\:\\\\=]\\\\\\'?[pPoOdDbB3]| xd| xD| XD)'")
+                    , StringVal("''")
+                    , BinExp(ArrayGet(), IVar("@event"), StringVal("'message'"))
+                    ]
+                  )
+                ]
+              )
+            )
+          , If(
+              BinExp(
+                And()
+              , IVar("@woeshBotEnabled")
+              , BinExp(
+                  Or()
+                , FuncCall(
+                    "equals_ic"
+                  , [ IVar("@messageStripped")
+                    , FuncCall(
+                        "reg_replace"
+                      , [StringVal("'\\\\W'"), StringVal("''"), StringVal("'Woeshbot, do you love me?'")]
+                      )
+                    ]
+                  )
+                , FuncCall(
+                    "equals_ic"
+                  , [ IVar("@messageStripped")
+                    , FuncCall(
+                        "reg_replace"
+                      , [StringVal("'\\\\W'"), StringVal("''"), StringVal("'Do you love me Woeshbot?'")]
+                      )
+                    ]
+                  )
+                )
+              )
+            , [ FuncCall(
+                  "set_timeout"
+                , [ IntVal("300")
+                  , Closure(
+                      []
+                    , [ FuncCall(
+                          "broadcast"
+                        , [ Ternary(
+                              BinExp(
+                                Equals()
+                              , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                              , StringVal("'woesh0007'")
+                              )
+                            , FuncCall("colorize", [StringVal("'&6[&4WoeshBot&6]&f Of course I love you my dear woeshie :)'")])
+                            , FuncCall("colorize", [StringVal("'&6[&4WoeshBot&6]&f No, you are not my owner! :O'")])
+                            )
+                          ]
+                        )
+                      ]
+                    )
+                  ]
+                )
+              ]
+            , None()
+            )
+          , If(
+              BinExp(
+                And()
+              , IVar("@woeshBotEnabled")
+              , BinExp(
+                  Or()
+                , FuncCall(
+                    "equals_ic"
+                  , [ IVar("@messageStripped")
+                    , FuncCall(
+                        "reg_replace"
+                      , [StringVal("'\\\\W'"), StringVal("''"), StringVal("'Bye Woeshbot'")]
+                      )
+                    ]
+                  )
+                , FuncCall(
+                    "equals_ic"
+                  , [ IVar("@messageStripped")
+                    , FuncCall(
+                        "reg_replace"
+                      , [StringVal("'\\\\W'"), StringVal("''"), StringVal("'Cya Woeshbot'")]
+                      )
+                    ]
+                  )
+                )
+              )
+            , [ IVarAssign(
+                  "@count"
+                , FuncCall(
+                    "import"
+                  , [ BinExp(
+                        Concat()
+                      , StringVal("'woesh0007.woeshbot.byecount.'")
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                      )
+                    ]
+                  )
+                )
+              , If(
+                  BinExp(
+                    Or()
+                  , FuncCall("is_null", [IVar("@count")])
+                  , UnExp(Not(), FuncCall("is_numeric", [IVar("@count")]))
+                  )
+                , [ IVarAssign("@count", IntVal("0"))
+                  , Bind(
+                      StringVal("'player_quit'")
+                    , Null()
+                    , Array(
+                        [ArrayLabelEntry("'player'", BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")))]
+                      )
+                    , "@event"
+                    , []
+                    , [ FuncCall(
+                          "export"
+                        , [ BinExp(
+                              Concat()
+                            , StringVal("'woesh0007.woeshbot.byecount.'")
+                            , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                            )
+                          , Null()
+                          ]
+                        )
+                      ]
+                    )
+                  ]
+                , None()
+                )
+              , UnExp(PostInc(), IVar("@count"))
+              , IVarAssign("@response", StringVal("''"))
+              , Switch(
+                  IVar("@count")
+                , [ SwitchCase(
+                      [IntVal("1")]
+                    , [ IVarAssign(
+                          "@response"
+                        , BinExp(
+                            Concat()
+                          , BinExp(
+                              Concat()
+                            , StringVal("'Bye '")
+                            , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                            )
+                          , StringVal("' :)'")
+                          )
+                        )
+                      ]
+                    )
+                  , SwitchCase(
+                      [IntVal("2")]
+                    , [IVarAssign("@response", StringVal("'See you later! ^^'"))]
+                    )
+                  , SwitchCase(
+                      [IntVal("3")]
+                    , [ IVarAssign(
+                          "@response"
+                        , BinExp(
+                            Concat()
+                          , BinExp(
+                              Concat()
+                            , StringVal("'Yeah yeah, you can go now '")
+                            , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                            )
+                          , StringVal("' :p'")
+                          )
+                        )
+                      ]
+                    )
+                  , SwitchCase(
+                      [IntVal("4")]
+                    , [IVarAssign("@response", StringVal("'BYEEE D:'"))]
+                    )
+                  , SwitchCase(
+                      [IntVal("5")]
+                    , [ FuncCall(
+                          "export"
+                        , [ BinExp(
+                              Concat()
+                            , StringVal("'woesh0007.woeshbot.byecount.'")
+                            , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                            )
+                          , Null()
+                          ]
+                        )
+                      , FuncCall(
+                          "pkick"
+                        , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'Kicked by WoeshBot.\\nReason: Byebye >=3'")]
+                        )
+                      , FuncCall(
+                          "broadcast"
+                        , [ FuncCall(
+                              "colorize"
+                            , [ BinExp(
+                                  Concat()
+                                , BinExp(
+                                    Concat()
+                                  , StringVal("'&eWoeshBot has kicked '")
+                                  , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                                  )
+                                , StringVal("'. Reason: Byebye >=3'")
+                                )
+                              ]
+                            )
+                          ]
+                        )
+                      , Die(None())
+                      ]
+                    )
+                  ]
+                , None()
+                )
+              , If(
+                  BinExp(Lt(), IVar("@count"), IntVal("5"))
+                , [ FuncCall(
+                      "export"
+                    , [ BinExp(
+                          Concat()
+                        , StringVal("'woesh0007.woeshbot.byecount.'")
+                        , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                        )
+                      , IVar("@count")
+                      ]
+                    )
+                  ]
+                , None()
+                )
+              , FuncCall(
+                  "set_timeout"
+                , [ IntVal("300")
+                  , Closure(
+                      []
+                    , [ FuncCall(
+                          "broadcast"
+                        , [FuncCall(
+                             "colorize"
+                           , [BinExp(Concat(), StringVal("'&6[&4WoeshBot&6]&f '"), IVar("@response"))]
+                           )]
+                        )
+                      ]
+                    )
+                  ]
+                )
+              , Die(None())
+              ]
+            , None()
+            )
+          , If(
+              BinExp(
+                And()
+              , IVar("@woeshBotEnabled")
+              , BinExp(
+                  Or()
+                , BinExp(
+                    Or()
+                  , FuncCall(
+                      "equals_ic"
+                    , [ IVar("@messageStripped")
+                      , FuncCall(
+                          "reg_replace"
+                        , [StringVal("'\\\\W'"), StringVal("''"), StringVal("'Hi Woeshbot'")]
+                        )
+                      ]
+                    )
+                  , FuncCall(
+                      "equals_ic"
+                    , [ IVar("@messageStripped")
+                      , FuncCall(
+                          "reg_replace"
+                        , [StringVal("'\\\\W'"), StringVal("''"), StringVal("'Hey Woeshbot'")]
+                        )
+                      ]
+                    )
+                  )
+                , FuncCall(
+                    "equals_ic"
+                  , [ IVar("@messageStripped")
+                    , FuncCall(
+                        "reg_replace"
+                      , [StringVal("'\\\\W'"), StringVal("''"), StringVal("'Hello Woeshbot'")]
+                      )
+                    ]
+                  )
+                )
+              )
+            , [ IVarAssign(
+                  "@count"
+                , FuncCall(
+                    "import"
+                  , [ BinExp(
+                        Concat()
+                      , StringVal("'woesh0007.woeshbot.hellocount.'")
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                      )
+                    ]
+                  )
+                )
+              , If(
+                  BinExp(
+                    Or()
+                  , FuncCall("is_null", [IVar("@count")])
+                  , UnExp(Not(), FuncCall("is_numeric", [IVar("@count")]))
+                  )
+                , [ IVarAssign("@count", IntVal("0"))
+                  , Bind(
+                      StringVal("'player_quit'")
+                    , Null()
+                    , Array(
+                        [ArrayLabelEntry("'player'", BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")))]
+                      )
+                    , "@event"
+                    , []
+                    , [ FuncCall(
+                          "export"
+                        , [ BinExp(
+                              Concat()
+                            , StringVal("'woesh0007.woeshbot.hellocount.'")
+                            , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                            )
+                          , Null()
+                          ]
+                        )
+                      ]
+                    )
+                  ]
+                , None()
+                )
+              , UnExp(PostInc(), IVar("@count"))
+              , IVarAssign("@response", StringVal("''"))
+              , Switch(
+                  IVar("@count")
+                , [ SwitchCase(
+                      [IntVal("1")]
+                    , [ IVarAssign(
+                          "@response"
+                        , BinExp(
+                            Concat()
+                          , BinExp(
+                              Concat()
+                            , StringVal("'Hey '")
+                            , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                            )
+                          , StringVal("' :)'")
+                          )
+                        )
+                      ]
+                    )
+                  , SwitchCase(
+                      [IntVal("2")]
+                    , [IVarAssign("@response", StringVal("'Hello there ^^'"))]
+                    )
+                  , SwitchCase(
+                      [IntVal("3")]
+                    , [ IVarAssign(
+                          "@response"
+                        , BinExp(
+                            Concat()
+                          , BinExp(
+                              Concat()
+                            , StringVal("'Greetings, '")
+                            , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                            )
+                          , StringVal("' :)'")
+                          )
+                        )
+                      ]
+                    )
+                  , SwitchCase(
+                      [IntVal("4")]
+                    , [ IVarAssign(
+                          "@response"
+                        , BinExp(
+                            Concat()
+                          , BinExp(
+                              Concat()
+                            , StringVal("'A greeting is for when you join, '")
+                            , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                            )
+                          , StringVal("'. I will ignore you now :o'")
+                          )
+                        )
+                      ]
+                    )
+                  , SwitchCase([IntVal("5")], [Die(None())])
+                  ]
+                , None()
+                )
+              , FuncCall(
+                  "export"
+                , [ BinExp(
+                      Concat()
+                    , StringVal("'woesh0007.woeshbot.hellocount.'")
+                    , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                    )
+                  , IVar("@count")
+                  ]
+                )
+              , FuncCall(
+                  "set_timeout"
+                , [ IntVal("300")
+                  , Closure(
+                      []
+                    , [ FuncCall(
+                          "broadcast"
+                        , [FuncCall(
+                             "colorize"
+                           , [BinExp(Concat(), StringVal("'&6[&4WoeshBot&6]&f '"), IVar("@response"))]
+                           )]
+                        )
+                      ]
+                    )
+                  ]
+                )
+              , Die(None())
+              ]
+            , None()
+            )
+          , If(
+              BinExp(
+                Or()
+              , FuncCall(
+                  "equals_ic"
+                , [ IVar("@messageStripped")
+                  , FuncCall(
+                      "reg_replace"
+                    , [StringVal("'\\\\W'"), StringVal("''"), StringVal("'Shut up woeshbot'")]
+                    )
+                  ]
+                )
+              , FuncCall(
+                  "equals_ic"
+                , [ IVar("@messageStripped")
+                  , FuncCall(
+                      "reg_replace"
+                    , [StringVal("'\\\\W'"), StringVal("''"), StringVal("'Woeshbot, shut up'")]
+                    )
+                  ]
+                )
+              )
+            , [ If(
+                  FuncCall(
+                    "has_permission"
+                  , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'woesh0007.woeshbot.toggle'")]
+                  )
+                , [ If(
+                      IVar("@woeshBotEnabled")
+                    , [ FuncCall(
+                          "set_timeout"
+                        , [ IntVal("300")
+                          , Closure(
+                              []
+                            , [ FuncCall(
+                                  "broadcast"
+                                , [ FuncCall(
+                                      "colorize"
+                                    , [ BinExp(
+                                          Concat()
+                                        , BinExp(
+                                            Concat()
+                                          , StringVal("'&6[&4WoeshBot&6]&f Sorry '")
+                                          , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                                          )
+                                        , StringVal("', I will shut up now :('")
+                                        )
+                                      ]
+                                    )
+                                  ]
+                                )
+                              ]
+                            )
+                          ]
+                        )
+                      , FuncCall("export", [StringVal("'woesh0007.woeshbot.enabled'"), False()])
+                      ]
+                    , [ FuncCall(
+                          "set_timeout"
+                        , [ IntVal("300")
+                          , Closure(
+                              []
+                            , [FuncCall("broadcast", [FuncCall("colorize", [StringVal("'&6[&4WoeshBot&6]&f Hey, I didn\\'t even say anything!'")])])]
+                            )
+                          ]
+                        )
+                      ]
+                    )
+                  ]
+                , [ If(
+                      IVar("@woeshBotEnabled")
+                    , [ FuncCall(
+                          "set_timeout"
+                        , [ IntVal("300")
+                          , Closure(
+                              []
+                            , [ FuncCall(
+                                  "broadcast"
+                                , [ FuncCall(
+                                      "colorize"
+                                    , [ BinExp(
+                                          Concat()
+                                        , BinExp(
+                                            Concat()
+                                          , StringVal("'&6[&4WoeshBot&6]&f No '")
+                                          , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                                          )
+                                        , StringVal("' you are not my owner.'")
+                                        )
+                                      ]
+                                    )
+                                  ]
+                                )
+                              ]
+                            )
+                          ]
+                        )
+                      ]
+                    , None()
+                    )
+                  ]
+                )
+              ]
+            , [ If(
+                  FuncCall(
+                    "equals_ic"
+                  , [ IVar("@messageStripped")
+                    , FuncCall(
+                        "reg_replace"
+                      , [StringVal("'\\\\W'"), StringVal("''"), StringVal("'Come back woeshbot'")]
+                      )
+                    ]
+                  )
+                , [ If(
+                      IVar("@woeshBotEnabled")
+                    , [ FuncCall(
+                          "set_timeout"
+                        , [ IntVal("300")
+                          , Closure(
+                              []
+                            , [ FuncCall(
+                                  "broadcast"
+                                , [ FuncCall(
+                                      "colorize"
+                                    , [ BinExp(
+                                          Concat()
+                                        , BinExp(
+                                            Concat()
+                                          , StringVal("'&6[&4WoeshBot&6]&f Don\\'t you worry '")
+                                          , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                                          )
+                                        , StringVal("', I am here already :)'")
+                                        )
+                                      ]
+                                    )
+                                  ]
+                                )
+                              ]
+                            )
+                          ]
+                        )
+                      ]
+                    , [ If(
+                          FuncCall(
+                            "has_permission"
+                          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'woesh0007.woeshbot.toggle'")]
+                          )
+                        , [ FuncCall(
+                              "set_timeout"
+                            , [ IntVal("300")
+                              , Closure(
+                                  []
+                                , [ If(
+                                      BinExp(
+                                        Equals()
+                                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                                      , StringVal("'Ecconia'")
+                                      )
+                                    , [FuncCall("broadcast", [FuncCall("colorize", [StringVal("'&6[&4WoeshBot&6]&f I\\'m back :o'")])])]
+                                    , [FuncCall("broadcast", [FuncCall("colorize", [StringVal("'&6[&4WoeshBot&6]&f Woohoo! Guess who\\'s back! =3'")])])]
+                                    )
+                                  ]
+                                )
+                              ]
+                            )
+                          , FuncCall("export", [StringVal("'woesh0007.woeshbot.enabled'"), Null()])
+                          ]
+                        , [ FuncCall(
+                              "set_timeout"
+                            , [ IntVal("300")
+                              , Closure(
+                                  []
+                                , [ FuncCall(
+                                      "broadcast"
+                                    , [ FuncCall(
+                                          "colorize"
+                                        , [ BinExp(
+                                              Concat()
+                                            , BinExp(
+                                                Concat()
+                                              , StringVal("'&6[&4WoeshBot&6]&f I\\'m sorry '")
+                                              , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                                              )
+                                            , StringVal("', but you would have to ask my owner.'")
+                                            )
+                                          ]
+                                        )
+                                      ]
+                                    )
+                                  ]
+                                )
+                              ]
+                            )
+                          ]
+                        )
+                      ]
+                    )
+                  ]
+                , None()
+                )
+              ]
+            )
+          ]
+        , None()
+        )
+      , If(
+          IVar("@woeshBotEnabled")
+        , [ IVarAssign("@cooldown", IntVal("3000"))
+          , IVarAssign("@lastTrigger", FuncCall("import", [StringVal("'woesh0007.woeshbot.lastTrigger'")]))
+          , If(
+              FuncCall("is_null", [IVar("@lastTrigger")])
+            , [IVarAssign("@lastTrigger", IntVal("0"))]
+            , None()
+            )
+          , IVarAssign("@time", FuncCall("time", []))
+          , If(
+              BinExp(
+                Gt()
+              , BinExp(Subtract(), IVar("@time"), IVar("@lastTrigger"))
+              , IVar("@cooldown")
+              )
+            , [ FuncCall("export", [StringVal("'woesh0007.woeshbot.lastTrigger'"), IVar("@time")])
+              , IVarAssign("@woeshBotPlayers", Array([]))
+              , ForEach(
+                  None()
+                , IVarParam("@p")
+                , FuncCall("all_players", [])
+                , [ If(
+                      FuncCall("has_permission", [IVar("@p"), StringVal("'woesh0007.woeshbot.autoreply'")])
+                    , [ ArraySet(
+                          IVar("@woeshBotPlayers")
+                        , IVar("@p")
+                        , Array(
+                            [ FuncCall("to_lower", [IVar("@p")])
+                            , FuncCall(
+                                "to_lower"
+                              , [FuncCall(
+                                   "reg_replace"
+                                 , [StringVal("'[^a-zA-Z]'"), StringVal("''"), IVar("@p")]
+                                 )]
+                              )
+                            ]
+                          )
+                        )
+                      ]
+                    , None()
+                    )
+                  ]
+                , None()
+                )
+              , IVarAssign(
+                  "@messageStripped"
+                , FuncCall(
+                    "to_lower"
+                  , [ FuncCall(
+                        "reg_replace"
+                      , [ StringVal("'[^a-zA-Z0-9]'")
+                        , StringVal("''")
+                        , BinExp(ArrayGet(), IVar("@event"), StringVal("'message'"))
+                        ]
+                      )
+                    ]
+                  )
+                )
+              , ForEach(
+                  IVarParam("@woeshBotPlayer")
+                , IVarParam("@matches")
+                , IVar("@woeshBotPlayers")
+                , [ If(
+                      BinExp(
+                        And()
+                      , BinExp(
+                          And()
+                        , BinExp(
+                            And()
+                          , BinExp(
+                              And()
+                            , FuncCall("ponline", [IVar("@woeshBotPlayer")])
+                            , UnExp(
+                                Not()
+                              , BinExp(
+                                  Equals()
+                                , IVar("@woeshBotPlayer")
+                                , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                                )
+                              )
+                            )
+                          , UnExp(Not(), ProcCall("_is_vanished", [IVar("@woeshBotPlayer")]))
+                          )
+                        , UnExp(Not(), ProcCall("_player_afk", [IVar("@woeshBotPlayer")]))
+                        )
+                      , UnExp(
+                          Not()
+                        , ProcCall(
+                            "_adminchat_get_state"
+                          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+                          )
+                        )
+                      )
+                    , [ If(
+                          BinExp(
+                            And()
+                          , UnExp(Not(), BinExp(Equals(), IVar("@matches"), StringVal("''")))
+                          , FuncCall("array_contains", [IVar("@matches"), IVar("@messageStripped")])
+                          )
+                        , [ FuncCall(
+                              "set_timeout"
+                            , [ IntVal("300")
+                              , Closure(
+                                  []
+                                , [ FuncCall(
+                                      "broadcast"
+                                    , [ FuncCall(
+                                          "colorize"
+                                        , [ BinExp(
+                                              Concat()
+                                            , BinExp(
+                                                Concat()
+                                              , StringVal("'&6[&4WoeshBot&6]&f '")
+                                              , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                                              )
+                                            , StringVal("', please ask your question.'")
+                                            )
+                                          ]
+                                        )
+                                      ]
+                                    )
+                                  ]
+                                )
+                              ]
+                            )
+                          ]
+                        , None()
+                        )
+                      ]
+                    , None()
+                    )
+                  ]
+                , None()
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'sign_changed'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "has_permission"
+          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'woesh0007.editsign.colors'")]
+          )
+        , [ IVarAssign("@newText", Array([]))
+          , For(
+              IVarAssign("@i", IntVal("0"))
+            , BinExp(Lte(), IVar("@i"), IntVal("3"))
+            , UnExp(PostInc(), IVar("@i"))
+            , [ ArraySet(
+                  IVar("@newText")
+                , IVar("@i")
+                , FuncCall(
+                    "colorize"
+                  , [ BinExp(
+                        ArrayGet()
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'text'"))
+                      , IVar("@i")
+                      )
+                    ]
+                  )
+                )
+              ]
+            , None()
+            )
+          , ModifyEvent(StringVal("'text'"), IVar("@newText"), None())
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'server_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            And()
+          , FuncCall("ponline", [StringVal("'woesh0007'")])
+          , BinExp(
+              Or()
+            , UnExp(
+                Not()
+              , FuncCall("array_index_exists", [IVar("@event"), StringVal("'type'")])
+              )
+            , BinExp(
+                Equals()
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'type'"))
+              , StringVal("'console'")
+              )
+            )
+          )
+        , [ FuncCall(
+              "tmsg"
+            , [ StringVal("'woesh0007'")
+              , FuncCall(
+                  "colorize"
+                , [ BinExp(
+                      Concat()
+                    , StringVal("'&6[&3ServerCommand&6]&a A command has been issued from console:\\n&5'")
+                    , BinExp(ArrayGet(), IVar("@event"), StringVal("'command'"))
+                    )
+                  ]
+                )
+              ]
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "array_contains_ic"
+          , [ Array(
+                [StringVal("'rl'"), StringVal("'reload'"), StringVal("'bukkit:reload'"), StringVal("'bukkit:rl'")]
+              )
+            , Ternary(
+                BinExp(
+                  And()
+                , BinExp(
+                    Gt()
+                  , FuncCall(
+                      "length"
+                    , [BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))]
+                    )
+                  , IntVal("0")
+                  )
+                , BinExp(
+                    Equals()
+                  , FuncCall(
+                      "substr"
+                    , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+                      , IntVal("0")
+                      , IntVal("1")
+                      ]
+                    )
+                  , StringVal("'/'")
+                  )
+                )
+              , FuncCall(
+                  "substr"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'")), IntVal("1")]
+                )
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+              )
+            ]
+          )
+        , [ ModifyEvent(StringVal("'command'"), StringVal("'doNothing'"), None())
+          , Cancel(None())
+          , If(
+              FuncCall(
+                "has_permission"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'bukkit.reload'")]
+              )
+            , [ FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall("colorize", [StringVal("'&cReload has been disabled due to instability. Use /stop instead.'")])
+                  ]
+                )
+              ]
+            , [ FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall("colorize", [StringVal("'&cYou do not have permission to use that command.'")])
+                  ]
+                )
+              ]
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , If(
+      FuncCall("event_exists", [StringVal("'server_command'")])
+    , [ Bind(
+          StringVal("'server_command'")
+        , Null()
+        , Null()
+        , "@event"
+        , []
+        , [ If(
+              FuncCall(
+                "array_contains_ic"
+              , [ Array(
+                    [StringVal("'rl'"), StringVal("'reload'"), StringVal("'bukkit:reload'"), StringVal("'bukkit:rl'")]
+                  )
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+                ]
+              )
+            , [ ModifyEvent(StringVal("'command'"), StringVal("'doNothing'"), None())
+              , Cancel(None())
+              , FuncCall("console", [FuncCall("colorize", [StringVal("'&cReload has been disabled due to instability. Use /stop instead.'")])])
+              ]
+            , None()
+            )
+          ]
+        )
+      ]
+    , [FuncCall("console", [FuncCall("colorize", [StringVal("'&cUnable to disable the \"/reload\" command from console: The server_command event does not exist. Is CHAdvanced installed?'")])])]
+    )
+  , Bind(
+      StringVal("'player_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "array_contains_ic"
+          , [ Array([StringVal("'op'"), StringVal("'minecraft:op'")])
+            , Ternary(
+                BinExp(
+                  And()
+                , BinExp(
+                    Gt()
+                  , FuncCall(
+                      "length"
+                    , [BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))]
+                    )
+                  , IntVal("0")
+                  )
+                , BinExp(
+                    Equals()
+                  , FuncCall(
+                      "substr"
+                    , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+                      , IntVal("0")
+                      , IntVal("1")
+                      ]
+                    )
+                  , StringVal("'/'")
+                  )
+                )
+              , FuncCall(
+                  "substr"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'")), IntVal("1")]
+                )
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+              )
+            ]
+          )
+        , [ ModifyEvent(StringVal("'command'"), StringVal("'doNothing'"), None())
+          , Cancel(None())
+          , If(
+              FuncCall(
+                "has_permission"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'minecraft.op'")]
+              )
+            , [ FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall("colorize", [StringVal("'&cOP has been disabled.'")])
+                  ]
+                )
+              ]
+            , [ FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall("colorize", [StringVal("'&cYou do not have permission to use that command.'")])
+                  ]
+                )
+              ]
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , If(
+      FuncCall("event_exists", [StringVal("'server_command'")])
+    , [ Bind(
+          StringVal("'server_command'")
+        , Null()
+        , Null()
+        , "@event"
+        , []
+        , [ If(
+              FuncCall(
+                "array_contains_ic"
+              , [ Array([StringVal("'op'"), StringVal("'minecraft:op'")])
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+                ]
+              )
+            , [ ModifyEvent(StringVal("'command'"), StringVal("'doNothing'"), None())
+              , Cancel(None())
+              , FuncCall("console", [FuncCall("colorize", [StringVal("'&cOP has been disabled.'")])])
+              ]
+            , None()
+            )
+          ]
+        )
+      ]
+    , [FuncCall("console", [FuncCall("colorize", [StringVal("'&cUnable to disable the \"/op\" command from console: The server_command event does not exist. Is CHAdvanced installed?'")])])]
+    )
+  , Bind(
+      StringVal("'player_join'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ IVarAssign(
+          "@bindID"
+        , Bind(
+            StringVal("'player_chat'")
+          , Null()
+          , Array(
+              [ArrayLabelEntry("'player'", BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")))]
+            )
+          , "@event2"
+          , []
+          , [ IVarAssign(
+                "@match"
+              , FuncCall(
+                  "reg_match"
+                , [StringVal("'(?:Connected with (?:(?:a|an) .* using )?(MineChat)|Connected using (PickaxeChat) for .*)'"), BinExp(ArrayGet(), IVar("@event2"), StringVal("'message'"))]
+                )
+              )
+            , If(
+                UnExp(
+                  Not()
+                , BinExp(
+                    Equals()
+                  , FuncCall("array_size", [IVar("@match")])
+                  , IntVal("0")
+                  )
+                )
+              , [ IVarAssign(
+                    "@chatSoftware"
+                  , Ternary(
+                      UnExp(
+                        Not()
+                      , FuncCall(
+                          "is_null"
+                        , [BinExp(ArrayGet(), IVar("@match"), IntVal("1"))]
+                        )
+                      )
+                    , BinExp(ArrayGet(), IVar("@match"), IntVal("1"))
+                    , Ternary(
+                        UnExp(
+                          Not()
+                        , FuncCall(
+                            "is_null"
+                          , [BinExp(ArrayGet(), IVar("@match"), IntVal("2"))]
+                          )
+                        )
+                      , BinExp(ArrayGet(), IVar("@match"), IntVal("2"))
+                      , StringVal("'UnknownChat'")
+                      )
+                    )
+                  )
+                , If(
+                    UnExp(
+                      Not()
+                    , ProcCall(
+                        "_is_vanished"
+                      , [BinExp(ArrayGet(), IVar("@event2"), StringVal("'player'"))]
+                      )
+                    )
+                  , [ FuncCall(
+                        "broadcast"
+                      , [ FuncCall(
+                            "colorize"
+                          , [ BinExp(
+                                Concat()
+                              , BinExp(
+                                  Concat()
+                                , BinExp(
+                                    Concat()
+                                  , BinExp(
+                                      Concat()
+                                    , StringVal("'&e'")
+                                    , BinExp(ArrayGet(), IVar("@event2"), StringVal("'player'"))
+                                    )
+                                  , StringVal("' has joined using '")
+                                  )
+                                , IVar("@chatSoftware")
+                                )
+                              , StringVal("'.'")
+                              )
+                            ]
+                          )
+                        ]
+                      )
+                    ]
+                  , [ ProcCall(
+                        "_send_adminchat_message"
+                      , [ BinExp(ArrayGet(), IVar("@event2"), StringVal("'player'"))
+                        , FuncCall(
+                            "colorize"
+                          , [ BinExp(
+                                Concat()
+                              , BinExp(
+                                  Concat()
+                                , BinExp(
+                                    Concat()
+                                  , BinExp(
+                                      Concat()
+                                    , StringVal("'&a'")
+                                    , BinExp(ArrayGet(), IVar("@event2"), StringVal("'player'"))
+                                    )
+                                  , StringVal("' has joined using '")
+                                  )
+                                , IVar("@chatSoftware")
+                                )
+                              , StringVal("'.'")
+                              )
+                            ]
+                          )
+                        ]
+                      )
+                    ]
+                  )
+                , Cancel(None())
+                ]
+              , None()
+              )
+            , FuncCall("unbind", [])
+            ]
+          )
+        )
+      , FuncCall(
+          "set_timeout"
+        , [ IntVal("7000")
+          , Closure([], [FuncCall("unbind", [IVar("@bindID")])])
+          ]
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_join'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ FuncCall(
+          "console"
+        , [ FuncCall(
+              "colorize"
+            , [ BinExp(
+                  Concat()
+                , BinExp(
+                    Concat()
+                  , StringVal("'&e'")
+                  , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  )
+                , StringVal("' joined the game'")
+                )
+              ]
+            )
+          ]
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_quit'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ FuncCall(
+          "console"
+        , [ FuncCall(
+              "colorize"
+            , [ BinExp(
+                  Concat()
+                , BinExp(
+                    Concat()
+                  , StringVal("'&e'")
+                  , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  )
+                , StringVal("' left the game'")
+                )
+              ]
+            )
+          ]
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_interact'")
+    , Array([ArrayLabelEntry("'priority'", StringVal("'low'"))])
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            Or()
+          , BinExp(
+              Or()
+            , IsCancelled()
+            , UnExp(
+                Not()
+              , BinExp(
+                  Equals()
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'action'"))
+                , StringVal("'right_click_block'")
+                )
+              )
+            )
+          , UnExp(
+              Not()
+            , BinExp(
+                Equals()
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'hand'"))
+              , StringVal("'main_hand'")
+              )
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , If(
+          BinExp(
+            And()
+          , BinExp(
+              And()
+            , FuncCall(
+                "has_permission"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'worldedit.wand'")]
+              )
+            , UnExp(
+                Not()
+              , BinExp(
+                  Equals()
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+                , Null()
+                )
+              )
+            )
+          , BinExp(
+              Equals()
+            , BinExp(
+                ArrayGet()
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+              , StringVal("'name'")
+              )
+            , StringVal("'WOODEN_AXE'")
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , If(
+          BinExp(
+            And()
+          , BinExp(
+              And()
+            , BinExp(
+                Equals()
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+              , StringVal("'CAULDRON'")
+              )
+            , FuncCall(
+                "sk_can_build"
+              , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))
+                ]
+              )
+            )
+          , UnExp(
+              Not()
+            , FuncCall(
+                "pinfo"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), IntVal("11")]
+              )
+            )
+          )
+        , [ Cancel(None())
+          , IVarAssign(
+              "@blockData"
+            , ProcCall(
+                "_get_blockdata"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+              )
+            )
+          , ArraySet(
+              BinExp(ArrayGet(), IVar("@blockData"), StringVal("'data'"))
+            , StringVal("'level'")
+            , BinExp(
+                Mod()
+              , BinExp(
+                  Add()
+                , BinExp(
+                    ArrayGet()
+                  , BinExp(ArrayGet(), IVar("@blockData"), StringVal("'data'"))
+                  , StringVal("'level'")
+                  )
+                , IntVal("1")
+                )
+              , IntVal("4")
+              )
+            )
+          , ProcCall(
+              "_set_blockdata"
+            , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'")), IVar("@blockData")]
+            )
+          , If(
+              UnExp(
+                Not()
+              , ProcCall(
+                  "_nms_send_action_bar_message"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , FuncCall("color", [StringVal("'6'")])
+                      , StringVal("'Cauldron signal strength: '")
+                      )
+                    , BinExp(
+                        ArrayGet()
+                      , BinExp(ArrayGet(), IVar("@blockData"), StringVal("'data'"))
+                      , StringVal("'level'")
+                      )
+                    )
+                  ]
+                )
+              )
+            , [ FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , FuncCall("color", [StringVal("'6'")])
+                      , StringVal("'Cauldron signal strength: '")
+                      )
+                    , BinExp(
+                        ArrayGet()
+                      , BinExp(ArrayGet(), IVar("@blockData"), StringVal("'data'"))
+                      , StringVal("'level'")
+                      )
+                    )
+                  ]
+                )
+              ]
+            , None()
+            )
+          , Die(None())
+          ]
+        , None()
+        )
+      , If(
+          BinExp(
+            And()
+          , BinExp(
+              And()
+            , BinExp(
+                Equals()
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+              , StringVal("'CAKE'")
+              )
+            , FuncCall(
+                "sk_can_build"
+              , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))
+                ]
+              )
+            )
+          , UnExp(
+              Not()
+            , FuncCall(
+                "pinfo"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), IntVal("11")]
+              )
+            )
+          )
+        , [ Cancel(None())
+          , IVarAssign(
+              "@blockData"
+            , ProcCall(
+                "_get_blockdata"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+              )
+            )
+          , ArraySet(
+              BinExp(ArrayGet(), IVar("@blockData"), StringVal("'data'"))
+            , StringVal("'bites'")
+            , BinExp(
+                Mod()
+              , BinExp(
+                  Add()
+                , BinExp(
+                    ArrayGet()
+                  , BinExp(ArrayGet(), IVar("@blockData"), StringVal("'data'"))
+                  , StringVal("'bites'")
+                  )
+                , IntVal("1")
+                )
+              , IntVal("7")
+              )
+            )
+          , ProcCall(
+              "_set_blockdata"
+            , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'")), IVar("@blockData")]
+            )
+          , IVarAssign(
+              "@messages"
+            , Array(
+                [ StringVal("'No, please don\\'t eat me!'")
+                , StringVal("'Ouch!'")
+                , StringVal("'That hurts!'")
+                , StringVal("'My whipped cream!'")
+                , StringVal("'I wouldn\\'t eat you either!'")
+                , StringVal("'Hey! My frosting!'")
+                , StringVal("'That wasn\\'t a rasin.'")
+                , StringVal("'You\\'re the lie!'")
+                ]
+              )
+            )
+          , If(
+              UnExp(
+                Not()
+              , ProcCall(
+                  "_nms_send_action_bar_message"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , BinExp(
+                          Concat()
+                        , BinExp(
+                            Concat()
+                          , FuncCall("color", [StringVal("'6'")])
+                          , BinExp(
+                              ArrayGet()
+                            , FuncCall("array_rand", [IVar("@messages"), IntVal("1"), False()])
+                            , IntVal("0")
+                            )
+                          )
+                        , StringVal("' (Signal strength: '")
+                        )
+                      , BinExp(
+                          Subtract()
+                        , IntVal("14")
+                        , BinExp(
+                            Multiply()
+                          , BinExp(
+                              ArrayGet()
+                            , BinExp(ArrayGet(), IVar("@blockData"), StringVal("'data'"))
+                            , StringVal("'bites'")
+                            )
+                          , IntVal("2")
+                          )
+                        )
+                      )
+                    , StringVal("')'")
+                    )
+                  ]
+                )
+              )
+            , [ FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , BinExp(
+                          Concat()
+                        , BinExp(
+                            Concat()
+                          , FuncCall("color", [StringVal("'6'")])
+                          , BinExp(
+                              ArrayGet()
+                            , FuncCall("array_rand", [IVar("@messages"), IntVal("1"), False()])
+                            , IntVal("0")
+                            )
+                          )
+                        , StringVal("' (Signal strength: '")
+                        )
+                      , BinExp(
+                          Subtract()
+                        , IntVal("14")
+                        , BinExp(
+                            Multiply()
+                          , BinExp(
+                              ArrayGet()
+                            , BinExp(ArrayGet(), IVar("@blockData"), StringVal("'data'"))
+                            , StringVal("'bites'")
+                            )
+                          , IntVal("2")
+                          )
+                        )
+                      )
+                    , StringVal("')'")
+                    )
+                  ]
+                )
+              ]
+            , None()
+            )
+          , Die(None())
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_interact'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            Or()
+          , BinExp(
+              Or()
+            , BinExp(
+                Or()
+              , BinExp(
+                  Or()
+                , BinExp(
+                    Or()
+                  , UnExp(
+                      Not()
+                    , BinExp(
+                        Equals()
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'action'"))
+                      , StringVal("'right_click_block'")
+                      )
+                    )
+                  , UnExp(
+                      Not()
+                    , BinExp(
+                        Equals()
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'hand'"))
+                      , StringVal("'main_hand'")
+                      )
+                    )
+                  )
+                , UnExp(
+                    Not()
+                  , FuncCall(
+                      "pinfo"
+                    , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), IntVal("11")]
+                    )
+                  )
+                )
+              , UnExp(
+                  Not()
+                , BinExp(
+                    Equals()
+                  , BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+                  , StringVal("'COMPARATOR'")
+                  )
+                )
+              )
+            , BinExp(
+                Equals()
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+              , Null()
+              )
+            )
+          , UnExp(
+              Not()
+            , BinExp(
+                Equals()
+              , BinExp(
+                  ArrayGet()
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+                , StringVal("'name'")
+                )
+              , StringVal("'COMPARATOR'")
+              )
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , IVarAssign(
+          "@ssData"
+        , ProcCall(
+            "_nms_get_comparator_ss"
+          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+          )
+        )
+      , If(
+          UnExp(Not(), BinExp(Equals(), IVar("@ssData"), Null()))
+        , [ IVarAssign(
+              "@message"
+            , FuncCall(
+                "colorize"
+              , [ BinExp(
+                    Concat()
+                  , BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , BinExp(
+                          Concat()
+                        , BinExp(
+                            Concat()
+                          , BinExp(
+                              Concat()
+                            , StringVal("'&aComparator signal strength: FrontInput=&d'")
+                            , BinExp(ArrayGet(), IVar("@ssData"), StringVal("'frontInputStrength'"))
+                            )
+                          , StringVal("'&a, SideInput=&d'")
+                          )
+                        , BinExp(ArrayGet(), IVar("@ssData"), StringVal("'sideInputStrength'"))
+                        )
+                      , StringVal("'&a, Output=&d'")
+                      )
+                    , BinExp(ArrayGet(), IVar("@ssData"), StringVal("'outputStrength'"))
+                    )
+                  , StringVal("'&a.'")
+                  )
+                ]
+              )
+            )
+          , If(
+              UnExp(
+                Not()
+              , ProcCall(
+                  "_nms_send_action_bar_message"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), IVar("@message")]
+                )
+              )
+            , [ FuncCall(
+                  "tmsg"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), IVar("@message")]
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      , Cancel(None())
+      ]
+    )
+  , Bind(
+      StringVal("'player_interact'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            Or()
+          , BinExp(
+              Or()
+            , BinExp(
+                Or()
+              , BinExp(
+                  Or()
+                , UnExp(
+                    Not()
+                  , BinExp(
+                      Equals()
+                    , BinExp(ArrayGet(), IVar("@event"), StringVal("'action'"))
+                    , StringVal("'right_click_block'")
+                    )
+                  )
+                , UnExp(
+                    Not()
+                  , BinExp(
+                      Equals()
+                    , BinExp(ArrayGet(), IVar("@event"), StringVal("'hand'"))
+                    , StringVal("'main_hand'")
+                    )
+                  )
+                )
+              , UnExp(
+                  Not()
+                , BinExp(
+                    Equals()
+                  , BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+                  , StringVal("'REDSTONE_WIRE'")
+                  )
+                )
+              )
+            , BinExp(
+                Equals()
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+              , Null()
+              )
+            )
+          , UnExp(
+              Not()
+            , BinExp(
+                Equals()
+              , BinExp(
+                  ArrayGet()
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+                , StringVal("'name'")
+                )
+              , StringVal("'REDSTONE'")
+              )
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , IVarAssign(
+          "@blockData"
+        , ProcCall(
+            "_get_blockdata"
+          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+          )
+        )
+      , IVarAssign(
+          "@message"
+        , FuncCall(
+            "colorize"
+          , [ BinExp(
+                Concat()
+              , BinExp(
+                  Concat()
+                , StringVal("'&aSignal strength: &d'")
+                , BinExp(
+                    ArrayGet()
+                  , BinExp(ArrayGet(), IVar("@blockData"), StringVal("'data'"))
+                  , StringVal("'power'")
+                  )
+                )
+              , StringVal("'&a.'")
+              )
+            ]
+          )
+        )
+      , If(
+          UnExp(
+            Not()
+          , ProcCall(
+              "_nms_send_action_bar_message"
+            , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), IVar("@message")]
+            )
+          )
+        , [ FuncCall(
+              "tmsg"
+            , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), IVar("@message")]
+            )
+          ]
+        , None()
+        )
+      , Cancel(None())
+      ]
+    )
+  , Bind(
+      StringVal("'block_place'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          UnExp(
+            Not()
+          , FuncCall(
+              "pinfo"
+            , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), IntVal("11")]
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , IVarAssign(
+          "@againstMaterial"
+        , BinExp(
+            ArrayGet()
+          , BinExp(ArrayGet(), IVar("@event"), StringVal("'against'"))
+          , StringVal("'name'")
+          )
+        )
+      , If(
+          FuncCall(
+            "array_contains"
+          , [ Array(
+                [ StringVal("'DISPENSER'")
+                , StringVal("'DROPPER'")
+                , StringVal("'HOPPER'")
+                , StringVal("'CHEST'")
+                , StringVal("'FURNACE'")
+                , StringVal("'TRAPPED_CHEST'")
+                , StringVal("'ENDER_CHEST'")
+                , StringVal("'LEVER'")
+                , StringVal("'REPEATER'")
+                , StringVal("'COMPARATOR'")
+                ]
+              )
+            , IVar("@againstMaterial")
+            ]
+          )
+        , [Die(None())]
+        , None()
+        )
+      , Switch(
+          BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+        , [ SwitchCase(
+              [ StringVal("'REPEATER'")
+              , StringVal("'COMPARATOR'")
+              , StringVal("'OBSERVER'")
+              , StringVal("'REDSTONE_WALL_TORCH'")
+              , StringVal("'PISTON'")
+              , StringVal("'STICKY_PISTON'")
+              ]
+            , [ IVarAssign(
+                  "@blockdata"
+                , ProcCall(
+                    "_get_blockdata"
+                  , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+                  )
+                )
+              , ArraySet(
+                  BinExp(ArrayGet(), IVar("@blockdata"), StringVal("'data'"))
+                , StringVal("'facing'")
+                , SwitchExp(
+                    BinExp(
+                      ArrayGet()
+                    , BinExp(ArrayGet(), IVar("@blockdata"), StringVal("'data'"))
+                    , StringVal("'facing'")
+                    )
+                  , [ SwitchExpCase([StringVal("'NORTH'")], StringVal("'SOUTH'"))
+                    , SwitchExpCase([StringVal("'SOUTH'")], StringVal("'NORTH'"))
+                    , SwitchExpCase([StringVal("'WEST'")], StringVal("'EAST'"))
+                    , SwitchExpCase([StringVal("'EAST'")], StringVal("'WEST'"))
+                    , SwitchExpCase([StringVal("'UP'")], StringVal("'DOWN'"))
+                    , SwitchExpCase([StringVal("'DOWN'")], StringVal("'UP'"))
+                    ]
+                  , None()
+                  )
+                )
+              , ProcCall(
+                  "_set_blockdata"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'")), IVar("@blockdata"), True()]
+                )
+              , ProcCall(
+                  "_nms_trigger_physics_update"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+                )
+              ]
+            )
+          , SwitchCase(
+              [StringVal("'END_PORTAL_FRAME'")]
+            , [ IVarAssign(
+                  "@blockdata"
+                , ProcCall(
+                    "_get_blockdata"
+                  , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+                  )
+                )
+              , If(
+                  UnExp(
+                    Not()
+                  , BinExp(
+                      ArrayGet()
+                    , BinExp(ArrayGet(), IVar("@blockdata"), StringVal("'data'"))
+                    , StringVal("'eye'")
+                    )
+                  )
+                , [ ArraySet(
+                      BinExp(ArrayGet(), IVar("@blockdata"), StringVal("'data'"))
+                    , StringVal("'eye'")
+                    , True()
+                    )
+                  , ProcCall(
+                      "_set_blockdata"
+                    , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'")), IVar("@blockdata"), True()]
+                    )
+                  , ProcCall(
+                      "_nms_trigger_physics_update"
+                    , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+                    )
+                  ]
+                , None()
+                )
+              ]
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "has_permission"
+          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'minecraft.labeledvanillacommands'")]
+          )
+        , [Die(None())]
+        , None()
+        )
+      , IVarAssign("@cmdPrefix", BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'")))
+      , If(
+          BinExp(
+            And()
+          , BinExp(
+              Gt()
+            , FuncCall("length", [IVar("@cmdPrefix")])
+            , IntVal("0")
+            )
+          , BinExp(
+              Equals()
+            , FuncCall(
+                "substr"
+              , [IVar("@cmdPrefix"), IntVal("0"), IntVal("1")]
+              )
+            , StringVal("'/'")
+            )
+          )
+        , [IVarAssign(
+             "@cmdPrefix"
+           , FuncCall("substr", [IVar("@cmdPrefix"), IntVal("1")])
+           )]
+        , None()
+        )
+      , If(
+          BinExp(
+            And()
+          , BinExp(
+              Gte()
+            , FuncCall("length", [IVar("@cmdPrefix")])
+            , IntVal("10")
+            )
+          , BinExp(
+              Equals()
+            , FuncCall(
+                "substr"
+              , [IVar("@cmdPrefix"), IntVal("0"), IntVal("10")]
+              )
+            , StringVal("'minecraft:'")
+            )
+          )
+        , [ Cancel(None())
+          , FuncCall(
+              "tmsg"
+            , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+              , FuncCall("colorize", [StringVal("'&cYou do not have permission to use labeled vanilla commands.'")])
+              ]
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_interact'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            And()
+          , BinExp(
+              Equals()
+            , BinExp(ArrayGet(), IVar("@event"), StringVal("'action'"))
+            , StringVal("'right_click_block'")
+            )
+          , FuncCall(
+              "array_contains_ic"
+            , [ Array([StringVal("'SIGN'"), StringVal("'WALL_SIGN'")])
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+              ]
+            )
+          )
+        , [ If(
+              UnExp(
+                Not()
+              , FuncCall(
+                  "is_sign_at"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+                )
+              )
+            , [ FuncCall("console", [FuncCall("colorize", [StringVal("'&cError: Found a sign in player_interact, but CH said there was no sign (warp-on-click signs).'")])])
+              , Die(None())
+              ]
+            , None()
+            )
+          , IVarAssign(
+              "@text"
+            , FuncCall(
+                "get_sign_text"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+              )
+            )
+          , If(
+              BinExp(
+                And()
+              , FuncCall(
+                  "equals_ic"
+                , [BinExp(ArrayGet(), IVar("@text"), IntVal("0")), StringVal("'[warp]'")]
+                )
+              , UnExp(
+                  Not()
+                , BinExp(
+                    Equals()
+                  , BinExp(ArrayGet(), IVar("@text"), IntVal("1"))
+                  , StringVal("''")
+                  )
+                )
+              )
+            , [ IVarAssign(
+                  "@warpArgs"
+                , BinExp(
+                    Concat()
+                  , BinExp(
+                      Concat()
+                    , BinExp(ArrayGet(), IVar("@text"), IntVal("1"))
+                    , BinExp(ArrayGet(), IVar("@text"), IntVal("2"))
+                    )
+                  , BinExp(ArrayGet(), IVar("@text"), IntVal("3"))
+                  )
+                )
+              , If(
+                  FuncCall(
+                    "array_contains"
+                  , [ Array(
+                        [ StringVal("'remove'")
+                        , StringVal("'delete'")
+                        , StringVal("'pset'")
+                        , StringVal("'pcreate'")
+                        , StringVal("'set'")
+                        , StringVal("'create'")
+                        , StringVal("'update'")
+                        , StringVal("'welcome'")
+                        , StringVal("'info'")
+                        , StringVal("'stats'")
+                        , StringVal("'list'")
+                        , StringVal("'assets'")
+                        , StringVal("'limits'")
+                        , StringVal("'give'")
+                        , StringVal("'invite'")
+                        , StringVal("'uninvite'")
+                        , StringVal("'public'")
+                        , StringVal("'private'")
+                        , StringVal("'point'")
+                        , StringVal("'help'")
+                        , StringVal("'player'")
+                        , StringVal("'reload'")
+                        , StringVal("'import'")
+                        ]
+                      )
+                    , BinExp(
+                        ArrayGet()
+                      , FuncCall("parse_args", [IVar("@warpArgs")])
+                      , IntVal("0")
+                      )
+                    ]
+                  )
+                , [Die(None())]
+                , None()
+                )
+              , IVarAssign("@warpCommand", BinExp(Concat(), StringVal("'/warp '"), IVar("@warpArgs")))
+              , Cancel(None())
+              , FuncCall("run", [IVar("@warpCommand")])
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_teleport'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            And()
+          , FuncCall(
+              "array_contains_ic"
+            , [ FuncCall(
+                  "pgroup"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+                )
+              , StringVal("'Newbies'")
+              ]
+            )
+          , BinExp(
+              Equals()
+            , BinExp(
+                ArrayGet()
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'from'"))
+              , StringVal("'world'")
+              )
+            , StringVal("'redstone'")
+            )
+          )
+        , [ IVarAssign("@newbSpawn", FuncCall("get_value", [StringVal("'woesh0007.newbies.spawn'")]))
+          , IVarAssign("@to", BinExp(ArrayGet(), IVar("@event"), StringVal("'to'")))
+          , If(
+              BinExp(
+                Or()
+              , BinExp(
+                  Or()
+                , BinExp(
+                    Or()
+                  , BinExp(
+                      Or()
+                    , BinExp(
+                        Or()
+                      , BinExp(
+                          Or()
+                        , FuncCall("is_null", [IVar("@newbSpawn")])
+                        , UnExp(Not(), FuncCall("is_array", [IVar("@newbSpawn")]))
+                        )
+                      , UnExp(
+                          Not()
+                        , BinExp(
+                            Equals()
+                          , FuncCall("array_size", [IVar("@newbSpawn")])
+                          , IntVal("4")
+                          )
+                        )
+                      )
+                    , UnExp(
+                        Not()
+                      , BinExp(
+                          Equals()
+                        , BinExp(ArrayGet(), IVar("@to"), IntVal("0"))
+                        , BinExp(ArrayGet(), IVar("@newbSpawn"), IntVal("0"))
+                        )
+                      )
+                    )
+                  , UnExp(
+                      Not()
+                    , BinExp(
+                        Equals()
+                      , BinExp(ArrayGet(), IVar("@to"), IntVal("1"))
+                      , BinExp(ArrayGet(), IVar("@newbSpawn"), IntVal("1"))
+                      )
+                    )
+                  )
+                , UnExp(
+                    Not()
+                  , BinExp(
+                      Equals()
+                    , BinExp(ArrayGet(), IVar("@to"), IntVal("2"))
+                    , BinExp(ArrayGet(), IVar("@newbSpawn"), IntVal("2"))
+                    )
+                  )
+                )
+              , UnExp(
+                  Not()
+                , BinExp(
+                    Equals()
+                  , BinExp(ArrayGet(), IVar("@to"), IntVal("3"))
+                  , BinExp(ArrayGet(), IVar("@newbSpawn"), IntVal("3"))
+                  )
+                )
+              )
+            , [ Cancel(None())
+              , FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall("colorize", [StringVal("'&cYou are not allowed to teleport away from the spawn trial.'")])
+                  ]
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            And()
+          , FuncCall(
+              "equals_ic"
+            , [BinExp(ArrayGet(), IVar("@event"), StringVal("'command'")), StringVal("'/spawn'")]
+            )
+          , FuncCall(
+              "array_contains_ic"
+            , [ FuncCall(
+                  "pgroup"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+                )
+              , StringVal("'Newbies'")
+              ]
+            )
+          )
+        , [ IVarAssign("@newbSpawn", FuncCall("get_value", [StringVal("'woesh0007.newbies.spawn'")]))
+          , If(
+              BinExp(
+                And()
+              , BinExp(
+                  And()
+                , UnExp(Not(), FuncCall("is_null", [IVar("@newbSpawn")]))
+                , FuncCall("is_array", [IVar("@newbSpawn")])
+                )
+              , BinExp(
+                  Equals()
+                , FuncCall("array_size", [IVar("@newbSpawn")])
+                , IntVal("4")
+                )
+              )
+            , [ Cancel(None())
+              , FuncCall(
+                  "set_ploc"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), IVar("@newbSpawn")]
+                )
+              , FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall("colorize", [StringVal("'&eWelcome to the spawn. Please finish the spawn trial to get access to the server.'")])
+                  ]
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_join'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "array_contains_ic"
+          , [ FuncCall(
+                "pgroup"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+              )
+            , StringVal("'Newbies'")
+            ]
+          )
+        , [ IVarAssign("@newbSpawn", FuncCall("get_value", [StringVal("'woesh0007.newbies.spawn'")]))
+          , If(
+              BinExp(
+                And()
+              , BinExp(
+                  And()
+                , UnExp(Not(), FuncCall("is_null", [IVar("@newbSpawn")]))
+                , FuncCall("is_array", [IVar("@newbSpawn")])
+                )
+              , BinExp(
+                  Equals()
+                , FuncCall("array_size", [IVar("@newbSpawn")])
+                , IntVal("4")
+                )
+              )
+            , [ FuncCall(
+                  "set_ploc"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), IVar("@newbSpawn")]
+                )
+              , FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall("colorize", [StringVal("'&eWelcome to the spawn. Please finish the spawn trial to get access to the server.'")])
+                  ]
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_interact'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            And()
+          , FuncCall(
+              "array_contains_ic"
+            , [ FuncCall(
+                  "pgroup"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+                )
+              , StringVal("'Newbies'")
+              ]
+            )
+          , BinExp(
+              Equals()
+            , BinExp(
+                ArrayGet()
+              , FuncCall(
+                  "split"
+                , [StringVal("':'"), BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))]
+                )
+              , IntVal("0")
+              )
+            , IntVal("77")
+            )
+          )
+        , [ IVarAssign("@buttonLoc", FuncCall("get_value", [StringVal("'woesh0007.newbies.rankupButtonLocation'")]))
+          , IVarAssign("@loc", BinExp(ArrayGet(), IVar("@event"), StringVal("'location'")))
+          , If(
+              BinExp(
+                And()
+              , BinExp(
+                  And()
+                , BinExp(
+                    And()
+                  , BinExp(
+                      And()
+                    , BinExp(
+                        And()
+                      , BinExp(
+                          And()
+                        , UnExp(Not(), FuncCall("is_null", [IVar("@buttonLoc")]))
+                        , FuncCall("is_array", [IVar("@buttonLoc")])
+                        )
+                      , BinExp(
+                          Equals()
+                        , FuncCall("array_size", [IVar("@buttonLoc")])
+                        , IntVal("4")
+                        )
+                      )
+                    , BinExp(
+                        Equals()
+                      , BinExp(ArrayGet(), IVar("@loc"), IntVal("0"))
+                      , BinExp(ArrayGet(), IVar("@buttonLoc"), IntVal("0"))
+                      )
+                    )
+                  , BinExp(
+                      Equals()
+                    , BinExp(ArrayGet(), IVar("@loc"), IntVal("1"))
+                    , BinExp(ArrayGet(), IVar("@buttonLoc"), IntVal("1"))
+                    )
+                  )
+                , BinExp(
+                    Equals()
+                  , BinExp(ArrayGet(), IVar("@loc"), IntVal("2"))
+                  , BinExp(ArrayGet(), IVar("@buttonLoc"), IntVal("2"))
+                  )
+                )
+              , BinExp(
+                  Equals()
+                , BinExp(ArrayGet(), IVar("@loc"), IntVal("3"))
+                , BinExp(ArrayGet(), IVar("@buttonLoc"), IntVal("3"))
+                )
+              )
+            , [ FuncCall(
+                  "runas"
+                , [ StringVal("'~console'")
+                  , BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , StringVal("'/pex user '")
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                      )
+                    , StringVal("' group remove Newbies'")
+                    )
+                  ]
+                )
+              , FuncCall(
+                  "runas"
+                , [ StringVal("'~console'")
+                  , BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , StringVal("'/pex user '")
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                      )
+                    , StringVal("' group add Visitors'")
+                    )
+                  ]
+                )
+              , FuncCall(
+                  "set_ploc"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall(
+                      "get_spawn"
+                    , [FuncCall(
+                         "pworld"
+                       , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+                       )]
+                    )
+                  ]
+                )
+              , FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall("colorize", [StringVal("'&eYou have succesfully passed the spawn trial.'")])
+                  ]
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          UnExp(
+            Not()
+          , FuncCall(
+              "array_contains_ic"
+            , [ Array([StringVal("'/rg'"), StringVal("'/region'")])
+              , BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+              ]
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , IVarAssign(
+          "@args"
+        , FuncCall(
+            "parse_args"
+          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'command'"))]
+          )
+        )
+      , IVarAssign("@argSize", FuncCall("array_size", [IVar("@args")]))
+      , If(
+          BinExp(
+            Or()
+          , BinExp(Lt(), IVar("@argSize"), IntVal("2"))
+          , UnExp(
+              Not()
+            , FuncCall(
+                "equals_ic"
+              , [BinExp(ArrayGet(), IVar("@args"), IntVal("1")), StringVal("'rename'")]
+              )
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , Cancel(None())
+      , If(
+          UnExp(Not(), FuncCall("has_permission", [StringVal("'woesh0007.worldguard.regionrename'")]))
+        , [ Die(
+              Some(
+                BinExp(
+                  Concat()
+                , FuncCall("color", [StringVal("'c'")])
+                , StringVal("'You do not have permission to use this command.'")
+                )
+              )
+            )
+          ]
+        , None()
+        )
+      , If(
+          BinExp(
+            Or()
+          , BinExp(Lt(), IVar("@argSize"), IntVal("4"))
+          , BinExp(Gt(), IVar("@argSize"), IntVal("5"))
+          )
+        , [Die(Some(ProcCall("_command_syntax", [StringVal("'/region rename <region> <newRegionName> [world]'")])))]
+        , None()
+        )
+      , IVarAssign(
+          "@world"
+        , Ternary(
+            BinExp(Equals(), IVar("@argSize"), IntVal("5"))
+          , BinExp(ArrayGet(), IVar("@args"), IntVal("4"))
+          , FuncCall("pworld", [])
+          )
+        )
+      , If(
+          UnExp(
+            Not()
+          , FuncCall("array_contains_ic", [FuncCall("get_worlds", []), IVar("@world")])
+          )
+        , [ Die(
+              Some(
+                BinExp(
+                  Concat()
+                , BinExp(
+                    Concat()
+                  , BinExp(
+                      Concat()
+                    , FuncCall("colorize", [StringVal("'&cWorld &5'")])
+                    , IVar("@world")
+                    )
+                  , FuncCall("color", [StringVal("'c'")])
+                  )
+                , StringVal("' does not exist.'")
+                )
+              )
+            )
+          ]
+        , None()
+        )
+      , IVarAssign(
+          "@region"
+        , FuncCall(
+            "to_lower"
+          , [BinExp(ArrayGet(), IVar("@args"), IntVal("2"))]
+          )
+        )
+      , If(
+          UnExp(
+            Not()
+          , FuncCall(
+              "array_contains_ic"
+            , [FuncCall("sk_all_regions", [IVar("@world")]), IVar("@region")]
+            )
+          )
+        , [ Die(
+              Some(
+                BinExp(
+                  Concat()
+                , BinExp(
+                    Concat()
+                  , BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , FuncCall("colorize", [StringVal("'&cRegion &5'")])
+                      , IVar("@region")
+                      )
+                    , FuncCall("colorize", [StringVal("'&c does not exist in world &5'")])
+                    )
+                  , IVar("@world")
+                  )
+                , FuncCall("colorize", [StringVal("'&c.'")])
+                )
+              )
+            )
+          ]
+        , None()
+        )
+      , IVarAssign(
+          "@newRegionName"
+        , FuncCall(
+            "to_lower"
+          , [BinExp(ArrayGet(), IVar("@args"), IntVal("3"))]
+          )
+        )
+      , FuncCall(
+          "sk_region_rename"
+        , [IVar("@world"), IVar("@region"), IVar("@newRegionName")]
+        )
+      , FuncCall(
+          "msg"
+        , [ BinExp(
+              Concat()
+            , BinExp(
+                Concat()
+              , BinExp(
+                  Concat()
+                , BinExp(
+                    Concat()
+                  , FuncCall("colorize", [StringVal("'&6Region &5'")])
+                  , IVar("@region")
+                  )
+                , FuncCall("colorize", [StringVal("'&6 has been renamed to &5'")])
+                )
+              , IVar("@newRegionName")
+              )
+            , FuncCall("colorize", [StringVal("'&6.'")])
+            )
+          ]
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "array_contains_ic"
+          , [ Array([StringVal("'//remove'"), StringVal("'/remove'")])
+            , BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+            ]
+          )
+        , [ IVarAssign("@command", BinExp(ArrayGet(), IVar("@event"), StringVal("'command'")))
+          , IVarAssign(
+              "@argString"
+            , Ternary(
+                BinExp(
+                  Equals()
+                , FuncCall(
+                    "substr"
+                  , [IVar("@command"), IntVal("0"), IntVal("2")]
+                  )
+                , StringVal("'//'")
+                )
+              , FuncCall("substr", [IVar("@command"), IntVal("8")])
+              , FuncCall("substr", [IVar("@command"), IntVal("7")])
+              )
+            )
+          , FuncCall(
+              "call_alias"
+            , [BinExp(Concat(), StringVal("'/clearentities'"), IVar("@argString"))]
+            )
+          , Cancel(None())
+          ]
+        , None()
+        )
+      ]
+    )
+  , If(
+      FuncCall("event_exists", [StringVal("'server_command'")])
+    , [ Bind(
+          StringVal("'server_command'")
+        , Null()
+        , Null()
+        , "@event"
+        , []
+        , [ If(
+              FuncCall(
+                "array_contains_ic"
+              , [ Array([StringVal("'/remove'"), StringVal("'remove'")])
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+                ]
+              )
+            , [ IVarAssign("@command", BinExp(ArrayGet(), IVar("@event"), StringVal("'command'")))
+              , IVarAssign(
+                  "@argString"
+                , Ternary(
+                    BinExp(
+                      Equals()
+                    , BinExp(ArrayGet(), IVar("@command"), IntVal("0"))
+                    , StringVal("'/'")
+                    )
+                  , FuncCall("substr", [IVar("@command"), IntVal("7")])
+                  , FuncCall("substr", [IVar("@command"), IntVal("6")])
+                  )
+                )
+              , FuncCall(
+                  "call_alias"
+                , [BinExp(Concat(), StringVal("'/clearentities'"), IVar("@argString"))]
+                )
+              , ModifyEvent(StringVal("'command'"), StringVal("'donothing'"), None())
+              ]
+            , None()
+            )
+          ]
+        )
+      ]
+    , None()
+    )
+  , Bind(
+      StringVal("'block_place'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            And()
+          , BinExp(
+              Equals()
+            , BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+            , StringVal("'STRUCTURE_BLOCK'")
+            )
+          , UnExp(
+              Not()
+            , FuncCall(
+                "has_permission"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'woesh0007.minecraft.placestructureblocks'")]
+              )
+            )
+          )
+        , [ Cancel(None())
+          , FuncCall(
+              "tmsg"
+            , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+              , FuncCall("colorize", [StringVal("'&cYou are not allowed to place structure blocks.'")])
+              ]
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_interact'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ IVarAssign(
+          "@hasUnlimitedWandPermission"
+        , FuncCall(
+            "has_permission"
+          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'worldedit.wand'")]
+          )
+        )
+      , If(
+          BinExp(
+            Or()
+          , BinExp(
+              Equals()
+            , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+            , Null()
+            )
+          , UnExp(
+              Not()
+            , BinExp(
+                Or()
+              , BinExp(
+                  And()
+                , BinExp(
+                    Equals()
+                  , BinExp(
+                      ArrayGet()
+                    , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+                    , StringVal("'name'")
+                    )
+                  , StringVal("'WOODEN_AXE'")
+                  )
+                , IVar("@hasUnlimitedWandPermission")
+                )
+              , BinExp(
+                  And()
+                , BinExp(
+                    And()
+                  , BinExp(
+                      Equals()
+                    , BinExp(
+                        ArrayGet()
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'item'"))
+                      , StringVal("'name'")
+                      )
+                    , StringVal("'DIAMOND_AXE'")
+                    )
+                  , FuncCall(
+                      "has_permission"
+                    , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'woesh0007.worldedit.wand'")]
+                    )
+                  )
+                , UnExp(Not(), IVar("@hasUnlimitedWandPermission"))
+                )
+              )
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , Switch(
+          BinExp(ArrayGet(), IVar("@event"), StringVal("'action'"))
+        , [ SwitchCase(
+              [StringVal("'left_click_air'")]
+            , [IVarAssign("@expand", True()), Break(None())]
+            )
+          , SwitchCase(
+              [StringVal("'right_click_air'")]
+            , [IVarAssign("@expand", False()), Break(None())]
+            )
+          ]
+        , Some([Die(None())])
+        )
+      , IVarAssign("@pos1", FuncCall("sk_pos1", []))
+      , IVarAssign("@pos2", FuncCall("sk_pos2", []))
+      , If(
+          BinExp(
+            Or()
+          , FuncCall("is_null", [IVar("@pos1")])
+          , FuncCall("is_null", [IVar("@pos2")])
+          )
+        , [Die(None())]
+        , None()
+        )
+      , IVarAssign(
+          "@direction"
+        , ProcCall(
+            "_playerfacing"
+          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+          )
+        )
+      , Switch(
+          IVar("@direction")
+        , [ SwitchCase(
+              [StringVal("'Down'")]
+            , [IVarAssign("@axisIndex", IntVal("1")), IVarAssign("@negative", True()), Break(None())]
+            )
+          , SwitchCase(
+              [StringVal("'Up'")]
+            , [IVarAssign("@axisIndex", IntVal("1")), IVarAssign("@negative", False()), Break(None())]
+            )
+          , SwitchCase(
+              [StringVal("'North'")]
+            , [IVarAssign("@axisIndex", IntVal("2")), IVarAssign("@negative", True()), Break(None())]
+            )
+          , SwitchCase(
+              [StringVal("'South'")]
+            , [IVarAssign("@axisIndex", IntVal("2")), IVarAssign("@negative", False()), Break(None())]
+            )
+          , SwitchCase(
+              [StringVal("'West'")]
+            , [IVarAssign("@axisIndex", IntVal("0")), IVarAssign("@negative", True()), Break(None())]
+            )
+          , SwitchCase(
+              [StringVal("'East'")]
+            , [IVarAssign("@axisIndex", IntVal("0")), IVarAssign("@negative", False()), Break(None())]
+            )
+          ]
+        , Some(
+            [ FuncCall(
+                "console"
+              , [ FuncCall(
+                    "colorize"
+                  , [ BinExp(
+                        Concat()
+                      , BinExp(
+                          Concat()
+                        , BinExp(
+                            Concat()
+                          , StringVal("'&cError: Unexpected result from _pfacing(@player). '")
+                          , FuncCall("reflect_pull", [StringVal("'file'")])
+                          )
+                        , StringVal("':'")
+                        )
+                      , FuncCall("reflect_pull", [StringVal("'line_num'")])
+                      )
+                    ]
+                  )
+                ]
+              )
+            , Die(None())
+            ]
+          )
+        )
+      , If(
+          BinExp(
+            And()
+          , UnExp(Not(), IVar("@expand"))
+          , BinExp(
+              Equals()
+            , BinExp(ArrayGet(), IVar("@pos1"), IVar("@axisIndex"))
+            , BinExp(ArrayGet(), IVar("@pos2"), IVar("@axisIndex"))
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , If(
+          IVar("@negative")
+        , [ If(
+              BinExp(
+                Equals()
+              , FuncCall(
+                  "min"
+                , [ BinExp(ArrayGet(), IVar("@pos1"), IVar("@axisIndex"))
+                  , BinExp(ArrayGet(), IVar("@pos2"), IVar("@axisIndex"))
+                  ]
+                )
+              , BinExp(ArrayGet(), IVar("@pos1"), IVar("@axisIndex"))
+              )
+            , [ IVarAssign("@changePos", IntVal("1"))
+              , IVarAssign(
+                  "@newPos"
+                , Array(
+                    [ BinExp(ArrayGet(), IVar("@pos1"), IntVal("0"))
+                    , BinExp(ArrayGet(), IVar("@pos1"), IntVal("1"))
+                    , BinExp(ArrayGet(), IVar("@pos1"), IntVal("2"))
+                    ]
+                  )
+                )
+              ]
+            , [ IVarAssign("@changePos", IntVal("2"))
+              , IVarAssign(
+                  "@newPos"
+                , Array(
+                    [ BinExp(ArrayGet(), IVar("@pos2"), IntVal("0"))
+                    , BinExp(ArrayGet(), IVar("@pos2"), IntVal("1"))
+                    , BinExp(ArrayGet(), IVar("@pos2"), IntVal("2"))
+                    ]
+                  )
+                )
+              ]
+            )
+          , ArraySet(
+              IVar("@newPos")
+            , IVar("@axisIndex")
+            , BinExp(
+                Add()
+              , BinExp(ArrayGet(), IVar("@newPos"), IVar("@axisIndex"))
+              , Ternary(
+                  IVar("@expand")
+                , UnExp(Neg(), IntVal("1"))
+                , IntVal("1")
+                )
+              )
+            )
+          ]
+        , [ If(
+              BinExp(
+                Equals()
+              , FuncCall(
+                  "max"
+                , [ BinExp(ArrayGet(), IVar("@pos1"), IVar("@axisIndex"))
+                  , BinExp(ArrayGet(), IVar("@pos2"), IVar("@axisIndex"))
+                  ]
+                )
+              , BinExp(ArrayGet(), IVar("@pos1"), IVar("@axisIndex"))
+              )
+            , [ IVarAssign("@changePos", IntVal("1"))
+              , IVarAssign(
+                  "@newPos"
+                , Array(
+                    [ BinExp(ArrayGet(), IVar("@pos1"), IntVal("0"))
+                    , BinExp(ArrayGet(), IVar("@pos1"), IntVal("1"))
+                    , BinExp(ArrayGet(), IVar("@pos1"), IntVal("2"))
+                    ]
+                  )
+                )
+              ]
+            , [ IVarAssign("@changePos", IntVal("2"))
+              , IVarAssign(
+                  "@newPos"
+                , Array(
+                    [ BinExp(ArrayGet(), IVar("@pos2"), IntVal("0"))
+                    , BinExp(ArrayGet(), IVar("@pos2"), IntVal("1"))
+                    , BinExp(ArrayGet(), IVar("@pos2"), IntVal("2"))
+                    ]
+                  )
+                )
+              ]
+            )
+          , ArraySet(
+              IVar("@newPos")
+            , IVar("@axisIndex")
+            , BinExp(
+                Add()
+              , BinExp(ArrayGet(), IVar("@newPos"), IVar("@axisIndex"))
+              , Ternary(
+                  IVar("@expand")
+                , IntVal("1")
+                , UnExp(Neg(), IntVal("1"))
+                )
+              )
+            )
+          ]
+        )
+      , If(
+          BinExp(
+            And()
+          , UnExp(Not(), IVar("@hasUnlimitedWandPermission"))
+          , UnExp(
+              Not()
+            , ProcCall(
+                "_is_selection_allowed"
+              , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                , Ternary(
+                    BinExp(Equals(), IVar("@changePos"), IntVal("1"))
+                  , IVar("@pos2")
+                  , IVar("@pos1")
+                  )
+                , IVar("@newPos")
+                ]
+              )
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , If(
+          BinExp(Equals(), IVar("@changePos"), IntVal("1"))
+        , [FuncCall("sk_pos1", [IVar("@newPos")])]
+        , [FuncCall("sk_pos2", [IVar("@newPos")])]
+        )
+      , IVarAssign("@prefix", FuncCall("colorize", [StringVal("'&6[&3WoeshiesWE&6] &a'")]))
+      , FuncCall(
+          "tmsg"
+        , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+          , FuncCall(
+              "colorize"
+            , [ BinExp(
+                  Concat()
+                , BinExp(
+                    Concat()
+                  , BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , IVar("@prefix")
+                      , Ternary(IVar("@expand"), StringVal("'Expanded'"), StringVal("'Contracted'"))
+                      )
+                    , StringVal("' your WorldEdit selection 1 '")
+                    )
+                  , FuncCall("to_lower", [IVar("@direction")])
+                  )
+                , StringVal("'.'")
+                )
+              ]
+            )
+          ]
+        )
+      ]
+    )
+  , If(
+      FuncCall("function_exists", [StringVal("'groovy'")])
+    , [ Bind(
+          StringVal("'player_join'")
+        , Null()
+        , Null()
+        , "@event"
+        , []
+        , [ ProcCall(
+              "_nms_send_tab_list_header"
+            , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'\\u00A76Stym\\'s Redstone Server'")]
+            )
+          ]
+        )
+      ]
+    , None()
+    )
+  , Bind(
+      StringVal("'player_login'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ IVarAssign(
+          "@blockedIpRanges"
+        , Array(
+            [ StringVal("'151.80.11.*'")
+            , StringVal("'164.132.80.*'")
+            , StringVal("'176.31.75.*'")
+            , StringVal("'178.33.27.*'")
+            , StringVal("'91.121.231.*'")
+            , StringVal("'41.68.240.*'")
+            ]
+          )
+        )
+      , ForEach(
+          None()
+        , IVarParam("@blockedIpRange")
+        , IVar("@blockedIpRanges")
+        , [ IVarAssign(
+              "@ipRegex"
+            , FuncCall(
+                "reg_replace"
+              , [ StringVal("'\\\\*'")
+                , StringVal("'[\\\\\\\\d]{1,3}'")
+                , FuncCall(
+                    "reg_replace"
+                  , [StringVal("'\\\\.'"), StringVal("'\\\\\\\\.'"), IVar("@blockedIpRange")]
+                  )
+                ]
+              )
+            )
+          , If(
+              UnExp(
+                Not()
+              , BinExp(
+                  Equals()
+                , FuncCall(
+                    "reg_count"
+                  , [IVar("@ipRegex"), BinExp(ArrayGet(), IVar("@event"), StringVal("'ip'"))]
+                  )
+                , IntVal("0")
+                )
+              )
+            , [ IVarAssign(
+                  "@message"
+                , FuncCall(
+                    "colorize"
+                  , [ BinExp(
+                        Concat()
+                      , BinExp(
+                          Concat()
+                        , BinExp(
+                            Concat()
+                          , BinExp(
+                              Concat()
+                            , BinExp(
+                                Concat()
+                              , BinExp(
+                                  Concat()
+                                , StringVal("'&6[&4WARNING&6]&c Player '")
+                                , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                                )
+                              , StringVal("' has logged in using a MCLeaks IP adress (stolen session?). Info:'")
+                              )
+                            , StringVal("'\\nUUID: '")
+                            )
+                          , BinExp(ArrayGet(), IVar("@event"), StringVal("'uuid'"))
+                          )
+                        , StringVal("'\\nHostname: '")
+                        )
+                      , BinExp(ArrayGet(), IVar("@event"), StringVal("'hostname'"))
+                      )
+                    ]
+                  )
+                )
+              , FuncCall("console", [IVar("@message")])
+              , ForEach(
+                  None()
+                , IVarParam("@p")
+                , FuncCall("all_players", [])
+                , [ If(
+                      FuncCall("has_permission", [IVar("@p"), StringVal("'woesh0007.mcleaksnotifications'")])
+                    , [FuncCall("tmsg", [IVar("@p"), IVar("@message")])]
+                    , None()
+                    )
+                  ]
+                , None()
+                )
+              , Break(None())
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "equals_ic"
+          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'")), StringVal("'/pex'")]
+          )
+        , [ IVarAssign(
+              "@args"
+            , FuncCall(
+                "parse_args"
+              , [BinExp(ArrayGet(), IVar("@event"), StringVal("'command'"))]
+              )
+            )
+          , IVarAssign("@argsSize", FuncCall("array_size", [IVar("@args")]))
+          , If(
+              BinExp(Lte(), IVar("@argsSize"), IntVal("1"))
+            , [Cancel(None()), Die(Some(FuncCall("colorize", [StringVal("'&cThis command has been disabled. For pex command syntax, check their wiki.'")])))]
+            , None()
+            )
+          , Switch(
+              FuncCall(
+                "to_lower"
+              , [BinExp(ArrayGet(), IVar("@args"), IntVal("1"))]
+              )
+            , [ SwitchCase(
+                  [StringVal("'promote'")]
+                , [Cancel(None()), Die(Some(FuncCall("colorize", [StringVal("'&cThis command has been disabled.'")])))]
+                )
+              , SwitchCase(
+                  [StringVal("'demote'")]
+                , [Cancel(None()), Die(Some(FuncCall("colorize", [StringVal("'&cThis command has been disabled.'")])))]
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , IVarAssign("@intervalID", FuncCall("import", [StringVal("'woesh0007.checkapps.intervalID'")]))
+  , If(
+      UnExp(Not(), FuncCall("is_null", [IVar("@intervalID")]))
+    , [FuncCall("clear_task", [IVar("@intervalID")])]
+    , None()
+    )
+  , FuncCall(
+      "export"
+    , [ StringVal("'woesh0007.checkapps.intervalID'")
+      , FuncCall(
+          "set_interval"
+        , [ BinExp(
+              Multiply()
+            , BinExp(Multiply(), IntVal("5"), IntVal("60"))
+            , IntVal("1000")
+            )
+          , Closure(
+              []
+            , [ IVarAssign("@prefix", StringVal("'&6[&3AppCheck&6] '"))
+              , ProcCall(
+                  "_check_applications"
+                , [ Closure(
+                      [IVarScopeParam("@appArrays")]
+                    , [ IVarAssign(
+                          "@appArrays"
+                        , FuncCall(
+                            "array_filter"
+                          , [ IVar("@appArrays")
+                            , Closure(
+                                [IVarScopeParam("@key"), IVarScopeParam("@value")]
+                              , [ Return(
+                                    Some(
+                                      BinExp(
+                                        Or()
+                                      , FuncCall(
+                                          "is_null"
+                                        , [BinExp(ArrayGet(), IVar("@value"), StringVal("'status'"))]
+                                        )
+                                      , UnExp(
+                                          Not()
+                                        , FuncCall(
+                                            "array_contains"
+                                          , [ Array([StringVal("'approved'"), StringVal("'not approved'")])
+                                            , FuncCall(
+                                                "to_lower"
+                                              , [BinExp(ArrayGet(), IVar("@value"), StringVal("'status'"))]
+                                              )
+                                            ]
+                                          )
+                                        )
+                                      )
+                                    )
+                                  )
+                                ]
+                              )
+                            ]
+                          )
+                        )
+                      , If(
+                          BinExp(
+                            Equals()
+                          , FuncCall("array_size", [IVar("@appArrays")])
+                          , IntVal("0")
+                          )
+                        , [Return(None())]
+                        , None()
+                        )
+                      , IVarAssign(
+                          "@messageComponents"
+                        , Array(
+                            [ FuncCall(
+                                "colorize"
+                              , [ BinExp(
+                                    Concat()
+                                  , BinExp(Concat(), StringVal("'\"'"), IVar("@prefix"))
+                                  , StringVal("'&aListing all pending applications: \"'")
+                                  )
+                                ]
+                              )
+                            ]
+                          )
+                        )
+                      , IVarAssign(
+                          "@message"
+                        , FuncCall(
+                            "colorize"
+                          , [BinExp(Concat(), IVar("@prefix"), StringVal("'&aListing all pending applications:'"))]
+                          )
+                        )
+                      , IVarAssign("@appMessageComponents", Array([]))
+                      , ForEach(
+                          None()
+                        , IVarParam("@app")
+                        , IVar("@appArrays")
+                        , [ IVarAssign(
+                              "@name"
+                            , FuncCall(
+                                "replace"
+                              , [ FuncCall(
+                                    "replace"
+                                  , [ BinExp(ArrayGet(), IVar("@app"), StringVal("'name'"))
+                                    , StringVal("'\\\\'")
+                                    , StringVal("'\\\\\\\\'")
+                                    ]
+                                  )
+                                , StringVal("'\"'")
+                                , StringVal("'\\\\\"'")
+                                ]
+                              )
+                            )
+                          , IVarAssign(
+                              "@creationDate"
+                            , FuncCall(
+                                "replace"
+                              , [ FuncCall(
+                                    "replace"
+                                  , [ BinExp(ArrayGet(), IVar("@app"), StringVal("'created'"))
+                                    , StringVal("'\\\\'")
+                                    , StringVal("'\\\\\\\\'")
+                                    ]
+                                  )
+                                , StringVal("'\"'")
+                                , StringVal("'\\\\\"'")
+                                ]
+                              )
+                            )
+                          , IVarAssign(
+                              "@status"
+                            , FuncCall(
+                                "replace"
+                              , [ FuncCall(
+                                    "replace"
+                                  , [ BinExp(ArrayGet(), IVar("@app"), StringVal("'status'"))
+                                    , StringVal("'\\\\'")
+                                    , StringVal("'\\\\\\\\'")
+                                    ]
+                                  )
+                                , StringVal("'\"'")
+                                , StringVal("'\\\\\"'")
+                                ]
+                              )
+                            )
+                          , IVarAssign(
+                              "@commentCount"
+                            , FuncCall(
+                                "replace"
+                              , [ FuncCall(
+                                    "replace"
+                                  , [ BinExp(ArrayGet(), IVar("@app"), StringVal("'commentCount'"))
+                                    , StringVal("'\\\\'")
+                                    , StringVal("'\\\\\\\\'")
+                                    ]
+                                  )
+                                , StringVal("'\"'")
+                                , StringVal("'\\\\\"'")
+                                ]
+                              )
+                            )
+                          , IVarAssign(
+                              "@url"
+                            , FuncCall(
+                                "replace"
+                              , [ FuncCall(
+                                    "replace"
+                                  , [ BinExp(ArrayGet(), IVar("@app"), StringVal("'url'"))
+                                    , StringVal("'\\\\'")
+                                    , StringVal("'\\\\\\\\'")
+                                    ]
+                                  )
+                                , StringVal("'\"'")
+                                , StringVal("'\\\\\"'")
+                                ]
+                              )
+                            )
+                          , IVarAssign(
+                              "@hoverText"
+                            , BinExp(
+                                Concat()
+                              , BinExp(
+                                  Concat()
+                                , BinExp(
+                                    Concat()
+                                  , BinExp(
+                                      Concat()
+                                    , BinExp(
+                                        Concat()
+                                      , BinExp(
+                                          Concat()
+                                        , BinExp(Concat(), StringVal("'Creation date: '"), IVar("@creationDate"))
+                                        , StringVal("'\\nStatus: '")
+                                        )
+                                      , IVar("@status")
+                                      )
+                                    , StringVal("'\\nComments: '")
+                                    )
+                                  , IVar("@commentCount")
+                                  )
+                                , StringVal("'\\nUrl: '")
+                                )
+                              , Ternary(
+                                  FuncCall("string_starts_with", [IVar("@url"), StringVal("'http://'")])
+                                , FuncCall("substr", [IVar("@url"), IntVal("7")])
+                                , IVar("@url")
+                                )
+                              )
+                            )
+                          , ArrayPush(
+                              IVar("@appMessageComponents")
+                            , BinExp(
+                                Concat()
+                              , BinExp(
+                                  Concat()
+                                , BinExp(
+                                    Concat()
+                                  , BinExp(
+                                      Concat()
+                                    , BinExp(
+                                        Concat()
+                                      , BinExp(
+                                          Concat()
+                                        , BinExp(
+                                            Concat()
+                                          , StringVal("'{\"text\": \"'")
+                                          , FuncCall("color", [StringVal("'d'")])
+                                          )
+                                        , IVar("@name")
+                                        )
+                                      , StringVal("'\", \"hoverEvent\": {\"action\": \"show_text\", \"value\": \"'")
+                                      )
+                                    , IVar("@hoverText")
+                                    )
+                                  , StringVal("'\"}, \"clickEvent\": {\"action\": \"open_url\", \"value\": \"'")
+                                  )
+                                , IVar("@url")
+                                )
+                              , StringVal("'\"}}'")
+                              )
+                            )
+                          , IVarAssign(
+                              "@message"
+                            , BinExp(
+                                Concat()
+                              , IVar("@message")
+                              , FuncCall(
+                                  "colorize"
+                                , [ BinExp(
+                                      Concat()
+                                    , BinExp(
+                                        Concat()
+                                      , BinExp(Concat(), StringVal("'\\n    &d'"), IVar("@name"))
+                                      , StringVal("'&a: &6'")
+                                      )
+                                    , IVar("@url")
+                                    )
+                                  ]
+                                )
+                              )
+                            )
+                          ]
+                        , None()
+                        )
+                      , ArrayPush(
+                          IVar("@messageComponents")
+                        , FuncCall(
+                            "array_implode"
+                          , [ IVar("@appMessageComponents")
+                            , BinExp(
+                                Concat()
+                              , BinExp(
+                                  Concat()
+                                , StringVal("', \"'")
+                                , FuncCall("color", [StringVal("'a'")])
+                                )
+                              , StringVal("', \", '")
+                              )
+                            ]
+                          )
+                        )
+                      , IVarAssign(
+                          "@jsonMessage"
+                        , BinExp(
+                            Concat()
+                          , BinExp(
+                              Concat()
+                            , StringVal("'['")
+                            , FuncCall("array_implode", [IVar("@messageComponents"), StringVal("', '")])
+                            )
+                          , StringVal("']'")
+                          )
+                        )
+                      , FuncCall("console", [IVar("@message")])
+                      , ForEach(
+                          None()
+                        , IVarParam("@p")
+                        , FuncCall("all_players", [])
+                        , [ If(
+                              FuncCall("has_permission", [IVar("@p"), StringVal("'woesh0007.applications.check'")])
+                            , [FuncCall("wu_send_json_message", [IVar("@p"), IVar("@jsonMessage")])]
+                            , None()
+                            )
+                          ]
+                        , None()
+                        )
+                      ]
+                    )
+                  , Closure(
+                      [IVarScopeParam("@errorMessage")]
+                    , [ FuncCall(
+                          "console"
+                        , [BinExp(
+                             Concat()
+                           , FuncCall("colorize", [IVar("@prefix")])
+                           , IVar("@errorMessage")
+                           )]
+                        )
+                      ]
+                    )
+                  ]
+                )
+              ]
+            )
+          ]
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'sign_changed'")
+    , Array([ArrayLabelEntry("'priority'", StringVal("'monitor'"))])
+    , Null()
+    , "@event"
+    , []
+    , [ IVarAssign("@lines", BinExp(ArrayGet(), IVar("@event"), StringVal("'text'")))
+      , If(
+          BinExp(
+            And()
+          , BinExp(
+              And()
+            , BinExp(
+                And()
+              , BinExp(
+                  Equals()
+                , BinExp(ArrayGet(), IVar("@lines"), IntVal("0"))
+                , StringVal("''")
+                )
+              , BinExp(
+                  Equals()
+                , BinExp(ArrayGet(), IVar("@lines"), IntVal("1"))
+                , StringVal("''")
+                )
+              )
+            , BinExp(
+                Equals()
+              , BinExp(ArrayGet(), IVar("@lines"), IntVal("2"))
+              , StringVal("''")
+              )
+            )
+          , BinExp(
+              Equals()
+            , BinExp(ArrayGet(), IVar("@lines"), IntVal("3"))
+            , StringVal("''")
+            )
+          )
+        , [Die(None())]
+        , None()
+        )
+      , FuncCall(
+          "console"
+        , [ BinExp(
+              Concat()
+            , BinExp(
+                Concat()
+              , BinExp(
+                  Concat()
+                , BinExp(
+                    Concat()
+                  , BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , BinExp(
+                          Concat()
+                        , FuncCall(
+                            "colorize"
+                          , [ BinExp(
+                                Concat()
+                              , BinExp(
+                                  Concat()
+                                , StringVal("'&6[&3SignEdit&6]&a Player &d'")
+                                , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                                )
+                              , StringVal("'&a edited a sign. Text: &21: &d'")
+                              )
+                            ]
+                          )
+                        , BinExp(ArrayGet(), IVar("@lines"), IntVal("0"))
+                        )
+                      , FuncCall("colorize", [StringVal("' &22: &d'")])
+                      )
+                    , BinExp(ArrayGet(), IVar("@lines"), IntVal("1"))
+                    )
+                  , FuncCall("colorize", [StringVal("' &23: &d'")])
+                  )
+                , BinExp(ArrayGet(), IVar("@lines"), IntVal("2"))
+                )
+              , FuncCall("colorize", [StringVal("' &24: &d'")])
+              )
+            , BinExp(ArrayGet(), IVar("@lines"), IntVal("3"))
+            )
+          ]
+        )
+      ]
+    )
+  , ProcCall(
+      "_tabcompleter_add_tabcompleter"
+    , [ Array([StringVal("'plotme'"), StringVal("'plot'"), StringVal("'p'")])
+      , Closure(
+          [IVarScopeParam("@alias"), IVarScopeParam("@sender"), IVarScopeParam("@args")]
+        , [ IVarAssign("@argSize", FuncCall("array_size", [IVar("@args")]))
+          , IVarAssign(
+              "@search"
+            , Ternary(
+                BinExp(Equals(), IVar("@argSize"), IntVal("0"))
+              , StringVal("''")
+              , BinExp(
+                  ArrayGet()
+                , IVar("@args")
+                , BinExp(Subtract(), IVar("@argSize"), IntVal("1"))
+                )
+              )
+            )
+          , IVarAssign("@possibleCompletions", Array([]))
+          , IVarAssign("@isPlotNameCompletion", False())
+          , DoWhile(
+              [ If(
+                  BinExp(Equals(), IVar("@argSize"), IntVal("1"))
+                , [ IVarAssign(
+                      "@possibleCompletions"
+                    , Array(
+                        [ StringVal("'help'")
+                        , StringVal("'info'")
+                        , StringVal("'list'")
+                        , StringVal("'teleport'")
+                        , StringVal("'greeting'")
+                        , StringVal("'farewell'")
+                        , StringVal("'allowinputs'")
+                        , StringVal("'addmember'")
+                        , StringVal("'removemember'")
+                        ]
+                      )
+                    )
+                  , Break(None())
+                  ]
+                , None()
+                )
+              , If(
+                  BinExp(
+                    And()
+                  , BinExp(Equals(), IVar("@argSize"), IntVal("2"))
+                  , FuncCall(
+                      "array_contains_ic"
+                    , [ Array(
+                          [ StringVal("'info'")
+                          , StringVal("'teleport'")
+                          , StringVal("'tp'")
+                          , StringVal("'greeting'")
+                          , StringVal("'farewell'")
+                          , StringVal("'allowinputs'")
+                          , StringVal("'addmember'")
+                          , StringVal("'removemember'")
+                          ]
+                        )
+                      , BinExp(ArrayGet(), IVar("@args"), IntVal("0"))
+                      ]
+                    )
+                  )
+                , [ IVarAssign(
+                      "@possibleCompletions"
+                    , Ternary(
+                        BinExp(Equals(), IVar("@sender"), StringVal("'~console'"))
+                      , FuncCall("sk_all_regions", [])
+                      , FuncCall("sk_all_regions", [FuncCall("pworld", [IVar("@sender")])])
+                      )
+                    )
+                  , IVarAssign("@isPlotNameCompletion", True())
+                  , Break(None())
+                  ]
+                , None()
+                )
+              , If(
+                  BinExp(
+                    And()
+                  , BinExp(Equals(), IVar("@argSize"), IntVal("3"))
+                  , FuncCall(
+                      "equals_ic"
+                    , [BinExp(ArrayGet(), IVar("@args"), IntVal("0")), StringVal("'allowinputs'")]
+                    )
+                  )
+                , [IVarAssign("@possibleCompletions", Array([StringVal("'true'"), StringVal("'false'")]))]
+                , None()
+                )
+              , If(
+                  BinExp(
+                    And()
+                  , BinExp(Equals(), IVar("@argSize"), IntVal("3"))
+                  , FuncCall(
+                      "equals_ic"
+                    , [BinExp(ArrayGet(), IVar("@args"), IntVal("0")), StringVal("'addmember'")]
+                    )
+                  )
+                , [ Return(
+                      Some(
+                        ProcCall(
+                          "_autocomplete_name_array"
+                        , [ BinExp(
+                              ArrayGet()
+                            , IVar("@args")
+                            , BinExp(Subtract(), IVar("@argSize"), IntVal("1"))
+                            )
+                          , IVar("@sender")
+                          ]
+                        )
+                      )
+                    )
+                  ]
+                , None()
+                )
+              , If(
+                  BinExp(
+                    And()
+                  , BinExp(Equals(), IVar("@argSize"), IntVal("3"))
+                  , FuncCall(
+                      "equals_ic"
+                    , [BinExp(ArrayGet(), IVar("@args"), IntVal("0")), StringVal("'removemember'")]
+                    )
+                  )
+                , [ If(
+                      BinExp(Equals(), IVar("@sender"), StringVal("'~console'"))
+                    , [Break(None())]
+                    , None()
+                    )
+                  , IVarAssign("@plotName", BinExp(ArrayGet(), IVar("@args"), IntVal("1")))
+                  , IVarAssign("@world", FuncCall("pworld", [IVar("@sender")]))
+                  , If(
+                      FuncCall("array_contains_ic", [FuncCall("sk_all_regions", []), IVar("@plotName")])
+                    , [ IVarAssign(
+                          "@memberArray"
+                        , FuncCall(
+                            "sk_region_info"
+                          , [IVar("@plotName"), IVar("@world"), IntVal("2")]
+                          )
+                        )
+                      , IVarAssign("@playerMembers", Array([]))
+                      , If(
+                          FuncCall("array_index_exists", [IVar("@memberArray"), StringVal("'players'")])
+                        , [ ForEach(
+                              None()
+                            , IVarParam("@pUuid")
+                            , BinExp(ArrayGet(), IVar("@memberArray"), StringVal("'players'"))
+                            , [ IVarAssign("@playerName", ProcCall("_get_name_from_UUID", [IVar("@pUuid")]))
+                              , ArrayPush(
+                                  IVar("@playerMembers")
+                                , Ternary(
+                                    FuncCall("is_null", [IVar("@playerName")])
+                                  , IVar("@pUuid")
+                                  , IVar("@playerName")
+                                  )
+                                )
+                              ]
+                            , None()
+                            )
+                          ]
+                        , None()
+                        )
+                      , IVarAssign("@possibleCompletions", IVar("@playerMembers"))
+                      , If(
+                          BinExp(
+                            And()
+                          , FuncCall("array_index_exists", [IVar("@memberArray"), StringVal("'groups'")])
+                          , UnExp(
+                              Not()
+                            , FuncCall(
+                                "is_null"
+                              , [BinExp(ArrayGet(), IVar("@memberArray"), StringVal("'groups'"))]
+                              )
+                            )
+                          )
+                        , [ IVarAssign(
+                              "@possibleCompletions"
+                            , FuncCall(
+                                "array_merge"
+                              , [IVar("@possibleCompletions"), BinExp(ArrayGet(), IVar("@memberArray"), StringVal("'groups'"))]
+                              )
+                            )
+                          ]
+                        , None()
+                        )
+                      ]
+                    , None()
+                    )
+                  , Break(None())
+                  ]
+                , None()
+                )
+              ]
+            , False()
+            )
+          , IVarAssign("@completions", Array([]))
+          , ForEach(
+              None()
+            , IVarParam("@comp")
+            , IVar("@possibleCompletions")
+            , [ If(
+                  BinExp(
+                    Lte()
+                  , FuncCall("length", [IVar("@search")])
+                  , FuncCall("length", [IVar("@comp")])
+                  )
+                , [ If(
+                      FuncCall("string_starts_with", [IVar("@comp"), IVar("@search")])
+                    , [ArrayPush(IVar("@completions"), IVar("@comp"))]
+                    , None()
+                    )
+                  ]
+                , None()
+                )
+              ]
+            , None()
+            )
+          , If(
+              IVar("@isPlotNameCompletion")
+            , [ IVarAssign("@search", BinExp(Concat(), StringVal("'plot-'"), IVar("@search")))
+              , ForEach(
+                  None()
+                , IVarParam("@comp")
+                , IVar("@possibleCompletions")
+                , [ If(
+                      BinExp(
+                        Lte()
+                      , FuncCall("length", [IVar("@search")])
+                      , FuncCall("length", [IVar("@comp")])
+                      )
+                    , [ If(
+                          FuncCall("string_starts_with", [IVar("@comp"), IVar("@search")])
+                        , [ArrayPush(IVar("@completions"), IVar("@comp"))]
+                        , None()
+                        )
+                      ]
+                    , None()
+                    )
+                  ]
+                , None()
+                )
+              ]
+            , None()
+            )
+          , Return(Some(IVar("@completions")))
+          ]
+        )
+      ]
+    )
+  , ProcCall(
+      "_tabcompleter_add_tabcompleter"
+    , [ StringVal("'editsign'")
+      , Closure(
+          [IVarScopeParam("@alias"), IVarScopeParam("@sender"), IVarScopeParam("@args")]
+        , [ IVarAssign("@argSize", FuncCall("array_size", [IVar("@args")]))
+          , IVarAssign(
+              "@search"
+            , Ternary(
+                BinExp(Equals(), IVar("@argSize"), IntVal("0"))
+              , StringVal("''")
+              , BinExp(
+                  ArrayGet()
+                , IVar("@args")
+                , BinExp(Subtract(), IVar("@argSize"), IntVal("1"))
+                )
+              )
+            )
+          , IVarAssign("@possibleCompletions", Array([]))
+          , If(
+              BinExp(
+                And()
+              , BinExp(
+                  Or()
+                , BinExp(Equals(), IVar("@argSize"), IntVal("1"))
+                , BinExp(
+                    And()
+                  , BinExp(Equals(), IVar("@argSize"), IntVal("2"))
+                  , BinExp(
+                      Equals()
+                    , BinExp(ArrayGet(), IVar("@args"), IntVal("1"))
+                    , StringVal("''")
+                    )
+                  )
+                )
+              , FuncCall(
+                  "array_contains"
+                , [ Array(
+                      [StringVal("'1'"), StringVal("'2'"), StringVal("'3'"), StringVal("'4'")]
+                    )
+                  , BinExp(ArrayGet(), IVar("@args"), IntVal("0"))
+                  ]
+                )
+              )
+            , [ IVarAssign(
+                  "@line"
+                , IntCast(BinExp(ArrayGet(), IVar("@args"), IntVal("0")))
+                )
+              , IVarAssign("@pcursor", FuncCall("pcursor", [IVar("@sender")]))
+              , If(
+                  FuncCall("is_sign_at", [IVar("@pcursor")])
+                , [ IVarAssign("@signText", FuncCall("get_sign_text", [IVar("@pcursor")]))
+                  , IVarAssign(
+                      "@completions"
+                    , Array(
+                        [ BinExp(
+                            Concat()
+                          , Ternary(
+                              BinExp(Equals(), IVar("@argSize"), IntVal("1"))
+                            , BinExp(
+                                Concat()
+                              , BinExp(ArrayGet(), IVar("@args"), IntVal("0"))
+                              , StringVal("' '")
+                              )
+                            , StringVal("''")
+                            )
+                          , BinExp(
+                              ArrayGet()
+                            , IVar("@signText")
+                            , BinExp(Subtract(), IVar("@line"), IntVal("1"))
+                            )
+                          )
+                        ]
+                      )
+                    )
+                  , Return(Some(IVar("@completions")))
+                  ]
+                , None()
+                )
+              ]
+            , None()
+            )
+          , If(
+              BinExp(Equals(), IVar("@argSize"), IntVal("1"))
+            , [ IVarAssign(
+                  "@possibleCompletions"
+                , Array(
+                    [ StringVal("'help'")
+                    , StringVal("'copy'")
+                    , StringVal("'paste'")
+                    , StringVal("'1'")
+                    , StringVal("'2'")
+                    , StringVal("'3'")
+                    , StringVal("'4'")
+                    ]
+                  )
+                )
+              ]
+            , None()
+            )
+          , IVarAssign("@completions", Array([]))
+          , ForEach(
+              None()
+            , IVarParam("@comp")
+            , IVar("@possibleCompletions")
+            , [ If(
+                  BinExp(
+                    Lte()
+                  , FuncCall("length", [IVar("@search")])
+                  , FuncCall("length", [IVar("@comp")])
+                  )
+                , [ If(
+                      FuncCall("string_starts_with", [IVar("@comp"), IVar("@search")])
+                    , [ArrayPush(IVar("@completions"), IVar("@comp"))]
+                    , None()
+                    )
+                  ]
+                , None()
+                )
+              ]
+            , None()
+            )
+          , Return(Some(IVar("@completions")))
+          ]
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            And()
+          , BinExp(
+              And()
+            , BinExp(
+                And()
+              , FuncCall(
+                  "equals_ic"
+                , [BinExp(ArrayGet(), IVar("@event"), StringVal("'command'")), StringVal("'/clear'")]
+                )
+              , UnExp(Not(), FuncCall("has_permission", [StringVal("'bukkit.command.clear'")]))
+              )
+            , UnExp(Not(), FuncCall("has_permission", [StringVal("'minecraft.command.clear'")]))
+            )
+          , FuncCall("has_permission", [StringVal("'woesh0007.clearinv.self'")])
+          )
+        , [ModifyEvent(StringVal("'command'"), StringVal("'/clearinv'"), None())]
+        , None()
+        )
+      ]
+    )
+  , IVarAssign("@taskId", FuncCall("import", [StringVal("'woesh0007.autosave.taskid'")]))
+  , If(
+      UnExp(Not(), FuncCall("is_null", [IVar("@taskId")]))
+    , [FuncCall("clear_task", [IVar("@taskId")])]
+    , None()
+    )
+  , FuncCall(
+      "export"
+    , [ StringVal("'woesh0007.autosave.taskid'")
+      , FuncCall(
+          "set_interval"
+        , [ BinExp(
+              Multiply()
+            , BinExp(Multiply(), IntVal("5"), IntVal("60"))
+            , IntVal("1000")
+            )
+          , Closure(
+              []
+            , [FuncCall("runas", [StringVal("'~console'"), StringVal("'/save-all'")])]
+            )
+          ]
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "has_permission"
+          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'commandhelper.reloadaliases'")]
+          )
+        , [ If(
+              FuncCall(
+                "array_contains_ic"
+              , [ Array(
+                    [StringVal("'/recompile'"), StringVal("'/reloadaliases'"), StringVal("'/ra2'"), StringVal("'/ra'")]
+                  )
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+                ]
+              )
+            , [ ForEach(
+                  None()
+                , IVarParam("@p")
+                , Array([StringVal("'woesh0007'"), StringVal("'Ecconia'")])
+                , [ If(
+                      BinExp(
+                        And()
+                      , FuncCall("ponline", [IVar("@p")])
+                      , UnExp(
+                          Not()
+                        , BinExp(
+                            Equals()
+                          , IVar("@p")
+                          , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                          )
+                        )
+                      )
+                    , [ FuncCall(
+                          "tmsg"
+                        , [ IVar("@p")
+                          , FuncCall(
+                              "colorize"
+                            , [ BinExp(
+                                  Concat()
+                                , BinExp(
+                                    Concat()
+                                  , StringVal("'&6[&3CommandHelper&6]&a '")
+                                  , BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                                  )
+                                , StringVal("' executed a recompile.'")
+                                )
+                              ]
+                            )
+                          ]
+                        )
+                      ]
+                    , None()
+                    )
+                  ]
+                , None()
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'server_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "array_contains_ic"
+          , [ Array(
+                [StringVal("'recompile'"), StringVal("'reloadaliases'"), StringVal("'ra2'"), StringVal("'ra'")]
+              )
+            , BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+            ]
+          )
+        , [ ForEach(
+              None()
+            , IVarParam("@p")
+            , Array([StringVal("'woesh0007'"), StringVal("'Ecconia'")])
+            , [ If(
+                  FuncCall("ponline", [IVar("@p")])
+                , [ FuncCall(
+                      "tmsg"
+                    , [IVar("@p"), FuncCall("colorize", [StringVal("'&6[&3CommandHelper&6]&a Console executed a recompile.'")])]
+                    )
+                  ]
+                , None()
+                )
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_command'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ If(
+          FuncCall(
+            "array_contains_ic"
+          , [ Array([StringVal("'//calc'"), StringVal("'worldedit:/calc'")])
+            , BinExp(ArrayGet(), IVar("@event"), StringVal("'prefix'"))
+            ]
+          )
+        , [ If(
+              UnExp(
+                Not()
+              , BinExp(
+                  Equals()
+                , FuncCall(
+                    "reg_count"
+                  , [StringVal("'(for|while)'"), BinExp(ArrayGet(), IVar("@event"), StringVal("'command'"))]
+                  )
+                , IntVal("0")
+                )
+              )
+            , [ FuncCall(
+                  "tmsg"
+                , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+                  , FuncCall("colorize", [StringVal("'&6You are not allowed to use for and while loops in WorldEdit\\'s //calc due to an existing exploit in WorldEdit.'")])
+                  ]
+                )
+              , Cancel(None())
+              ]
+            , None()
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_portal_travel'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ProcCall(
+         "_prevent_portal_trapping"
+       , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+       )]
+    )
+  , Bind(
+      StringVal("'player_join'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ProcCall(
+         "_prevent_portal_trapping"
+       , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+       )]
+    )
+  , Bind(
+      StringVal("'player_interact'")
+    , Null()
+    , Array([ArrayLabelEntry("'itemname'", StringVal("'GOLDEN_SHOVEL'"))])
+    , "@event"
+    , []
+    , [ If(
+          BinExp(
+            And()
+          , BinExp(
+              And()
+            , BinExp(
+                Or()
+              , BinExp(
+                  Equals()
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'action'"))
+                , StringVal("'left_click_block'")
+                )
+              , BinExp(
+                  Equals()
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'action'"))
+                , StringVal("'right_click_block'")
+                )
+              )
+            , UnExp(
+                Not()
+              , BinExp(
+                  Equals()
+                , BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+                , Null()
+                )
+              )
+            )
+          , FuncCall(
+              "has_permission"
+            , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")), StringVal("'woesh0007.blockinfotool'")]
+            )
+          )
+        , [ Cancel(None())
+          , FuncCall(
+              "tmsg"
+            , [ BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))
+              , FuncCall(
+                  "colorize"
+                , [ BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , BinExp(
+                          Concat()
+                        , BinExp(
+                            Concat()
+                          , StringVal("'&6[&3BlockInfo&6]&a Material: &d'")
+                          , BinExp(ArrayGet(), IVar("@event"), StringVal("'block'"))
+                          )
+                        , StringVal("'&a. Blockdata string: &d'")
+                        )
+                      , FuncCall(
+                          "get_blockdata_string"
+                        , [BinExp(ArrayGet(), IVar("@event"), StringVal("'location'"))]
+                        )
+                      )
+                    , StringVal("'&a.'")
+                    )
+                  ]
+                )
+              ]
+            )
+          ]
+        , None()
+        )
+      ]
+    )
+  , Bind(
+      StringVal("'player_join'")
+    , Null()
+    , Null()
+    , "@event"
+    , []
+    , [ IVarAssign("@world", BinExp(ArrayGet(), IVar("@event"), StringVal("'world'")))
+      , IVarAssign(
+          "@uuid"
+        , FuncCall(
+            "puuid"
+          , [BinExp(ArrayGet(), IVar("@event"), StringVal("'player'"))]
+          )
+        )
+      , IVarAssign("@player", BinExp(ArrayGet(), IVar("@event"), StringVal("'player'")))
+      , FuncCall(
+          "set_timeout"
+        , [ IntVal("1000")
+          , Closure(
+              []
+            , [ FuncCall(
+                  "groovy"
+                , [ BinExp(
+                      Concat()
+                    , BinExp(
+                        Concat()
+                      , BinExp(
+                          Concat()
+                        , BinExp(
+                            Concat()
+                          , BinExp(
+                              Concat()
+                            , BinExp(Concat(), StringVal("'\n            Object uuid = UUID.fromString(\"'"), IVar("@uuid"))
+                            , StringVal("'\");\n            Object worldServerEntityMap = org.bukkit.Bukkit.getServer().getWorld(\"'")
+                            )
+                          , IVar("@world")
+                          )
+                        , StringVal("'\").getHandle().entitiesByUUID;\n            Object entityPlayer = worldServerEntityMap.get(uuid);\n            if(entityPlayer == null) {\n                print(\"[CommandHelper] Fixing entity injection for player: \" + \"'")
+                        )
+                      , IVar("@player")
+                      )
+                    , StringVal("'\");\n                for(Object player : org.bukkit.Bukkit.getServer().getHandle().players) {\n                    if(player.getUniqueID().equals(uuid)) {\n                        worldServerEntityMap.put(uuid, player);\n                        break;\n                    }\n                }\n            }\n        '")
+                    )
+                  ]
+                )
+              ]
+            )
+          ]
+        )
+      ]
+    )
+  ]
+)

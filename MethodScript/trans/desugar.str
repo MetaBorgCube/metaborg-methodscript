@@ -165,8 +165,21 @@ rules
 	desugar: ForEachElseLegacy1(array, val, code, elseCode, _)      -> ForEach(None(), val, array, code, elseCode)
 	desugar: ForEachElseLegacy2(array, key, val, code, elseCode, _) -> ForEach(key   , val, array, code, elseCode)
 	
-	// Desugar 'switch' to ...
-	// TODO - Finish switch case SDF3 implementation and desugar.
+	// Desugar 'switch' to Switch(exp, cases, defaultCode) and SwitchExp(exp, cases, defaultExp).
+	desugar: SwitchLabel(val)                        -> val
+	desugar: SwitchDefault(code)                     -> code
+	
+	desugar: SwitchExpDefault(exp)                   -> exp
+	
+	desugar: SwitchLegacy(exp, cases, defaultCode)   -> Switch(exp, cases, defaultCode)
+	desugar: SwitchCaseLegacy(vals, code)            -> SwitchCase(vals, code)
+	desugar: SwitchDefaultLegacy(code)               -> code
+	desugar: SwitchLabelLegacy(Array(vals))          -> vals
+	desugar: SwitchLabelLegacy(val)                  -> [val]
+	
+	desugar: SwitchExpLegacy(exp, cases, defaultExp) -> SwitchExp(exp, cases, defaultExp)
+	desugar: SwitchExpCaseLegacy(vals, exp)          -> SwitchExpCase(vals, exp)
+	desugar: SwitchExpDefaultLegacy(exp)             -> exp
 	
 	// Desugar ternary operator.
 	desugar: TernaryLegacy(cond, v1, v2) -> Ternary(cond, v1, v2)

@@ -143,21 +143,32 @@ context-free syntax
 		<Statement+>
 	)<SemiColon?>>
 	
-	// TODO - Implement switch(). Statement when it contains Statements, Exp when it contains a single Exp in each case.
-	// TODO - Determine what to do when some cases have a single exp and some return or throw an exception or so.
-	// TODO - Fix ambiguity in Exp/Statement code (both can lead to SExp).
-	SExp.SwitchCaseLegacy = <switch(<Exp><SwitchCaseLegacy*><SwitchCaseDefaultLegacy?>
+	Statement.Switch = <switch(<Exp>) {
+		<SwitchCase*><SwitchDefault?>
+	}>
+	SwitchCase.SwitchCase = <
+		<SwitchLabel+>
+			<Statement+>
+	>
+	SwitchDefault.SwitchDefault = <
+		default:
+			<Statement+>
+	>
+	SwitchLabel.SwitchLabel = <case <Exp>:
+	>
+	
+	Statement.SwitchLegacy = <switch(<Exp><SwitchCaseLegacy*><SwitchDefaultLegacy?>
 	)>
-	SwitchCaseLegacy.ExpCase = <,
-		<Exp>,
-			<Exp+>>
-	SwitchCaseLegacy.StatementCase = <,
-		<Exp>,
-			<Statement+>>
-	SwitchCaseDefaultLegacy.ExpDefault = <,
-			<Exp>>
-	SwitchCaseDefaultLegacy.StatementDefault = <,
-			<Statement+>>
+	SwitchCaseLegacy.SwitchCaseLegacy = <,
+		<SwitchLabelLegacy>,
+			<Statement+>
+		>
+	SwitchDefaultLegacy.SwitchDefaultLegacy = <,
+			<Statement+>
+		>
+	
+	SwitchLabelLegacy.SwitchLabelLegacy = Exp
+//	SwitchLabelLegacy.SwitchLabelArrayLegacy = <array(<{Exp ","}+>)>
 	
 	Statement.Break = <break(<Exp?>)> // break([numLoops]).
 	Statement.Continue = <continue(<Exp?>)> // continue([numLoopsSkipped]).
@@ -167,6 +178,27 @@ context-free syntax
 	// Expressions.
 	Exp.Ternary = <if(<Exp>) {<Exp>} else {<Exp>}> // "@val = if(cond) {exp1} else {exp2}".
 	Exp.TernaryLegacy = <if(<Exp>, <Exp>, <Exp>)> // "@val = if(cond, exp1, exp2}".
+	
+	Exp.SwitchExp = <switch(<Exp>) {
+		<SwitchExpCase*><SwitchExpDefault?>
+	}>
+	SwitchExpCase.SwitchExpCase = <
+		<SwitchLabel+>
+			<Exp>
+	>
+	SwitchExpDefault.SwitchExpDefault = <
+		default:
+			<Exp>
+	>
+	
+	Exp.SwitchExpLegacy = <switch(<Exp><SwitchExpCaseLegacy*><SwitchExpDefaultLegacy?>
+	)>
+	SwitchExpCaseLegacy.SwitchExpCaseLegacy = <,
+		<SwitchLabelLegacy>,
+			<Exp>>
+	SwitchExpDefaultLegacy.SwitchExpDefaultLegacy = <,
+			<Exp>
+		>
 	
 	// Statement expressions.
 	SExp.ProcCall = <<PROC-ID>(<{Exp ","}*>)>

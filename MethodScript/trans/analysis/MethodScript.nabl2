@@ -149,8 +149,21 @@ rules
 		Map1[[ code ^ (s, scope_global) ]],
 		Map1[[ elseCode ^ (s, scope_global) ]].
 	
-	// TODO - Implement SwitchCase.
-//	[[ SwitchCase(...) ^ (s, scope_global) ]] := ...
+	[[ Switch(exp, cases, defaultCode) ^ (s, scope_global) ]] :=
+		[[ exp ^ (s, scope_global) ]],
+		Map1[[ cases ^ (s, scope_global) ]],
+		Map1[[ defaultCode ^ (s, scope_global) ]].
+	[[ SwitchCase(vals, code) ^ (s, scope_global) ]] :=
+		Map1[[ vals ^ (s, scope_global) ]],
+		Map1[[ code ^ (s, scope_global) ]].
+	
+	[[ SwitchExp(exp, cases, defaultExp) ^ (s, scope_global) ]] :=
+		[[ exp ^ (s, scope_global) ]],
+		Map1[[ cases ^ (s, scope_global) ]],
+		[[ defaultExp ^ (s, scope_global) ]].
+	[[ SwitchExpCase(vals, exp) ^ (s, scope_global) ]] :=
+		Map1[[ vals ^ (s, scope_global) ]],
+		[[ exp ^ (s, scope_global) ]].
 	
 	[[ Break(numLoops) ^ (s, scope_global) ]] :=
 		[[ numLoops ^ (s, scope_global) ]].
