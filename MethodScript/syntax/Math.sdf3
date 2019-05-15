@@ -16,7 +16,7 @@ context-free syntax
 	Exp.Divide   = <<Exp> / <Exp>> {left}
 	Exp.Mod      = <<Exp> % <Exp>> {left}
 	Exp.Pow      = <<Exp> ** <Exp>> {left}
-	Exp.Neg      = <-<Exp>>
+	Exp.Neg      = <-<Exp>> {avoid} // Avoid to prevent matching signed numbers.
 	
 	Exp.AddLegacy      = <add(<Exp>, <Exp>)>
 	Exp.SubtractLegacy = <subtract(<Exp>, <Exp>)>
