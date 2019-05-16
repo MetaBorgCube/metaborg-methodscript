@@ -3,12 +3,60 @@ module test
 language MethodScript
 start symbol Exp
 
+test parse array_push [[
+	@a[] = 1
+]] parse fails
+
+test parse array_push_legacy [[
+	array_push(@a, 1)
+]] parse fails
+
+test parse array_clone [[
+	@a[]
+]] parse succeeds
+
+test parse array_clone_legacy [[
+	array_deep_clone(@a)
+]] parse succeeds
+
 test parse array_get [[
 	@a[0]
 ]] parse succeeds
 
+test parse array_get_legacy [[
+	array_get(@a, 0)
+]] parse succeeds
+
+test parse slice_static [[
+	10..100
+]] parse succeeds
+
+test parse slice_static_negative [[
+	-10..100
+]] parse succeeds
+
+test parse slice_static_negative2 [[
+	10..-100
+]] parse succeeds
+
+test parse slice_static_negative3 [[
+	-10..-100
+]] parse succeeds
+
+test parse slice_dynamic [[
+	cslice(10, 100)
+]] parse succeeds
+
+test parse slice_dynamic_negative [[
+	cslice(-10, -100)
+]] parse succeeds
+
 test parse array_set [[
 	@a[0] = 1
+]] parse succeeds
+
+test parse array_set_legacy [[
+	array_set(@a, 0, 1)
 ]] parse succeeds
 
 test parse cslice [[
@@ -18,7 +66,3 @@ test parse cslice [[
 test parse cslice negative [[
 	0..-1
 ]] parse succeeds
-
-test parse array_push [[
-	@a[] = 1
-]] parse fails

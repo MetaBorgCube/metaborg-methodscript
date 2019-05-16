@@ -1,0 +1,48 @@
+module test
+
+language MethodScript
+start symbol Statement
+
+test parse add [[
+	1 + 2
+]] parse fails
+
+test parse subtract [[
+	1 - 2
+]] parse fails
+
+test parse multiply [[
+	1 * 2
+]] parse fails
+
+test parse divide [[
+	1 / 2
+]] parse fails
+
+test parse mod [[
+	1 % 2
+]] parse fails
+
+test parse pow [[
+	1 ** 2
+]] parse fails
+
+test parse inc [[
+	++@a
+]] parse succeeds
+
+test parse dec [[
+	--@a
+]] parse succeeds
+
+test parse postinc [[
+	@a++
+]] parse succeeds
+
+test parse postdec [[
+	@a--
+]] parse succeeds
+
+test parse neg [[
+	-1
+]] parse fails
