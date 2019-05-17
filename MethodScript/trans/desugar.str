@@ -19,9 +19,6 @@ signature
 		// ArrayHandling.
 		ArrayPush : Exp * Exp -> ArrayPush
 		
-		ArrayClone : BinOp
-		ArrayGet : BinOp
-		
 		// BasicLogic.
 		And     : BinOp
 		Or      : BinOp
@@ -88,9 +85,6 @@ rules
 	desugar: ArrayCloneLegacy(array)         -> ArrayClone(array)
 	desugar: ArrayGetLegacy(array, ind)      -> ArrayGet(array, ind)
 	desugar: ArraySetLegacy(array, ind, val) -> ArraySet(array, ind, val)
-	
-	desugar: ArrayClone(e)     -> UnExp(ArrayClone(), e)
-	desugar: ArrayGet(e1, e2)  -> BinExp(ArrayGet(), e1, e2)
 	
 	// Desugar BasicLogic nodes.
 	desugar: AndLegacy(e1, e2)  -> And(e1, e2)
