@@ -47,7 +47,7 @@ rules
 	// Static values.
 	[[ IntVal(_) ^ (s, scope_global) ]] :=
 		true.
-	[[ FloatVal(_) ^ (s, scope_global) ]] :=
+	[[ DoubleVal(_) ^ (s, scope_global) ]] :=
 		true.
 	[[ StringVal(_) ^ (s, scope_global) ]] :=
 		true.

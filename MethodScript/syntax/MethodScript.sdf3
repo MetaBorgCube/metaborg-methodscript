@@ -51,7 +51,7 @@ context-free syntax
 	
 	// Static values.
 	Exp.IntVal = INT
-	Exp.FloatVal = FLOAT
+	Exp.DoubleVal = DOUBLE
 	Exp.StringVal = STRING
 	Exp.SmartStringVal = SMART-STRING
 	Exp.True = "true"
