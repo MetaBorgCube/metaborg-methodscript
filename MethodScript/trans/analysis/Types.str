@@ -1,0 +1,24 @@
+module analysis/Types
+
+signature
+	constructors
+		
+		/* Types.
+		 * Unsupported types that exist in the MethodScript compiler are:
+		 * ms.lang.barestring, ms.lang.byte_array, ms.lang.ClassType, ms.lang.decimal,
+		 * ms.lang.mutable_primitive, ms.lang.Package, ms.lang.primitive,
+		 * ms.lang.resource, ms.lang.secure_string.
+		 * Source: com.laytonsmith.core.constructs.<type>.
+		 */
+		Boolean : Type // ms.lang.boolean.
+		Int     : Type // ms.lang.int.
+		Double  : Type // ms.lang.double.
+		String  : Type // ms.lang.string.
+		Array   : Type // ms.lang.array.
+		Slice   : Type // ms.lang.slice.
+		Closure : Type // ms.lang.closure, ms.lang.iclosure.
+		Null    : Type // null.
+		Void    : Type // void.
+		
+		Any     : Type
+		Number  : Type // ms.lang.number (int or double).
