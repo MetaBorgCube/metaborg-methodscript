@@ -54,7 +54,7 @@ signature
 		Lock : [Exp] -> Lock
 		
 		// Exceptions.
-		// None.
+		TryLegacy : [Statement] * CatchBlockLegacy -> TryLegacy
 		
 		// Math.
 		Add      : BinOp
@@ -235,6 +235,17 @@ rules
 	desugar: BindParam(param)                                  -> param
 	
 	desugar: ModifyEventArg(arg) -> arg
+	
+	// Desugar Exceptions nodes.
+	desugar: TryLegacy(code, catchBlock, _) -> TryLegacy(code, catchBlock)
+//	desugar: Some(CatchCodeLegacy(catchCode)) -> CatchCodeLegacy(catchCode)
+//	desugar: Some(CatchBlockLegacy(param, catchCode, exs)) -> CatchBlockLegacy(param, catchCode, exs)
+	
+	desugar: CTryFinallyBlock(code) -> code
+	
+	desugar: CTryLegacy(code, catchBlocks, finallyBlock, _) -> CTry(code, catchBlocks, finallyBlock)
+	desugar: CTryCatchBlockLegacy(param, code)              -> CTryCatchBlock(param, code)
+	desugar: CTryFinallyBlockLegacy(code)                   -> CTryFinallyBlock(code)
 	
 	// Desugar Math nodes.
 	desugar: AddLegacy(e1, e2)      -> Add(e1, e2)

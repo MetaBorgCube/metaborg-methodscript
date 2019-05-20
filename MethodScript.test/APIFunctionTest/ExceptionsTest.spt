@@ -1,0 +1,89 @@
+module test
+
+language MethodScript
+start symbol Statement
+
+test parse throw exception array [[
+	throw(@ex)
+]] parse succeeds
+
+test parse throw new exception [[
+	throw(Exception, 'Exception message')
+]] parse succeeds
+
+test parse throw new exception with cause [[
+	throw(Exception, 'Exception message', @cause)
+]] parse succeeds
+
+test parse try legacy 1 [[
+	try(
+		_code()
+		_code()
+	)
+]] parse succeeds
+
+test parse try legacy 2 [[
+	try(
+		_code()
+		_code()
+	,
+		_code()
+		_code()
+	)
+]] parse succeeds
+
+test parse try legacy 3 [[
+	try(
+		_code()
+		_code()
+	, @ex,
+		_code()
+		_code()
+	)
+]] parse succeeds
+
+test parse try legacy 4 [[
+	try(
+		_code()
+		_code()
+	, @ex,
+		_code()
+		_code()
+	, array())
+]] parse succeeds
+
+test parse complex_try [[
+	try {
+		_code()
+		_code()
+	} catch (Exception @ex) {
+		_code()
+		_code()
+	}
+]] parse succeeds
+
+test parse complex_try with double catch block [[
+	try {
+		_code()
+		_code()
+	} catch (IOException @ex) {
+		_code()
+		_code()
+	} catch (Exception @ex) {
+		_code()
+		_code()
+	}
+]] parse succeeds
+
+test parse complex_try with finally block [[
+	try {
+		_code()
+		_code()
+	} catch (Exception @ex) {
+		_code()
+		_code()
+	} finally {
+		_code()
+		_code()
+	}
+]] parse succeeds

@@ -5,13 +5,48 @@ imports
 	MethodScript
 
 context-free syntax
-	// TODO - Implement.
 	
 	// Statements.
-	// complex_try(), throw() and try().
+	Statement.Throw = <throw(<Exp>, <Exp><ThrowCausedByArg?>)<SemiColon?>>
+	Statement.ThrowArray = <throw(<Exp>)<SemiColon?>>
+	ThrowCausedByArg.ThrowCausedByArg = <, <Exp>>
+	
+	// try() legacy statement. Does not have syntactic sugar, but complex_try() does.
+	Statement.TryLegacy = <try(
+		<Statement+>
+	<CatchBlockLegacy?>)<SemiColon?>>
+	CatchBlockLegacy.CatchCodeLegacy = <,
+		<Statement+>>
+	CatchBlockLegacy.CatchBlockLegacy = <, <IVarParam>,
+		<Statement+><CatchExsLegacy?>>
+	CatchExsLegacy.CatchExsLegacy = <
+	, <Exp>>
+	
+	// complex_try() legacy statement.
+	Statement.CTryLegacy = <complex_try(
+		<Statement+><CTryCatchBlockLegacy*><CTryFinallyBlockLegacy?>
+	)<SemiColon?>>
+	CTryCatchBlockLegacy.CTryCatchBlockLegacy = <
+	, <IVarParam>,
+		<Statement+>>
+	CTryFinallyBlockLegacy.CTryFinallyBlockLegacy = <
+	,
+		<Statement+>>
+	
+	// complex_try() sugared statement.
+	Statement.CTry = <try {
+		<Statement*>
+	}<CTryCatchBlock+><CTryFinallyBlock?>>
+	// TODO - IVarParam must be typed, replace with IVarTypedParam when implemented.
+	CTryCatchBlock.CTryCatchBlock = < catch (<IVarParam>) {
+		<Statement*>
+	}>
+	CTryFinallyBlock.CTryFinallyBlock = < finally {
+		<Statement*>
+	}>
 	
 	// Expressions.
-	// get_stack_trace().
+	Exp.GetStackTrace = <get_stack_trace()>
 	
 	// Statement expressions.
 	// None.

@@ -115,10 +115,10 @@ lexical syntax
 	FUNC-ID = "modify_event" {reject}
 	
 	// Exclude Exceptions functions.
-//	FUNC-ID = "complex_try" {reject}
-//	FUNC-ID = "get_stack_trace" {reject}
-//	FUNC-ID = "throw" {reject}
-//	FUNC-ID = "try" {reject}
+	FUNC-ID = "complex_try" {reject}
+	FUNC-ID = "get_stack_trace" {reject}
+	FUNC-ID = "throw" {reject}
+	FUNC-ID = "try" {reject}
 	
 	// Exclude Math functions.
 	FUNC-ID = "add" {reject}
