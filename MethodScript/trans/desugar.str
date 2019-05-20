@@ -232,10 +232,10 @@ rules
 	desugar: PowLegacy(e1, e2)      -> Pow(e1, e2)
 	desugar: NegLegacy(exp)         -> Neg(exp)
 	
-	desugar: IncLegacy(var)     -> Inc(var)
-	desugar: PostIncLegacy(var) -> PostInc(var)
-	desugar: DecLegacy(var)     -> Dec(var)
-	desugar: PostDecLegacy(var) -> PostDec(var)
+	desugar: IncLegacy(exp)     -> Inc(exp)
+	desugar: PostIncLegacy(exp) -> PostInc(exp)
+	desugar: DecLegacy(exp)     -> Dec(exp)
+	desugar: PostDecLegacy(exp) -> PostDec(exp)
 	
 	desugar: Add(e1, e2)      -> BinExp(Add(), e1, e2)
 	desugar: Subtract(e1, e2) -> BinExp(Subtract(), e1, e2)
@@ -244,11 +244,12 @@ rules
 	desugar: Mod(e1, e2)      -> BinExp(Mod(), e1, e2)
 	desugar: Pow(e1, e2)      -> BinExp(Pow(), e1, e2)
 	desugar: Neg(e)           -> UnExp(Neg(), e)
+	desugar: UnExp(Neg(), UnExp(Neg(), e)) -> Dec(e) // Desugar <--<Exp>> to dec().
 	
-	desugar: Inc(ivarName)     -> UnExp(Inc(), IVar(ivarName))
-	desugar: PostInc(ivarName) -> UnExp(PostInc(), IVar(ivarName))
-	desugar: Dec(ivarName)     -> UnExp(Dec(), IVar(ivarName))
-	desugar: PostDec(ivarName) -> UnExp(PostDec(), IVar(ivarName))
+	desugar: Inc(exp)     -> UnExp(Inc(), exp)
+	desugar: PostInc(exp) -> UnExp(PostInc(), exp)
+	desugar: Dec(exp)     -> UnExp(Dec(), exp)
+	desugar: PostDec(exp) -> UnExp(PostDec(), exp)
 	
 	// Desugar StringHandling nodes.
 	// Desugar 'concat(arg1, arg2, ...)' to Concat(Concat(arg1, arg2), arg3).

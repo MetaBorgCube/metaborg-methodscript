@@ -27,12 +27,12 @@ context-free syntax
 	Exp.NegLegacy      = <neg(<Exp>)>
 	
 	// Statement expressions.
-	SExp.Inc     = <++<IVAR>>
-	SExp.PostInc = <<IVAR>++>
-	SExp.Dec     = <--<IVAR>>
-	SExp.PostDec = <<IVAR>-->
+	SExp.Inc     = <++<Exp>>
+	SExp.PostInc = <<Exp>++>
+	Statement.Dec= <--<Exp>> // Expression desugared from Neg(Neg(exp)).
+	SExp.PostDec = <<Exp>-->
 	
-	SExp.IncLegacy     = <inc(<IVAR>)>
-	SExp.PostIncLegacy = <postinc(<IVAR>)>
-	SExp.DecLegacy     = <dec(<IVAR>)>
-	SExp.PostDecLegacy = <postdec(<IVAR>)>
+	SExp.IncLegacy     = <inc(<Exp>)>
+	SExp.PostIncLegacy = <postinc(<Exp>)>
+	SExp.DecLegacy     = <dec(<Exp>)>
+	SExp.PostDecLegacy = <postdec(<Exp>)>
