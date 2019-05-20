@@ -84,6 +84,11 @@ rules
 	// Desugar SExp nodes.
 	desugar: SExp(e) -> e
 	
+	// Desugar IVarParam legacy syntax.
+	desugar: IVarAssignParamLegacy(cTypeId, varName, valExp) -> IVarAssignParam(cTypeId, varName, valExp)
+	desugar: IVarAssignScopeParamLegacy(cTypeId, varName, valExp) -> IVarAssignScopeParam(cTypeId, varName, valExp)
+	desugar: IVarCTypeIdLegacy(cTypeId) -> cTypeId
+	
 	// Desugar command declaration arguments.
 	desugar: CmdOptArgDecl(var)                    -> CmdArgDecl(var)
 	desugar: CmdOptArgDeclDefault(var, defaultVal) -> CmdArgDecl(var)

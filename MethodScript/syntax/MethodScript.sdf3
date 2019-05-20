@@ -44,10 +44,13 @@ context-free syntax
 	// Parameters that use a single scope for declaring and resolving.
 	IVarParam.IVarParam = <<CLASSTYPE-ID?><IVAR>>
 	IVarParam.IVarAssignParam = <<CLASSTYPE-ID?><IVAR> = <Exp>>
+	IVarParam.IVarAssignParamLegacy = <assign(<IVarCTypeIdLegacy?><IVAR>, <Exp>)>
+	IVarCTypeIdLegacy.IVarCTypeIdLegacy = <<CLASSTYPE-ID>, >
 	
 	// Parameters that use a different scope for declaring and resolving.
 	IVarScopeParam.IVarScopeParam = <<CLASSTYPE-ID?><IVAR>>
 	IVarScopeParam.IVarAssignScopeParam = <<CLASSTYPE-ID?><IVAR> = <Exp>>
+	IVarScopeParam.IVarAssignScopeParamLegacy = <assign(<IVarCTypeIdLegacy?><IVAR>, <Exp>)>
 	
 	// Static values.
 	Exp.IntVal = INT
