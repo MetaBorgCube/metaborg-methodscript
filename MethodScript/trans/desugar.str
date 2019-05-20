@@ -45,7 +45,8 @@ signature
 		Die : Exp -> Die
 		
 		// DataHandling.
-		// None.
+		Array : [ArrayEntry] -> Array
+		AssocArray : [ArrayEntry] -> AssocArray
 		
 		// EventBinding.
 		Cancel : Exp -> Cancel
@@ -197,6 +198,9 @@ rules
 	desugar: ProcIdArgSmartString(procName)        -> procName
 	desugar: ProcIdArgBareString(procName)         -> procName
 	
+	// Desugar 'array' and 'associative_array'.
+	desugar: Array(vals, _)      -> Array(vals)
+	desugar: AssocArray(vals, _) -> AssocArray(vals)
 	desugar: ArrayValEntry(exp) -> exp
 	
 	// Desugar 'closure' types.

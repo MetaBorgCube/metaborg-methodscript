@@ -32,6 +32,7 @@ lexical syntax
 	NewLineEOF     = [\n\r]
 	NewLineEOF     = EOF
 	EOF            = ""
+	COMMA          = ","
 	
 	/* Exclude function IDs that have custom handling.
 	 * This list contains all interesting functions for implementing the core of the language,
