@@ -29,18 +29,6 @@ rules
 		
 		// Define type relations.
 		// Child  <! Parent: "Child can be used as Parent".
-		Boolean() <! Boolean(),
-		Int()     <! Int(),
-		Double()  <! Double(),
-		String()  <! String(),
-		Array()   <! Array(),
-		Slice()   <! Slice(),
-		Closure() <! Closure(),
-		Null()    <! Null(),
-		Void()    <! Void(),
-		Any()     <! Any(),
-		Number()  <! Number(),
-		
 		Any()     <! Boolean(),
 		Any()     <! Int(),
 		Any()     <! Double(),
