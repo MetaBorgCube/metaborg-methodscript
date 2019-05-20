@@ -13,7 +13,7 @@ context-free syntax
 	// Expressions.
 	Exp.ArrayClone = <<Exp>[]> // Maps to array_deep_clone(array).
 	Exp.ArrayCloneLegacy = <array_deep_clone(<Exp>)>
-	Exp.ArrayGet = <<Exp>[<Exp>]>
+	Exp.ArrayGet = <<Exp>[<Exp>]> {avoid} // Avoid to disambiguate @a = @b = array[0].
 	Exp.ArrayGetLegacy = <array_get(<Exp>, <Exp>)>
 	// TODO - Merge these slices or leave them (one allows variable arguments).
 	Exp.SliceStatic = <<SIGNED-INT>..<SIGNED-INT>>
