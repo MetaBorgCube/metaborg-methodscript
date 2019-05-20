@@ -11,14 +11,9 @@ signature
 	functions
 		binOpNumberType : (Type * Type) -> Type {
 			(Int()   , Int())    -> Int(),
-			(Double(), Int())    -> Double(),
-			(Int()   , Double()) -> Double(),
-			(Double(), Double()) -> Double(),
-			(Double(), Any())    -> Double(),
-			(Any()   , Double()) -> Double(),
-			(Int()   , Any())    -> Number(),
-			(Any()   , Int())    -> Number(),
-			(Any()   , Any())    -> Number()
+			(Double(), _)        -> Double(),
+			(_       , Double()) -> Double(),
+			(_       , _)        -> Number()
 		}
 
 rules
