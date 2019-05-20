@@ -52,21 +52,21 @@ context-free syntax
 		<Statement+>
 	, <Exp>)<SemiColon?>>
 	
-	Statement.For = <for(<Exp>, <Exp>, <Exp>) {
+	Statement.For = <for(<IVarParam>, <Exp>, <Exp>) {
 		<Statement*>
 	}>
 	
-	Statement.ForLegacy = <for(<Exp>, <Exp>, <Exp>,
+	Statement.ForLegacy = <for(<IVarParam>, <Exp>, <Exp>,
 		<Statement+>
 	)<SemiColon?>>
 	
-	Statement.ForElse = <for(<Exp>, <Exp>, <Exp>) {
+	Statement.ForElse = <for(<IVarParam>, <Exp>, <Exp>) {
 		<Statement*>
 	} else {
 		<Statement*>
 	}>
 	
-	Statement.ForElseLegacy = <forelse(<Exp>, <Exp>, <Exp>,
+	Statement.ForElseLegacy = <forelse(<IVarParam>, <Exp>, <Exp>,
 		<Statement+>
 	,
 		<Statement+>
