@@ -61,6 +61,10 @@ rules
 		
 		Map1T[[ statements ^ (scope_file, scope_global) : _ ]].
 	
+	[[ Msa(cmds) ^ (scope_global) ]] :=
+		new scope_file,
+		Map1[[ cmds ^ (scope_file, scope_global) ]].
+	
 	// Variable references.
 	[[ IVar(varName) ^ (s, scope_global) : t ]] :=
 		IVar{varName} -> s, // varName is a reference in s.
@@ -109,16 +113,33 @@ rules
 	[[ False() ^ (s, scope_global) : Boolean() ]].
 	[[ Null() ^ (s, scope_global) : Null() ]].
 	
+	// Command declarations.
+	[[ CmdDecl(cmdName, args, optArgs, body) ^ (s, scope_global) ]] :=
+		new scope_cmd,
+		Map1[[ args ^ (scope_cmd, scope_global) ]],
+		Map1[[ optArgs ^ (scope_cmd, scope_global) ]],
+		[[ body ^ (scope_cmd, scope_global) ]],
+		distinct/name W(scope_cmd)/Var | error $[Duplicate variable declaration: [NAME]] @NAMES.
+	
+	[[ CmdArgDecl(varName) ^ (s, scope_global) ]] :=
+		Var{varName} <- s,
+		Var{varName} : String(). // All $variables are strings.
+	
+	[[ SingleLine(statement) ^ (s, scope_global) ]] :=
+		[[ statement ^ (s, scope_global) : _ ]].
+	[[ MultiLine(statements) ^ (s, scope_global) ]] :=
+		Map1T[[ statements ^ (s, scope_global) : _ ]].
+	
 	// Unary and binary expressions.
-	[[UnExp(_, e) ^ (s, scope_global) : Any() ]] :=
+	[[ UnExp(_, e) ^ (s, scope_global) : Any() ]] :=
 		[[ e ^ (s, scope_global) : t1 ]].
-	[[BinExp(Add(), e1, e2) ^ (s, scope_global) : t ]] := // TODO - Determine how to implement + move Math section?
+	[[ BinExp(Add(), e1, e2) ^ (s, scope_global) : t ]] := // TODO - Determine how to implement + move Math section?
 		[[ e1 ^ (s, scope_global) : t1 ]],
 		[[ e2 ^ (s, scope_global) : t2 ]],
 //		t1 <? Number(),
 //		t2 <? Number(),
 		t is binOpNumberType of (t1, t2). // TODO - Apply to all BinOps that take numbers like this.
-	[[BinExp(_, e1, e2) ^ (s, scope_global) : Any() ]] :=
+	[[ BinExp(_, e1, e2) ^ (s, scope_global) : Any() ]] :=
 		[[ e1 ^ (s, scope_global) : t1 ]],
 		[[ e2 ^ (s, scope_global) : t2 ]].
 	

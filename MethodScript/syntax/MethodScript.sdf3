@@ -16,7 +16,7 @@ context-free start-symbols
 
 context-free syntax
 	Start.Empty = <>
-//	Start.Msa = <> // TODO - Implement.
+	Start.Msa = CmdDecl+
 	Start.Ms = Statement+
 //	Start.AutoIncludeMs = <> // TODO - Implement.
 	
@@ -61,6 +61,18 @@ context-free syntax
 	
 	// Function calls. Functions that accept code blocks as an argument should be defined separately.
 	SExp.FuncCall = <<FUNC-ID>(<{Exp ","}*>)>
+	
+	// Command declarations.
+	CmdDecl.CmdDecl = <*:/<CMD-ID><CmdArgDecl*><CmdOptArgDecl*> =<CmdBody>>
+	
+	CmdArgDecl.CmdArgDecl = < <VAR>>
+	CmdOptArgDecl.CmdOptArgDecl = < [<VAR>]>
+	CmdOptArgDecl.CmdOptArgDeclDefault = < [<VAR>=<STRING>]>
+	
+	CmdBody.SingleLine = < <Statement>>
+	CmdBody.MultiLine = [ >>>
+		[Statement+]
+	<<<]
 	
 	// Brackets. These are allowed around statements and expressions.
 	Exp = <(<Exp>)> {bracket}
