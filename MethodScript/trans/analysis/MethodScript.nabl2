@@ -88,8 +88,8 @@ rules
 		IVar{varName@s} <- s,
 		IVar{varName@s} : varType,
 		[[ valExp ^ (s, scope_global) : valType ]],
-		varType == Any(), // TODO - Change to valType when every assign will have its own scope.
-		valType <? varType.
+		varType == Any(). // TODO - Change to valType when every assign will have its own scope.
+//		valType <? varType.
 	[[ IVarScopeParam(cType, varName) ^ (scope_parent, scope_params, scope_global) : varType ]] :=
 		// TODO - Resolve cType (Some(str), None()) to a type and use this.
 		IVar{varName} <- scope_params,
@@ -100,8 +100,8 @@ rules
 		IVar{varName} <- scope_params,
 		IVar{varName} : varType,
 		[[ valExp ^ (scope_parent, scope_global) : valType ]],
-		varType == Any(),
-		valType <? varType.
+		varType == Any().
+//		valType <? varType.
 	
 	// Static values.
 	[[ IntVal(_) ^ (s, scope_global) : Int() ]].
@@ -402,19 +402,13 @@ rules
 		// Resolve code in closure scope.
 		Map1T[[ code ^ (scope_closure, scope_global) : _ ]].
 	
-	[[ IVarAssign(cType, IVar(varName), valExp) ^ (s, scope_global) : Any() ]] :=
+	[[ IVarAssign(cType, varName, valExp) ^ (s, scope_global) : Any() ]] :=
 		// TODO - Start new scope for every assign and remove "@s".
 		// TODO - Resolve cType (Some(str), None()) to a type and use this.
 		IVar{varName@s} <- s,
 		IVar{varName@s} : Any(),
 		[[ valExp ^ (s, scope_global) : valType ]].
 //		valType <? varType. // TODO - Return valType when every assign has a new scope?
-	[[ IVarAssign(cType, varExp, valExp) ^ (s, scope_global) : Any() ]] :=
-		// TODO - Merge with other IVarAssign if possible?
-		// TODO - Resolve cType (Some(str), None()) to a type and use this.
-		[[ varExp ^ (s, scope_global) : _ ]],
-		[[ valExp ^ (s, scope_global) : _ ]],
-		varExp == ArrayGet(_, _).
 	
 	// EventBinding nodes.
 	// TODO - Allow only in event context (within a Bind()).

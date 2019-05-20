@@ -95,6 +95,12 @@ rules
 	desugar: ArrayGetLegacy(array, ind)      -> ArrayGet(array, ind)
 	desugar: ArraySetLegacy(array, ind, val) -> ArraySet(array, ind, val)
 	
+	desugar: ArrayAddSet(arrExp, indExp, valExp)      -> ArraySet(arrExp, indExp, Add(ArrayGet(arrExp, indExp), valExp))
+	desugar: ArraySubtractSet(arrExp, indExp, valExp) -> ArraySet(arrExp, indExp, Subtract(ArrayGet(arrExp, indExp), valExp))
+	desugar: ArrayMultiplySet(arrExp, indExp, valExp) -> ArraySet(arrExp, indExp, Multiply(ArrayGet(arrExp, indExp), valExp))
+	desugar: ArrayDivideSet(arrExp, indExp, valExp)   -> ArraySet(arrExp, indExp, Divide(ArrayGet(arrExp, indExp), valExp))
+	desugar: ArrayConcatSet(arrExp, indExp, valExp)   -> ArraySet(arrExp, indExp, Concat(ArrayGet(arrExp, indExp), valExp))
+	
 	// Desugar BasicLogic nodes.
 	desugar: AndLegacy(e1, e2)  -> And(e1, e2)
 	desugar: OrLegacy(e1, e2)   -> Or(e1, e2)
@@ -221,13 +227,13 @@ rules
 	desugar: ClosureParam(param)             -> param
 	
 	// Desugar 'assign'.
-	desugar: IVarAssignLegacy(varType, varExp, exp) -> IVarAssign(varType, varExp, exp)
-	desugar: IVarAssignCTypeLegacy(varType)         -> varType
-	desugar: IVarAddAssign(varExp, exp)             -> IVarAssign(None(), varExp, Add(varExp, exp))
-	desugar: IVarSubtractAssign(varExp, exp)        -> IVarAssign(None(), varExp, Subtract(varExp, exp))
-	desugar: IVarMultiplyAssign(varExp, exp)        -> IVarAssign(None(), varExp, Multiply(varExp, exp))
-	desugar: IVarDivideAssign(varExp, exp)          -> IVarAssign(None(), varExp, Divide(varExp, exp))
-	desugar: IVarConcatAssign(varExp, exp)          -> IVarAssign(None(), varExp, Concat(varExp, exp))
+	desugar: IVarAssignLegacy(varType, ivarName, exp) -> IVarAssign(varType, ivarName, exp)
+	desugar: IVarAssignCTypeLegacy(varType)           -> varType
+	desugar: IVarAddAssign(ivarName, exp)             -> IVarAssign(None(), ivarName, Add(IVar(ivarName), exp))
+	desugar: IVarSubtractAssign(ivarName, exp)        -> IVarAssign(None(), ivarName, Subtract(IVar(ivarName), exp))
+	desugar: IVarMultiplyAssign(ivarName, exp)        -> IVarAssign(None(), ivarName, Multiply(IVar(ivarName), exp))
+	desugar: IVarDivideAssign(ivarName, exp)          -> IVarAssign(None(), ivarName, Divide(IVar(ivarName), exp))
+	desugar: IVarConcatAssign(ivarName, exp)          -> IVarAssign(None(), ivarName, Concat(IVar(ivarName), exp))
 	
 	// Desugar EventBinding nodes.
 	desugar: Cancel(exp, _) -> Cancel(exp)

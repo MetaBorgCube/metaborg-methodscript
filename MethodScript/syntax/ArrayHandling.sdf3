@@ -22,3 +22,9 @@ context-free syntax
 	// Statement expressions.
 	SExp.ArraySet = <<Exp>[<Exp>] = <Exp>>
 	SExp.ArraySetLegacy = <array_set(<Exp>, <Exp>, <Exp>)>
+	
+	SExp.ArrayAddSet      = <<Exp>[<Exp>] += <Exp>>
+	SExp.ArraySubtractSet = <<Exp>[<Exp>] -= <Exp>>
+	SExp.ArrayMultiplySet = <<Exp>[<Exp>] *= <Exp>>
+	SExp.ArrayDivideSet   = <<Exp>[<Exp>] /= <Exp>>
+	SExp.ArrayConcatSet   = <<Exp>[<Exp>] .= <Exp>>
