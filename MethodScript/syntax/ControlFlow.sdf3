@@ -170,10 +170,10 @@ context-free syntax
 	SwitchLabelLegacy.SwitchLabelLegacy = Exp
 //	SwitchLabelLegacy.SwitchLabelArrayLegacy = <array(<{Exp ","}+>)>
 	
-	Statement.Break = <break(<Exp?>)> // break([numLoops]).
-	Statement.Continue = <continue(<Exp?>)> // continue([numLoopsSkipped]).
-	Statement.Return = <return(<Exp?>)> // return([value]).
-	Statement.Die = <die(<Exp?>)> // die([message]).
+	Statement.Break = <break(<Exp?>)<SemiColon?>> // break([numLoops]).
+	Statement.Continue = <continue(<Exp?>)<SemiColon?>> // continue([numLoopsSkipped]).
+	Statement.Return = <return(<Exp?>)<SemiColon?>> // return([value]).
+	Statement.Die = <die(<Exp?>)<SemiColon?>> // die([message]).
 	
 	// Expressions.
 	Exp.Ternary = <if(<Exp>) {<Exp>} else {<Exp>}> // "@val = if(cond) {exp1} else {exp2}".

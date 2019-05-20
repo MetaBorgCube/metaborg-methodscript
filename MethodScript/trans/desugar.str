@@ -39,6 +39,10 @@ signature
 		DoWhile : Exp * [Statement] -> DoWhile
 		For : Exp * Exp * Statement * [Statement] * [Statement] -> For
 		ForEach : IVAR * IVAR * Exp * [Statement] * [Statement] -> ForEach
+		Break : Exp -> Break
+		Continue : Exp -> Continue
+		Return : Exp -> Return
+		Die : Exp -> Die
 		
 		// DataHandling.
 		// None.
@@ -174,6 +178,12 @@ rules
 	desugar: SwitchExpLegacy(exp, cases, defaultExp) -> SwitchExp(exp, cases, defaultExp)
 	desugar: SwitchExpCaseLegacy(vals, exp)          -> SwitchExpCase(vals, exp)
 	desugar: SwitchExpDefaultLegacy(exp)             -> exp
+	
+	// Desugar semicolons from ControlFlow statements.
+	desugar: Break(numLoops, _)    -> Break(numLoops)
+	desugar: Continue(numLoops, _) -> Continue(numLoops)
+	desugar: Return(exp, _)        -> Return(exp)
+	desugar: Die(exp, _)           -> Die(exp)
 	
 	// Desugar ternary operator.
 	desugar: TernaryLegacy(cond, v1, v2) -> Ternary(cond, v1, v2)
