@@ -125,6 +125,12 @@ rules
 		Var{varName} <- s,
 		Var{varName} : String(). // All $variables are strings.
 	
+	[[ CmdOptArgDeclDefault(var, defaultVal) ^ (s, scope_global) ]] :=
+		Var{varName} <- s,
+		Var{varName} : String(), // All $variables are strings.
+		[[ defaultVal ^ (s, scope_global) : defaultValType ]],
+		defaultValType <? String() | error $[Expected String, found [defaultValType]].
+	
 	[[ SingleLine(statement) ^ (s, scope_global) ]] :=
 		[[ statement ^ (s, scope_global) : _ ]].
 	[[ MultiLine(statements) ^ (s, scope_global) ]] :=

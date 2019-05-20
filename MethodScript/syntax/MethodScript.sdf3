@@ -70,7 +70,7 @@ context-free syntax
 	
 	CmdArgDecl.CmdArgDecl = < <VAR>>
 	CmdOptArgDecl.CmdOptArgDecl = < [<VAR>]>
-	CmdOptArgDecl.CmdOptArgDeclDefault = < [<VAR>=<STRING>]>
+	CmdOptArgDecl.CmdOptArgDeclDefault = < [<VAR>=<Exp>]>
 	
 	CmdBody.SingleLine = < <Statement>>
 	CmdBody.MultiLine = [ >>>

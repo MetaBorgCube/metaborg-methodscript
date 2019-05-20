@@ -91,7 +91,6 @@ rules
 	
 	// Desugar command declaration arguments.
 	desugar: CmdOptArgDecl(var)                    -> CmdArgDecl(var)
-	desugar: CmdOptArgDeclDefault(var, defaultVal) -> CmdArgDecl(var)
 	
 	// Desugar ArrayHandling nodes.
 	desugar: ArrayPush(array, val, _)        -> ArrayPush(array, val)
