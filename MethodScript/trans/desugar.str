@@ -194,6 +194,7 @@ rules
 	desugar: SwitchLegacy(exp, cases, defaultCode)   -> Switch(exp, cases, defaultCode)
 	desugar: SwitchCaseLegacy(vals, code)            -> SwitchCase(vals, code)
 	desugar: SwitchDefaultLegacy(code)               -> code
+	desugar: Some(SwitchDefaultLegacyComma())        -> None()
 	desugar: SwitchLabelLegacy(Array(vals))          -> vals
 	desugar: SwitchLabelLegacy(val)                  -> [val]
 	

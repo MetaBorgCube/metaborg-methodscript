@@ -175,6 +175,7 @@ context-free syntax
 	SwitchDefaultLegacy.SwitchDefaultLegacy = <,
 			<Statement+>
 		>
+	SwitchDefaultLegacy.SwitchDefaultLegacyComma = <,> // Allow trailing comma.
 	
 	SwitchLabelLegacy.SwitchLabelLegacy = Exp
 //	SwitchLabelLegacy.SwitchLabelArrayLegacy = <array(<{Exp ","}+>)>
