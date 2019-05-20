@@ -375,13 +375,18 @@ rules
 		// Resolve code in closure scope.
 		Map1T[[ code ^ (scope_closure, scope_global) : _ ]].
 	
-	[[ IVarAssign(varName, valExp) ^ (s, scope_global) : Any() ]] :=
+	[[ IVarAssign(IVar(varName), valExp) ^ (s, scope_global) : Any() ]] :=
 		// TODO - Start new scope for every assign and remove "@s".
 		// TODO - Without new scope, this can cause invalid type errors.
 		IVar{varName@s} <- s,
 		IVar{varName@s} : Any(),
 		[[ valExp ^ (s, scope_global) : valType ]].
 //		valType <? varType. // TODO - Return valType when every assign has a new scope?
+	[[ IVarAssign(varExp, valExp) ^ (s, scope_global) : Any() ]] :=
+		// TODO - Merge with other IVarAssign if possible?
+		[[ varExp ^ (s, scope_global) : _ ]],
+		[[ valExp ^ (s, scope_global) : _ ]],
+		varExp == ArrayGet(_, _).
 	
 	// EventBinding nodes.
 	// TODO - Allow only in event context (within a Bind()).
