@@ -34,6 +34,7 @@ rules
 		Any()     <! Null(),
 		Any()     <! Void(),
 		Any()     <! ClassType(),
+		Any()     <! ArrayAccess(),
 		
 		Null()    <! Boolean(),
 		Null()    <! Int(),
@@ -46,6 +47,10 @@ rules
 		
 		Int()     <! Number(),
 		Double()  <! Number(),
+		
+		Array()   <! ArrayAccess(),
+		Slice()   <! ArrayAccess(),
+		String()  <! ArrayAccess(),
 		
 		Slice()   <! Array().
 	
@@ -176,7 +181,7 @@ rules
 	[[ ArrayGet(arrayExp, indExp) ^ (s, scope_global) : Any() ]] :=
 		[[ arrayExp ^ (s, scope_global) : arrayType ]],
 		[[ indExp ^ (s, scope_global) : _ ]],
-		arrayType <? Array() | error $[Expected array, found [arrayType]].
+		arrayType <? ArrayAccess() | error $[Type [arrayType] does not support array access].
 	
 	[[ SliceStatic(val1, val2) ^ (s, scope_global) : Slice() ]] :=
 		true.
