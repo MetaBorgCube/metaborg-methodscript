@@ -71,7 +71,7 @@ context-free syntax
 	
 	CmdBody.SingleLine = < <Statement>>
 	CmdBody.MultiLine = [ >>>
-		[Statement+]
+		[Statement*]
 	<<<]
 	
 	// Brackets. These are allowed around statements and expressions.
