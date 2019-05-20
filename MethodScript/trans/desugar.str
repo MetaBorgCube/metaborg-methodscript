@@ -35,7 +35,7 @@ signature
 		Gte     : BinOp
 		
 		// ControlFlow.
-		If : Exp * [Statement] * [Statement] -> If
+		IfElse : [IfElseIfBlock] * IfElseBlock -> IfElse
 		DoWhile : Exp * [Statement] -> DoWhile
 		For : Exp * Exp * Statement * [Statement] * [Statement] -> For
 		ForEach : IVAR * IVAR * Exp * [Statement] * [Statement] -> ForEach
@@ -129,11 +129,18 @@ rules
 	desugar: Gte(e1, e2) -> BinExp(Gte(), e1, e2)
 	
 	// Desugar ControlFlow nodes.
-	// Desugar 'if' to If(cond, ifCode, elseCode).
-	desugar: If(cond, ifCode)                        -> If(cond, ifCode, None())
-	desugar: IfLegacy(cond, ifCode, _)               -> If(cond, ifCode, None())
-	desugar: IfElse(cond, ifCode, elseCode)          -> If(cond, ifCode, elseCode)
-	desugar: IfElseLegacy(cond, ifCode, elseCode, _) -> If(cond, ifCode, elseCode)
+	// Desugar legacy 'if' to IfElse(ifBlocks, elseCode).
+	desugar: IfLegacy(cond, ifCode, elseCode, _) -> IfElse([IfElseIfBlock(cond, ifCode)], elseCode)
+	
+	// Desugar 'ifelse' to IfElse(ifBlocks, elseCode).
+	desugar: IfElse(cond, ifCode, ifBlocks, elseCode) -> IfElse(ifBlocks', elseCode)
+		where ifBlocks' := <concat> [ifBlocks, [IfElseIfBlock(cond, ifCode)]]
+	desugar: IfElseBlock(code) -> code
+	
+	desugar: IfElseLegacy(cond, ifCode, ifBlocks, elseCode, _) -> IfElse(ifBlocks', elseCode)
+		where ifBlocks' := <concat> [ifBlocks, [IfElseIfBlock(cond, ifCode)]]
+	desugar: IfElseIfBlockLegacy(cond, code) -> IfElseIfBlock(cond, code)
+	desugar: IfElseBlockLegacy(code) -> IfElseBlock(code)
 	
 	// Desugar 'while' to While(cond, code).
 	desugar: WhileLegacy(cond, code, _) -> While(cond, code)

@@ -7,25 +7,34 @@ imports
 context-free syntax
 	
 	// Statements.
-	Statement.If = <if(<Exp>) {
-		<Statement*>
-	}>
+	// 'if' syntax collides with 'ifelse' syntax.
+//	Statement.If = <if(<Exp>) {
+//		<Statement*>
+//	}<IfElseBlock?>>
 	
 	Statement.IfLegacy = <if(<Exp>,
-		<Statement+>
+		<Statement+><IfElseBlockLegacy?>
 	)<SemiColon?>>
 	
 	Statement.IfElse = <if(<Exp>) {
 		<Statement*>
-	} else {
+	}<IfElseIfBlock*><IfElseBlock?>>
+	IfElseIfBlock.IfElseIfBlock = < else if(<Exp>) {
+		<Statement*>
+	}>
+	IfElseBlock.IfElseBlock = < else {
 		<Statement*>
 	}>
 	
-	Statement.IfElseLegacy = <if(<Exp>,
-		<Statement+>
-	,
-		<Statement+>
+	Statement.IfElseLegacy = <ifelse(<Exp>,
+		<Statement+><IfElseIfBlockLegacy*><IfElseBlockLegacy?>
 	)<SemiColon?>>
+	IfElseIfBlockLegacy.IfElseIfBlockLegacy = <
+	, <Exp>,
+		<Statement+>>
+	IfElseBlockLegacy.IfElseBlockLegacy = <
+	,
+		<Statement+>>
 	
 	Statement.While = <while(<Exp>) {
 		<Statement*>

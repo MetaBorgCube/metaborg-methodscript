@@ -164,14 +164,12 @@ rules
 	// None (handled through UnOp and BinOp).
 	
 	// ControlFlow nodes.
-	[[ If(cond, ifCode, None()) ^ (s, scope_global) : Void() ]] :=
+	[[ IfElse(ifBlocks, elseCode) ^ (s, scope_global) : Void() ]] :=
+		Map1T[[ ifBlocks ^ (s, scope_global) : _ ]],
+		Map1T[[ elseCode ^ (s, scope_global) : _ ]].
+	[[ IfElseIfBlock(cond, code) ^ (s, scope_global) : codeType ]] :=
 		[[ cond ^ (s, scope_global) : condType ]],
-		Map1T[[ ifCode ^ (s, scope_global) : _ ]],
-		condType <? Boolean().
-	[[ If(cond, ifCode, elseCode) ^ (s, scope_global) : Void() ]] :=
-		[[ cond ^ (s, scope_global) : condType ]],
-		Map1T[[ ifCode ^ (s, scope_global) : _ ]],
-		Map1T[[ elseCode ^ (s, scope_global) : _ ]],
+		Map1T[[ code ^ (s, scope_global) : codeType ]],
 		condType <? Boolean().
 	
 	[[ While(cond, code) ^ (s, scope_global) : Void() ]] :=
