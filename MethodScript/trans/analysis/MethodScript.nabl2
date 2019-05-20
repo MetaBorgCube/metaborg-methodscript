@@ -33,6 +33,7 @@ rules
 		Any()     <! Closure(),
 		Any()     <! Null(),
 		Any()     <! Void(),
+		Any()     <! ClassType(),
 		
 		Null()    <! Boolean(),
 		Null()    <! Int(),
@@ -41,6 +42,7 @@ rules
 		Null()    <! Array(),
 		Null()    <! Slice(),
 		Null()    <! Closure(),
+		Null()    <! ClassType(),
 		
 		Int()     <! Number(),
 		Double()  <! Number(),
@@ -99,6 +101,7 @@ rules
 	[[ DoubleVal(_) ^ (s, scope_global) : Double() ]].
 	[[ StringVal(_) ^ (s, scope_global) : String() ]].
 	[[ SmartStringVal(_) ^ (s, scope_global) : String() ]].
+	[[ ClassTypeVal(_) ^ (s, scope_global) : ClassType() ]].
 	[[ True() ^ (s, scope_global) : Boolean() ]].
 	[[ False() ^ (s, scope_global) : Boolean() ]].
 	[[ Null() ^ (s, scope_global) : Null() ]].

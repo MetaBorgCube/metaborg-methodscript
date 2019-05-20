@@ -54,6 +54,7 @@ context-free syntax
 	Exp.DoubleVal = DOUBLE
 	Exp.StringVal = STRING
 	Exp.SmartStringVal = SMART-STRING
+	Exp.ClassTypeVal = CLASSTYPE-ID
 	Exp.True = "true"
 	Exp.False = "false"
 	Exp.Null = "null"

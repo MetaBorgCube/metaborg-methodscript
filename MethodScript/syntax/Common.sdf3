@@ -12,6 +12,7 @@ lexical syntax
 	LABEL          = STRING
 	LABEL          = SMART-STRING // TODO - Support this? SS's with a variable in them eval to 'smart_string' in labels.
 	LABEL          = BARE-STRING
+	CLASSTYPE-ID   = [a-zA-Z]+
 	STRING         = "'" StringChar* "'"
 	SMART-STRING   = "\"" SmartStringChar* "\"" // TODO - Implement smart string features.
 	BARE-STRING    = [a-zA-Z0-9\_]+ // TODO - Bare strings can also contain §, ±, etc. But not any operator/brace/bracket.
@@ -137,6 +138,11 @@ lexical syntax
 	
 	// Exclude Threading functions.
 //	FUNC-ID = "synchronized" {reject}
+	
+	// Exclude keywords from CLASSTYPE-ID.
+	CLASSTYPE-ID = "true" {reject}
+	CLASSTYPE-ID = "false" {reject}
+	CLASSTYPE-ID = "null" {reject}
 
 lexical restrictions
 	
@@ -150,6 +156,7 @@ lexical restrictions
 	IVAR          -/- [a-zA-Z0-9\_]
 	PROC-ID       -/- [a-zA-Z0-9\_]
 	FUNC-ID       -/- [a-zA-Z0-9\_]
+	CLASSTYPE-ID  -/- [a-zA-Z0-9\_\(] // '(' to prevent matching function IDs.
 	BARE-STRING   -/- [a-zA-Z0-9\_]
 	
 	// EOF may not be followed by any char.
