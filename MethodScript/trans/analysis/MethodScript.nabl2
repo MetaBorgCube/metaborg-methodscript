@@ -125,7 +125,7 @@ rules
 		Var{varName} <- s,
 		Var{varName} : String(). // All $variables are strings.
 	
-	[[ CmdOptArgDeclDefault(var, defaultVal) ^ (s, scope_global) ]] :=
+	[[ CmdOptArgDeclDefault(varName, defaultVal) ^ (s, scope_global) ]] :=
 		Var{varName} <- s,
 		Var{varName} : String(), // All $variables are strings.
 		[[ defaultVal ^ (s, scope_global) : defaultValType ]],
