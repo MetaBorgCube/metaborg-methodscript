@@ -55,8 +55,9 @@ context-free syntax
 	ClosureParam.ClosureParam = <<IVarScopeParam>, > // TODO - Fix trailing whitespace if it matters for pretty-printing.
 	
 	// Assign statement expressions.
-	SExp.IVarAssign         = <<Exp> = <Exp>>
-	SExp.IVarAssignLegacy   = <assign(<Exp>, <Exp>)>
+	SExp.IVarAssign         = <<CLASSTYPE-ID?><Exp> = <Exp>>
+	SExp.IVarAssignLegacy   = <assign(<IVarAssignCTypeLegacy?><Exp>, <Exp>)>
+	IVarAssignCTypeLegacy.IVarAssignCTypeLegacy = <<CLASSTYPE-ID>, >
 	SExp.IVarAddAssign      = <<Exp> += <Exp>>
 	SExp.IVarSubtractAssign = <<Exp> -= <Exp>>
 	SExp.IVarMultiplyAssign = <<Exp> *= <Exp>>

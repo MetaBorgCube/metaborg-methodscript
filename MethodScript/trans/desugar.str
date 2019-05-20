@@ -217,12 +217,13 @@ rules
 	desugar: ClosureParam(param)             -> param
 	
 	// Desugar 'assign'.
-	desugar: IVarAssignLegacy(varExp, exp)   -> IVarAssign(varExp, exp)
-	desugar: IVarAddAssign(varExp, exp)      -> IVarAssign(varExp, Add(varExp, exp))
-	desugar: IVarSubtractAssign(varExp, exp) -> IVarAssign(varExp, Subtract(varExp, exp))
-	desugar: IVarMultiplyAssign(varExp, exp) -> IVarAssign(varExp, Multiply(varExp, exp))
-	desugar: IVarDivideAssign(varExp, exp)   -> IVarAssign(varExp, Divide(varExp, exp))
-	desugar: IVarConcatAssign(varExp, exp)   -> IVarAssign(varExp, Concat(varExp, exp))
+	desugar: IVarAssignLegacy(varType, varExp, exp) -> IVarAssign(varType, varExp, exp)
+	desugar: IVarAssignCTypeLegacy(varType)         -> varType
+	desugar: IVarAddAssign(varExp, exp)             -> IVarAssign(None(), varExp, Add(varExp, exp))
+	desugar: IVarSubtractAssign(varExp, exp)        -> IVarAssign(None(), varExp, Subtract(varExp, exp))
+	desugar: IVarMultiplyAssign(varExp, exp)        -> IVarAssign(None(), varExp, Multiply(varExp, exp))
+	desugar: IVarDivideAssign(varExp, exp)          -> IVarAssign(None(), varExp, Divide(varExp, exp))
+	desugar: IVarConcatAssign(varExp, exp)          -> IVarAssign(None(), varExp, Concat(varExp, exp))
 	
 	// Desugar EventBinding nodes.
 	desugar: Cancel(exp, _) -> Cancel(exp)

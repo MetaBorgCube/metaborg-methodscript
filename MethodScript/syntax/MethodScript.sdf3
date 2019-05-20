@@ -42,12 +42,12 @@ context-free syntax
 	Exp.Var = VAR
 	
 	// Parameters that use a single scope for declaring and resolving.
-	IVarParam.IVarParam = IVAR
-	IVarParam.IVarAssignParam = <<IVAR> = <Exp>>
+	IVarParam.IVarParam = <<CLASSTYPE-ID?><IVAR>>
+	IVarParam.IVarAssignParam = <<CLASSTYPE-ID?><IVAR> = <Exp>>
 	
 	// Parameters that use a different scope for declaring and resolving.
-	IVarScopeParam.IVarScopeParam = IVAR
-	IVarScopeParam.IVarAssignScopeParam = <<IVAR> = <Exp>>
+	IVarScopeParam.IVarScopeParam = <<CLASSTYPE-ID?><IVAR>>
+	IVarScopeParam.IVarAssignScopeParam = <<CLASSTYPE-ID?><IVAR> = <Exp>>
 	
 	// Static values.
 	Exp.IntVal = INT

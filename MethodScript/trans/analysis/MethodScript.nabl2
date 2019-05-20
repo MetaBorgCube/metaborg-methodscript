@@ -74,22 +74,25 @@ rules
 	// IVariable parameters.
 	// With 1 scope, the param is declared and resolved in the same scope.
 	// With 2 scopes, the param is declared in the second scope and its value resolved in the first.
-	// TODO - Support typed parameters (int @var). Do not consider type of assigned value in that case.
-	[[ IVarParam(varName) ^ (s, scope_global) : varType ]] :=
+	[[ IVarParam(cType, varName) ^ (s, scope_global) : varType ]] :=
+		// TODO - Resolve cType (Some(str), None()) to a type and use this.
 		IVar{varName@s} <- s,
 		IVar{varName@s} : varType,
 		varType == Any().
-	[[ IVarAssignParam(varName, valExp) ^ (s, scope_global) : varType ]] :=
+	[[ IVarAssignParam(cType, varName, valExp) ^ (s, scope_global) : varType ]] :=
+		// TODO - Resolve cType (Some(str), None()) to a type and use this.
 		IVar{varName@s} <- s,
 		IVar{varName@s} : varType,
 		[[ valExp ^ (s, scope_global) : valType ]],
 		varType == Any(), // TODO - Change to valType when every assign will have its own scope.
 		valType <? varType.
-	[[ IVarScopeParam(varName) ^ (scope_parent, scope_params, scope_global) : varType ]] :=
+	[[ IVarScopeParam(cType, varName) ^ (scope_parent, scope_params, scope_global) : varType ]] :=
+		// TODO - Resolve cType (Some(str), None()) to a type and use this.
 		IVar{varName} <- scope_params,
 		IVar{varName} : varType,
 		varType == Any().
-	[[ IVarAssignScopeParam(varName, valExp) ^ (scope_parent, scope_params, scope_global) : varType ]] :=
+	[[ IVarAssignScopeParam(cType, varName, valExp) ^ (scope_parent, scope_params, scope_global) : varType ]] :=
+		// TODO - Resolve cType (Some(str), None()) to a type and use this.
 		IVar{varName} <- scope_params,
 		IVar{varName} : varType,
 		[[ valExp ^ (scope_parent, scope_global) : valType ]],
@@ -378,15 +381,16 @@ rules
 		// Resolve code in closure scope.
 		Map1T[[ code ^ (scope_closure, scope_global) : _ ]].
 	
-	[[ IVarAssign(IVar(varName), valExp) ^ (s, scope_global) : Any() ]] :=
+	[[ IVarAssign(cType, IVar(varName), valExp) ^ (s, scope_global) : Any() ]] :=
 		// TODO - Start new scope for every assign and remove "@s".
-		// TODO - Without new scope, this can cause invalid type errors.
+		// TODO - Resolve cType (Some(str), None()) to a type and use this.
 		IVar{varName@s} <- s,
 		IVar{varName@s} : Any(),
 		[[ valExp ^ (s, scope_global) : valType ]].
 //		valType <? varType. // TODO - Return valType when every assign has a new scope?
-	[[ IVarAssign(varExp, valExp) ^ (s, scope_global) : Any() ]] :=
+	[[ IVarAssign(cType, varExp, valExp) ^ (s, scope_global) : Any() ]] :=
 		// TODO - Merge with other IVarAssign if possible?
+		// TODO - Resolve cType (Some(str), None()) to a type and use this.
 		[[ varExp ^ (s, scope_global) : _ ]],
 		[[ valExp ^ (s, scope_global) : _ ]],
 		varExp == ArrayGet(_, _).
