@@ -241,14 +241,14 @@ rules
 		[[ val ^ (s, scope_global) : _ ]],
 		[[ arrayExp ^ (s, scope_global) : arrayType ]],
 		Map1T[[ code ^ (s, scope_global) : _ ]],
-		arrayType <? Array().
+		arrayType <? ArrayAccess().
 	[[ ForEach(key, val, arrayExp, code, elseCode) ^ (s, scope_global) : Void() ]] :=
 		[[ key ^ (s, scope_global) : _ ]],
 		[[ val ^ (s, scope_global) : _ ]],
 		[[ arrayExp ^ (s, scope_global) : arrayType ]],
 		Map1T[[ code ^ (s, scope_global) : _ ]],
 		Map1T[[ elseCode ^ (s, scope_global) : _ ]],
-		arrayType <? Array().
+		arrayType <? ArrayAccess().
 	
 	[[ Switch(exp, cases, defaultCode) ^ (s, scope_global) : Void() ]] :=
 		[[ exp ^ (s, scope_global) : _ ]],
