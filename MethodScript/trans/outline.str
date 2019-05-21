@@ -3,11 +3,59 @@ module outline
 imports
 	signatures/MethodScript-sig
 	libspoofax/editor/outline
+	desugar
 
 rules
 	editor-outline:
 		(_, _, ast, path, project-path) -> outline
-		where
-			outline := <simple-label-outline(to-outline-label)> ast
+			where ast' := <desugar-all> ast
+			where outline := <simple-label-outline(to-outline-label)> ast'
 	
-	to-outline-label = fail
+	to-outline-label:
+		Ms(statements) -> $[MethodScript]
+	
+	to-outline-label:
+		Msa(cmdDecls) -> $[MethodScript commands]
+	
+	// Command declarations.
+	to-outline-label:
+		CmdDecl(name, args, optArgs, body) -> $[/[name] [args'] [optArgs']]
+			where args' := <pp-cmd-args> args
+			where optArgs' := <pp-cmd-opt-args> optArgs
+	
+	pp-cmd-args: // No arg.
+		[] -> ""
+//	pp-cmd-args: // Single arg.
+//		[CmdArgDecl(varName)] -> $[[varName]]
+	pp-cmd-args: // Multiple args.
+		[CmdArgDecl(varName) | args] -> $[[varName] [args']]
+			where args' := <pp-cmd-args> args
+	
+	pp-cmd-opt-args: // No args.
+		[] -> ""
+	pp-cmd-opt-args: // [$args].
+		[CmdArgDecl(varName) | args] -> $<[<varName>] <args'>>
+			where args' := <pp-cmd-opt-args> args
+	pp-cmd-opt-args: // [$args='val'].
+		[CmdOptArgDeclDefault(varName, StringVal(val)) | args] -> $<[<varName> = <val>] <args'>>
+			where args' := <pp-cmd-opt-args> args
+	
+	// Procedure declarations.
+	to-outline-label:
+		ProcDecl(procName, params, code) -> $[proc [procName]([params'])]
+			where params' := <pp-proc-params> params
+	
+	pp-proc-params: // No param.
+		[] -> ""
+	pp-proc-params: // Single param.
+		[IVarScopeParam(type, varName)] -> $[[type'] [varName]]
+			where type' := <pp-var-type> type
+	pp-proc-params: // Multiple params.
+		[param | params] -> $[[param'], [params']]
+			where param' := <pp-proc-params> [param]
+			where params' := <pp-proc-params> params
+	
+	pp-var-type:
+		None() -> ""
+	pp-var-type:
+		Some(type) -> $[[type]]
