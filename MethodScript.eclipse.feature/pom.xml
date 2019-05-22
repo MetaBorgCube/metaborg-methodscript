@@ -39,7 +39,8 @@
     </repository>
     <repository>
       <id>spoofax-eclipse-repo</id>
-      <url>https://buildfarm.metaborg.org/job/metaborg/job/spoofax-releng/job/master/lastSuccessfulBuild/artifact/dist/spoofax/eclipse/site/</url>
+      <url>https://artifacts.metaborg.org/content/unzip/releases-unzipped/org/metaborg/org.metaborg.spoofax.eclipse.updatesite/2.5.4/org.metaborg.spoofax.eclipse.updatesite-2.5.4-assembly.zip-unzip/</url>
+      <!--Temporary offline buildfarm: <url>https://buildfarm.metaborg.org/job/metaborg/job/spoofax-releng/job/master/lastSuccessfulBuild/artifact/dist/spoofax/eclipse/site/</url>-->
       <layout>p2</layout>
       <releases>
         <enabled>false</enabled>
