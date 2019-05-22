@@ -3,6 +3,7 @@ module Main
 imports
 	Syntax
 	Analysis
+	Colorer
 
 language
 	extensions : ms, msa

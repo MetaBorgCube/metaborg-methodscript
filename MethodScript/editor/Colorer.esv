@@ -1,0 +1,7 @@
+module Colorer
+
+colorer
+	IVAR: 255 128 0
+	VAR: 128 0 255
+	PROC-ID: 0 64 128
+	FUNC-ID: 255 0 0
