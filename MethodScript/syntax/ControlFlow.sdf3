@@ -186,29 +186,60 @@ context-free syntax
 	Statement.Die = <die(<Exp?>)<SemiColon?>> // die([message]).
 	
 	// Expressions.
-	Exp.Ternary = <if(<Exp>) {<Exp>} else {<Exp>}> // "@val = if(cond) {exp1} else {exp2}".
-	Exp.TernaryLegacy = <if(<Exp>, <Exp>, <Exp>)> // "@val = if(cond, exp1, exp2}".
+	/* Both ternary and switch-case expressions require all arguments to either be an expression
+	 * or be a list of statements where the last statement always results in a control flow break
+	 * (die(), break(), continue(), throw(), ...). To disambiguate cases that have a single SExp argument,
+	 * an {avoid} is added to the statement cases. To allow this {avoid} to work, the term that has the
+	 * {avoid} is required to be the root node of the disambiguation. The extra added EmptyTerm term
+	 * causes the switch cases to become the root node of disambiguations, rather than the entire 
+	 * Ternary or SwitchExp term.
+	 */
+	EmptyTerm.EmptyTerm = ""
+	 
+	// Ternary expression.
+	Exp.Ternary = <if(<Exp>) {<TernaryCase>} else {<TernaryCase>}> {avoid} // "@val = if(cond) {exp1} else {exp2}".
+	Exp.TernaryLegacy = <if(<Exp>, <TernaryCase>, <TernaryCase>)> {avoid} // "@val = if(cond, exp1, exp2}".
+	TernaryCase.TernaryExpCase = <<Exp><EmptyTerm>>
+	TernaryCase.TernaryStmtsCase = <<Statement+><EmptyTerm>> {avoid} // Avoid to disambiguate SExp case to Exp case.
 	
+	// SwitchExp expression.
 	Exp.SwitchExp = <switch(<Exp>) {
 		<SwitchExpCase*><SwitchExpDefault?>
 	}>
 	SwitchExpCase.SwitchExpCase = <
 		<SwitchLabel+>
-			<Exp>
+			<Exp><EmptyTerm>
 	>
+	SwitchExpCase.SwitchExpStmtsCase = <
+		<SwitchLabel+>
+			<Statement+><EmptyTerm>
+	> {avoid}
 	SwitchExpDefault.SwitchExpDefault = <
 		default:
-			<Exp>
+			<Exp><EmptyTerm>
 	>
+	SwitchExpDefault.SwitchExpStmtsDefault = <
+		default:
+			<Statement+><EmptyTerm>
+	> {avoid}
 	
+	// SwitchExp legacy expression.
 	Exp.SwitchExpLegacy = <switch(<Exp><SwitchExpCaseLegacy*><SwitchExpDefaultLegacy?>
 	)>
 	SwitchExpCaseLegacy.SwitchExpCaseLegacy = <,
 		<SwitchLabelLegacy>,
-			<Exp>>
+			<Exp><EmptyTerm>>
+	SwitchExpCaseLegacy.SwitchExpStmtsCaseLegacy = <,
+		<SwitchLabelLegacy>,
+			<Statement+><EmptyTerm>
+		> {avoid}
 	SwitchExpDefaultLegacy.SwitchExpDefaultLegacy = <,
-			<Exp>
+			<Exp><EmptyTerm>
 		>
+	SwitchExpDefaultLegacy.SwitchExpStmtsDefaultLegacy = <,
+			<Statement+><EmptyTerm>
+		> {avoid}
+	SwitchExpDefaultLegacy.SwitchExpDefaultLegacyComma = <,>
 	
 	// Statement expressions.
 	SExp.ProcCall = <<PROC-ID>(<{Exp ","}*>)>

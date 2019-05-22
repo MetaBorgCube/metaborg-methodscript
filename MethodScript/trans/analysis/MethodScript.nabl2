@@ -264,9 +264,20 @@ rules
 		Map1T[[ cases ^ (s, scope_global) : caseExpTypes ]],
 		[[ defaultExp ^ (s, scope_global) : defaultType ]],
 		returnType == Any().
+	
 	[[ SwitchExpCase(vals, exp) ^ (s, scope_global) : t ]] :=
 		Map1T[[ vals ^ (s, scope_global) : _ ]],
 		[[ exp ^ (s, scope_global) : t ]].
+	[[ SwitchExpStmtsCase(vals, stmts) ^ (s, scope_global) : Void() ]] :=
+		[[ vals ^ (s, scope_global) : _ ]],
+		// TODO - Ensure that the last stmt results in a throw, die, break, ...
+		Map1T[[ stmts ^ (s, scope_global) : _ ]].
+	
+	[[ SwitchExpDefault(exp) ^ (s, scope_global) : t ]] :=
+		[[ exp ^ (s, scope_global) : t ]].
+	[[ SwitchExpStmtsDefault(stmts) ^ (s, scope_global) : Void() ]] :=
+		// TODO - Ensure that the last stmt results in a throw, die, break, ...
+		Map1T[[ stmts ^ (s, scope_global) : _ ]].
 	
 	[[ Break(None()) ^ (s, scope_global) : Void() ]] :=
 		// TODO - Only allow in loops.
@@ -294,13 +305,18 @@ rules
 	[[ Die(None()) ^ (s, scope_global) : Void() ]] :=
 		true.
 	
-	[[ Ternary(cond, ifExp, elseExp) ^ (s, scope_global) : returnType ]] :=
+	[[ Ternary(cond, ifCase, elseCase) ^ (s, scope_global) : returnType ]] :=
 		// TODO - Return hybrid type if possible?
 		[[ cond ^ (s, scope_global) : condType ]],
-		[[ ifExp ^ (s, scope_global) : t1 ]],
-		[[ elseExp ^ (s, scope_global) : t2 ]],
+		[[ ifCase ^ (s, scope_global) : t1 ]],
+		[[ elseCase ^ (s, scope_global) : t2 ]],
 		returnType == Any(),
 		condType <? Boolean().
+	[[ TernaryExpCase(exp) ^ (s, scope_global) : type ]] :=
+		[[ exp ^ (s, scope_global) : type ]].
+	[[ TernaryStmtsCase(stmts) ^ (s, scope_global) : Void() ]] :=
+		// TODO - Ensure that the last stmt results in a throw, die, break, ...
+		Map1T[[ stmts ^ (s, scope_global) : _ ]].
 	
 	[[ ProcCall(procName, argExps) ^ (s, scope_global) : Any() ]] :=
 		// TODO - Do argument length check. Warn about mismatching arg size?

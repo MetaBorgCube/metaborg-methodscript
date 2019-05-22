@@ -43,6 +43,12 @@ signature
 		Continue : Exp -> Continue
 		Return : Exp -> Return
 		Die : Exp -> Die
+		TernaryExpCase : Exp -> TernaryExpCase
+		TernaryStmtsCase : [Statement] -> TernaryStmtsCase
+		SwitchExpCase : [SwitchLabel] * Exp -> SwitchExpCase
+		SwitchExpStmtsCase : [SwitchLabel] * [Statement] -> SwitchExpStmtsCase
+		SwitchExpDefault : Exp -> SwitchExpDefault
+		SwitchExpStmtsDefault : [Statement] -> SwitchExpStmtsDefault
 		
 		// DataHandling.
 		Array : [ArrayEntry] -> Array
@@ -190,21 +196,27 @@ rules
 	desugar: ForEachElseLegacy2(array, key, val, code, elseCode, _) -> ForEach(key   , val, array, code, elseCode)
 	
 	// Desugar 'switch' to Switch(exp, cases, defaultCode) and SwitchExp(exp, cases, defaultExp).
-	desugar: SwitchLabel(val)                        -> val
-	desugar: SwitchDefault(code)                     -> code
+	desugar: SwitchLabel(val)                         -> val
+	desugar: SwitchDefault(code)                      -> code
 	
-	desugar: SwitchExpDefault(exp)                   -> exp
+	desugar: SwitchLegacy(exp, cases, defaultCode)    -> Switch(exp, cases, defaultCode)
+	desugar: SwitchCaseLegacy(vals, code)             -> SwitchCase(vals, code)
+	desugar: SwitchDefaultLegacy(code)                -> code
+	desugar: Some(SwitchDefaultLegacyComma())         -> None()
+	desugar: SwitchLabelLegacy(Array(vals))           -> vals
+	desugar: SwitchLabelLegacy(val)                   -> [val]
 	
-	desugar: SwitchLegacy(exp, cases, defaultCode)   -> Switch(exp, cases, defaultCode)
-	desugar: SwitchCaseLegacy(vals, code)            -> SwitchCase(vals, code)
-	desugar: SwitchDefaultLegacy(code)               -> code
-	desugar: Some(SwitchDefaultLegacyComma())        -> None()
-	desugar: SwitchLabelLegacy(Array(vals))          -> vals
-	desugar: SwitchLabelLegacy(val)                  -> [val]
+	desugar: SwitchExpCase(labels, exp, _)            -> SwitchExpCase(labels, exp)
+	desugar: SwitchExpStmtsCase(labels, stmts, _)     -> SwitchExpStmtsCase(labels, stmts)
+	desugar: SwitchExpDefault(exp, _)                 -> SwitchExpDefault(exp)
+	desugar: SwitchExpStmtsDefault(stmts, _)          -> SwitchExpStmtsDefault(stmts)
 	
-	desugar: SwitchExpLegacy(exp, cases, defaultExp) -> SwitchExp(exp, cases, defaultExp)
-	desugar: SwitchExpCaseLegacy(vals, exp)          -> SwitchExpCase(vals, exp)
-	desugar: SwitchExpDefaultLegacy(exp)             -> exp
+	desugar: SwitchExpLegacy(exp, cases, default)     -> SwitchExp(exp, cases, default)
+	desugar: SwitchExpCaseLegacy(vals, exp, _)        -> SwitchExpCase(vals, exp)
+	desugar: SwitchExpStmtsCaseLegacy(vals, stmts, _) -> SwitchExpStmtsCase(vals, stmts)
+	desugar: SwitchExpDefaultLegacy(exp, _)           -> SwitchExpDefault(exp)
+	desugar: SwitchExpStmtsDefaultLegacy(stmts, _)    -> SwitchExpStmtsDefault(stmts)
+	desugar: Some(SwitchExpDefaultLegacyComma())      -> None()
 	
 	// Desugar semicolons from ControlFlow statements.
 	desugar: Break(numLoops, _)    -> Break(numLoops)
@@ -214,6 +226,8 @@ rules
 	
 	// Desugar ternary operator.
 	desugar: TernaryLegacy(cond, v1, v2) -> Ternary(cond, v1, v2)
+	desugar: TernaryExpCase(exp, _) -> TernaryExpCase(exp)
+	desugar: TernaryStmtsCase(stmts, _) -> TernaryStmtsCase(stmts)
 	
 	// Desugar DataHandling nodes.
 	// Desugar 'proc' to ProcDecl(name, vars, code).
