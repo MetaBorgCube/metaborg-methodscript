@@ -66,7 +66,7 @@ context-free syntax
 	SExp.FuncCall = <<FUNC-ID>(<{Exp ","}*>)>
 	
 	// Command declarations.
-	CmdDecl.CmdDecl = <*:/<CMD-ID><CmdArgDecl*><CmdOptArgDecl*> =<CmdBody>>
+	CmdDecl.CmdDecl = <*:/<CMD-ID+><CmdArgDecl*><CmdOptArgDecl*> =<CmdBody>>
 	
 	CmdArgDecl.CmdArgDecl = < <VAR>>
 	CmdOptArgDecl.CmdOptArgDecl = < [<VAR>]>

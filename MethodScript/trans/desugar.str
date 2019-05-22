@@ -89,8 +89,12 @@ rules
 	desugar: IVarAssignScopeParamLegacy(cTypeId, varName, valExp) -> IVarAssignScopeParam(cTypeId, varName, valExp)
 	desugar: IVarCTypeIdLegacy(cTypeId) -> cTypeId
 	
-	// Desugar command declaration arguments.
+	// Desugar command declarations.
+	desugar: CmdDecl(cmdNameParts, args, optArgs, body) -> CmdDecl(<glue-strings> cmdNameParts, args, optArgs, body)
 	desugar: CmdOptArgDecl(var)                    -> CmdArgDecl(var)
+	glue-strings: [] -> ""
+	glue-strings: [str] -> str
+	glue-strings: [str | strs] -> <concat-strings> [str, " ", <glue-strings> strs]
 	
 	// Desugar ArrayHandling nodes.
 	desugar: ArrayPush(array, val, _)        -> ArrayPush(array, val)
