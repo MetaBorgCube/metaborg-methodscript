@@ -14,6 +14,7 @@
     <module>MethodScript</module>
     <module>MethodScript.eclipse</module>
     <module>MethodScript.eclipse.feature</module>
+    <module>MethodScript.eclipse.site</module>
     <module>MethodScript.example</module>
     <module>MethodScript.test</module>
   </modules>
