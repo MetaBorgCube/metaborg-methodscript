@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.pieter12345</groupId>
   <artifactId>MethodScript</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2-SNAPSHOT</version>
   <packaging>spoofax-language</packaging>
 
   <parent>

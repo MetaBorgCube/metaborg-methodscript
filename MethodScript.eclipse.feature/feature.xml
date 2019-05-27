@@ -2,8 +2,8 @@
 <feature
   id="MethodScript.eclipse.feature"
   label="MethodScript language Eclipse plugin"
-  version="0.0.1.qualifier"
+  version="0.0.2.qualifier"
 >
-  <plugin id="MethodScript.eclipse" version="0.0.1.qualifier" unpack="true" />
+  <plugin id="MethodScript.eclipse" version="0.0.2.qualifier" unpack="true" />
   <includes id="org.metaborg.spoofax.eclipse.feature" version="0" />
 </feature>
