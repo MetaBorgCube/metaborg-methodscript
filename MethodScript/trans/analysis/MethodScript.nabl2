@@ -56,14 +56,18 @@ rules
 	
 	// MethodScript program.
 	[[ Empty() ^ (scope_global) ]].
-	[[ Ms(statements) ^ (scope_global) ]] :=
-		
-		// Create file scope.
-		new scope_file,
+	
+	[[ Program(prog) ^ (scope_global) ]] :=
 		
 		// Disallow duplicate procedure declarations.
 		distinct/name W(scope_global)/Proc | error $[Duplicate procedure declaration: [NAME]] @NAMES,
 		
+		[[ prog ^ (scope_global) ]].
+	
+	[[ Ms(statements) ^ (scope_global) ]] :=
+		
+		// Create file scope.
+		new scope_file,
 		Map1T[[ statements ^ (scope_file, scope_global) : _ ]].
 	
 	[[ Msa(cmds) ^ (scope_global) ]] :=
