@@ -6,7 +6,7 @@ imports
 
 signature
 	name resolution
-		namespaces Var IVar Proc
+	namespaces Var IVar Proc ClassType
 	
 	functions
 		binOpNumberType : (Type * Type) -> Type {
@@ -15,6 +15,9 @@ signature
 			(_       , Double()) -> Double(),
 			(_       , _)        -> Number()
 		}
+	
+	constructors
+		ClassType : TYPE -> ClassType
 
 rules
 	
@@ -52,7 +55,23 @@ rules
 		Slice()   <! ArrayAccess(),
 		String()  <! ArrayAccess(),
 		
-		Slice()   <! Array().
+		Slice()   <! Array(),
+		
+		// Define class types.
+		ClassType{"boolean"} <- scope_global,
+		ClassType{"boolean"} : ClassType(Boolean()),
+		ClassType{"int"} <- scope_global,
+		ClassType{"int"} : ClassType(Int()),
+		ClassType{"double"} <- scope_global,
+		ClassType{"double"} : ClassType(Double()),
+		ClassType{"string"} <- scope_global,
+		ClassType{"string"} : ClassType(String()),
+		ClassType{"array"} <- scope_global,
+		ClassType{"array"} : ClassType(Array()),
+		ClassType{"slice"} <- scope_global,
+		ClassType{"slice"} : ClassType(Slice()),
+		ClassType{"closure"} <- scope_global,
+		ClassType{"closure"} : ClassType(Closure()).
 	
 	// MethodScript program.
 	[[ Empty() ^ (scope_global) ]].
