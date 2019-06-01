@@ -6,7 +6,23 @@ imports
 
 signature
 	name resolution
-	namespaces Var IVar Proc ClassType
+		labels
+			P // Default scope edge label (s1 -P-> s2 === s1 ---> s2).
+			I // Default scope association label (occ ===> s === occ =I=> s).
+			TV // Typed variable scope.
+		
+		order
+			TV < D,
+			TV < I,
+			TV < P,
+			D < P,
+			D < I,
+			I < P
+		
+		well-formedness
+			P* TV? I* TV?
+	
+	namespaces Var IVar TypedIVar Proc ClassType
 	
 	functions
 		binOpNumberType : (Type * Type) -> Type {
@@ -454,13 +470,35 @@ rules
 		// Resolve code in closure scope.
 		Map1T[[ code ^ (scope_closure, scope_global) : _ ]].
 	
-	[[ IVarAssign(cType, varName, valExp) ^ (s, scope_global) : Any() ]] :=
-		// TODO - Start new scope for every assign and remove "@s".
-		// TODO - Resolve cType (Some(str), None()) to a type and use this.
+	[[ IVarAssign(Some(cType), varName, valExp) ^ (s, scope_global) : varType ]] :=
+		
+		// Resolve variable type.
+		ClassType{cType} -> scope_global,
+		ClassType{cType} |-> d | error $[Unknown class type: [cType]] @cType,
+		d : ClassType(varType),
+		
+		// Declare variable in a new scope that is preferred over untyped variable declarations.
+		new s_var,
+		s -TV-> s_var,
+		IVar{varName} <- s_var,
+		IVar{varName} : varType,
+		
+		// TODO - Move this to FlowSpec analysis as it does not work for ifelse with a decl in both blocks.
+//		// Disallow duplicate typed variable declarations.
+//		// This uses a separate namespace to prevent matching untyped variable declarations (assigns).
+//		TypedIVar{varName} <- s,
+//		TypedIVar{varName} : varType,
+//		distinct/name W(s)/TypedIVar | error $[Duplicate variable declaration: [NAME]] @NAMES,
+		
+		// Resolve and type check assigned value.
+		[[ valExp ^ (s, scope_global) : valType ]],
+		valType <? varType | error $[Type mismatch: Cannot convert from [valType] to [varType]] @valExp.
+	
+	[[ IVarAssign(None(), varName, valExp) ^ (s, scope_global) : Any() ]] :=
+		// TODO - Start new scope for every assign and remove "@s"?
 		IVar{varName@s} <- s,
 		IVar{varName@s} : Any(),
 		[[ valExp ^ (s, scope_global) : valType ]].
-//		valType <? varType. // TODO - Return valType when every assign has a new scope?
 	
 	// EventBinding nodes.
 	// TODO - Allow only in event context (within a Bind()).
