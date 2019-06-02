@@ -25,3 +25,5 @@ signature
 		Mixed       : Type // ms.lang.mixed (Root datatype, all datatypes extend this).
 		Number      : Type // ms.lang.number (int or double).
 		ArrayAccess : Type // Types on which array_get() can be used (Array, Slice, String).
+		
+		FakeType    : Type // Used to create 'fake' declarations and detect that no other declaration was found.

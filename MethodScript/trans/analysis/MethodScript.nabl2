@@ -9,18 +9,18 @@ signature
 		labels
 			P // Default scope edge label (s1 -P-> s2 === s1 ---> s2).
 			I // Default scope association label (occ ===> s === occ =I=> s).
-			TV // Typed variable scope.
+			LP // Low priority scope edge label.
 		
 		order
-			TV < D,
-			TV < I,
-			TV < P,
 			D < P,
 			D < I,
-			I < P
+			I < P,
+			D < LP,
+			I < LP,
+			P < LP
 		
 		well-formedness
-			P* TV? I* TV?
+			P* I* LP*
 	
 	namespaces Var IVar TypedIVar Proc ClassType
 	
@@ -36,6 +36,13 @@ signature
 		ClassType : TYPE -> ClassType
 
 rules
+	
+	// Scope mapping rule.
+	SMap1T[[ [x|xs] ^ (s, s_global) : [ty|tys] ]] :=
+		new s',
+		s' -P-> s,
+		[[ x ^ (s', s_global) : ty ]],
+		SMap1T[[ xs ^ (s', s_global) : tys ]].
 	
 	// Scope initialization.
 	init ^ (s_global) :=
@@ -117,7 +124,7 @@ rules
 		
 		// Create file scope.
 		new scope_file,
-		Map1T[[ statements ^ (scope_file, s_global) : _ ]].
+		SMap1T[[ statements ^ (scope_file, s_global) : _ ]].
 	
 	[[ Msa(cmds) ^ (s_global) ]] :=
 		new scope_file,
@@ -192,7 +199,7 @@ rules
 	[[ SingleLine(statement) ^ (s, s_global) ]] :=
 		[[ statement ^ (s, s_global) : _ ]].
 	[[ MultiLine(statements) ^ (s, s_global) ]] :=
-		Map1T[[ statements ^ (s, s_global) : _ ]].
+		SMap1T[[ statements ^ (s, s_global) : _ ]].
 	
 	// Unary and binary expressions.
 	[[ UnExp(_, e) ^ (s, s_global) : Any() ]] :=
@@ -213,7 +220,7 @@ rules
 	
 	// Statement brackets.
 	[[ Block(statements) ^ (s, s_global) : _ ]] :=
-		Map1T[[ statements ^ (s, s_global) : _ ]].
+		SMap1T[[ statements ^ (s, s_global) : _ ]].
 	
 	// Function calls.
 	// TODO - Check against API to see whether a function exists?
@@ -256,22 +263,22 @@ rules
 	
 	// ControlFlow nodes.
 	[[ IfElse(ifBlocks, None()) ^ (s, s_global) : Void() ]] :=
-		Map1T[[ ifBlocks ^ (s, s_global) : _ ]].
+		SMap1T[[ ifBlocks ^ (s, s_global) : _ ]].
 	[[ IfElse(ifBlocks, Some(elseCode)) ^ (s, s_global) : Void() ]] :=
-		Map1T[[ ifBlocks ^ (s, s_global) : _ ]],
-		Map1T[[ elseCode ^ (s, s_global) : _ ]].
+		SMap1T[[ ifBlocks ^ (s, s_global) : _ ]],
+		SMap1T[[ elseCode ^ (s, s_global) : _ ]].
 	[[ IfElseIfBlock(cond, code) ^ (s, s_global) : codeType ]] :=
 		[[ cond ^ (s, s_global) : condType ]],
-		Map1T[[ code ^ (s, s_global) : codeType ]],
+		SMap1T[[ code ^ (s, s_global) : codeType ]],
 		condType <? Boolean().
 	
 	[[ While(cond, code) ^ (s, s_global) : Void() ]] :=
 		[[ cond ^ (s, s_global) : condType ]],
-		Map1T[[ code ^ (s, s_global) : _ ]],
+		SMap1T[[ code ^ (s, s_global) : _ ]],
 		condType <? Boolean().
 	
 	[[ DoWhile(code, cond) ^ (s, s_global) : Void() ]] :=
-		Map1T[[ code ^ (s, s_global) : _ ]],
+		SMap1T[[ code ^ (s, s_global) : _ ]],
 		[[ cond ^ (s, s_global) : condType ]],
 		condType <? Boolean().
 	
@@ -279,37 +286,37 @@ rules
 		[[ assign ^ (s, s_global) : _ ]],
 		[[ cond ^ (s, s_global) : condType ]],
 		[[ exp ^ (s, s_global) : _ ]],
-		Map1T[[ code ^ (s, s_global) : _ ]],
+		SMap1T[[ code ^ (s, s_global) : _ ]],
 		condType <? Boolean().
 	[[ For(assign, cond, exp, code, elseCode) ^ (s, s_global) : Void() ]] :=
 		[[ assign ^ (s, s_global) : _ ]],
 		[[ cond ^ (s, s_global) : condType ]],
 		[[ exp ^ (s, s_global) : _ ]],
-		Map1T[[ code ^ (s, s_global) : _ ]],
-		Map1T[[ elseCode ^ (s, s_global) : _ ]],
+		SMap1T[[ code ^ (s, s_global) : _ ]],
+		SMap1T[[ elseCode ^ (s, s_global) : _ ]],
 		condType <? Boolean().
 	
 	[[ ForEach(key, val, arrayExp, code, None()) ^ (s, s_global) : Void() ]] :=
 		[[ key ^ (s, s_global) : _ ]],
 		[[ val ^ (s, s_global) : _ ]],
 		[[ arrayExp ^ (s, s_global) : arrayType ]],
-		Map1T[[ code ^ (s, s_global) : _ ]],
+		SMap1T[[ code ^ (s, s_global) : _ ]],
 		arrayType <? ArrayAccess().
 	[[ ForEach(key, val, arrayExp, code, elseCode) ^ (s, s_global) : Void() ]] :=
 		[[ key ^ (s, s_global) : _ ]],
 		[[ val ^ (s, s_global) : _ ]],
 		[[ arrayExp ^ (s, s_global) : arrayType ]],
-		Map1T[[ code ^ (s, s_global) : _ ]],
-		Map1T[[ elseCode ^ (s, s_global) : _ ]],
+		SMap1T[[ code ^ (s, s_global) : _ ]],
+		SMap1T[[ elseCode ^ (s, s_global) : _ ]],
 		arrayType <? ArrayAccess().
 	
 	[[ Switch(exp, cases, defaultCode) ^ (s, s_global) : Void() ]] :=
 		[[ exp ^ (s, s_global) : _ ]],
 		Map1[[ cases ^ (s, s_global) ]],
-		Map1T[[ defaultCode ^ (s, s_global) : _ ]].
+		SMap1T[[ defaultCode ^ (s, s_global) : _ ]].
 	[[ SwitchCase(vals, code) ^ (s, s_global) ]] :=
 		Map1T[[ vals ^ (s, s_global) : _ ]],
-		Map1T[[ code ^ (s, s_global) : _ ]].
+		SMap1T[[ code ^ (s, s_global) : _ ]].
 	
 	[[ SwitchExp(exp, cases, defaultExp) ^ (s, s_global) : returnType ]] :=
 		[[ exp ^ (s, s_global) : _ ]],
@@ -324,13 +331,13 @@ rules
 	[[ SwitchExpStmtsCase(vals, stmts) ^ (s, s_global) : Void() ]] :=
 		[[ vals ^ (s, s_global) : _ ]],
 		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		Map1T[[ stmts ^ (s, s_global) : _ ]].
+		SMap1T[[ stmts ^ (s, s_global) : _ ]].
 	
 	[[ SwitchExpDefault(exp) ^ (s, s_global) : t ]] :=
 		[[ exp ^ (s, s_global) : t ]].
 	[[ SwitchExpStmtsDefault(stmts) ^ (s, s_global) : Void() ]] :=
 		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		Map1T[[ stmts ^ (s, s_global) : _ ]].
+		SMap1T[[ stmts ^ (s, s_global) : _ ]].
 	
 	[[ Break(None()) ^ (s, s_global) : Void() ]] :=
 		// TODO - Only allow in loops.
@@ -369,7 +376,7 @@ rules
 		[[ exp ^ (s, s_global) : type ]].
 	[[ TernaryStmtsCase(stmts) ^ (s, s_global) : Void() ]] :=
 		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		Map1T[[ stmts ^ (s, s_global) : _ ]].
+		SMap1T[[ stmts ^ (s, s_global) : _ ]].
 	
 	[[ ProcCall(procName, argExps) ^ (s, s_global) : Any() ]] :=
 		// TODO - Do argument length check. Warn about mismatching arg size?
@@ -410,7 +417,7 @@ rules
 		Map1T[[ params ^ (s, scope_params, s_global) : _ ]],
 		
 		// Resolve code in proc scope.
-		Map1T[[ code ^ (scope_proc, s_global) : _ ]].
+		SMap1T[[ code ^ (scope_proc, s_global) : _ ]].
 	
 	[[ Array(entries) ^ (s, s_global) : Array()]] :=
 		Map1T[[entries ^ (s, s_global) : _ ]]. // TODO - Check for duplicate keys?
@@ -446,7 +453,7 @@ rules
 		Map1T[[ params ^ (s, scope_params, s_global) : _ ]],
 		
 		// Resolve code in closure scope.
-		Map1T[[ code ^ (scope_closure, s_global) : _ ]].
+		SMap1T[[ code ^ (scope_closure, s_global) : _ ]].
 	
 	[[ IClosure(params, code) ^ (s, s_global) : Closure() ]] :=
 		// TODO - Store metadata (param types, return type).
@@ -464,7 +471,7 @@ rules
 		Map1T[[ params ^ (s, scope_params, s_global) : _ ]],
 		
 		// Resolve code in closure scope.
-		Map1T[[ code ^ (scope_closure, s_global) : _ ]].
+		SMap1T[[ code ^ (scope_closure, s_global) : _ ]].
 	
 	[[ RClosure(params, code) ^ (s, s_global) : Closure() ]] :=
 		// TODO - Store metadata (param types, return type).
@@ -482,37 +489,72 @@ rules
 		Map1T[[ params ^ (s, scope_params, s_global) : _ ]],
 		
 		// Resolve code in closure scope.
-		Map1T[[ code ^ (scope_closure, s_global) : _ ]].
+		SMap1T[[ code ^ (scope_closure, s_global) : _ ]].
 	
-	[[ IVarAssign(Some(cType), varName, valExp) ^ (s, s_global) : varType ]] :=
+	[[ IVarAssign(Some(cType), varName, valExp) ^ (s, s_global) : valType ]] :=
 		
 		// Resolve variable type.
 		ClassType{cType} -> s_global,
-		ClassType{cType} |-> d | error $[Unknown class type: [cType]] @cType,
-		d : ClassType(varType),
+		ClassType{cType} |-> cTypeDecl | error $[Unknown class type: [cType]] @cType,
+		cTypeDecl : ClassType(declType),
 		
-		// Declare variable in a new scope that is preferred over untyped variable declarations.
-		new s_var,
-		s -TV-> s_var,
-		IVar{varName} <- s_var,
-		IVar{varName} : varType,
+		// Declare typed variable.
+		TypedIVar{varName} <- s,
+		TypedIVar{varName} : declType,
 		
-		// TODO - Move this to FlowSpec analysis as it does not work for ifelse with a decl in both blocks.
-//		// Disallow duplicate typed variable declarations.
-//		// This uses a separate namespace to prevent matching untyped variable declarations (assigns).
-//		TypedIVar{varName} <- s,
-//		TypedIVar{varName} : varType,
-//		distinct/name W(s)/TypedIVar | error $[Duplicate variable declaration: [NAME]] @NAMES,
+		// TODO - Not possible due to IVar{varName} already being defined in 's' in this IVarAssign code?
+//		// Give a warning when an untyped variable declaration already exists for this varName.
+//		new s_fvar,
+//		new s_fvar2,
+//		s_fvar -P-> s,
+//		s_fvar -LP-> s_fvar2,
+//		IVar{varName} <- s_fvar2,
+//		IVar{varName} : FakeType(),
+//		IVar{varName} -> s_fvar,
+//		IVar{varName} |-> varDecl,
+//		varDecl != FakeType() | warning $[[varName] was already defined] @varName,
+		
+		// Disallow duplicate typed variable declarations.
+		distinct/name W(s)/TypedIVar | error $[Duplicate variable declaration: [NAME]] @NAMES,
 		
 		// Resolve and type check assigned value.
 		[[ valExp ^ (s, s_global) : valType ]],
-		valType <? varType | error $[Type mismatch: Cannot convert from [valType] to [varType]] @valExp.
+		valType <? declType | error $[Type mismatch: Cannot convert from [valType] to [declType]] @valExp,
+		
+		// Declare variable assign.
+		IVar{varName} <- s,
+		IVar{varName} : valType,
+		
+		// Resolve and type check the value expression.
+		[[ valExp ^ (s, s_global) : valType ]],
+		valType <? declType | error $[Type mismatch: Cannot convert from [valType] to [declType]] @valExp,
+		
+		// Declare the variable assign.
+		IVar{varName} <- s,
+		IVar{varName} : valType.
 	
 	[[ IVarAssign(None(), varName, valExp) ^ (s, s_global) : Any() ]] :=
-		// TODO - Start new scope for every assign and remove "@s"?
-		IVar{varName@s} <- s,
-		IVar{varName@s} : Any(),
-		[[ valExp ^ (s, s_global) : valType ]].
+		
+		// Fake a typed variable declaration to set a default variable type.
+		new s_fvar,
+		new s_fvar2,
+		s_fvar -P-> s,
+		s_fvar -LP-> s_fvar2,
+		TypedIVar{varName} <- s_fvar2,
+		TypedIVar{varName} : Mixed(),
+		
+		// Get variable declaration type.
+		TypedIVar{varName} -> s_fvar,
+		TypedIVar{varName} |-> typedVarDecl,
+		typedVarDecl : declType,
+		
+		// Resolve and type check the value expression.
+		[[ valExp ^ (s, s_global) : valType ]],
+		valType <? declType | error $[Type mismatch: Cannot convert from [valType] to [declType]] @valExp,
+		
+		// Declare the variable assign.
+		IVar{varName} <- s,
+		IVar{varName} : valType.
 	
 	// EventBinding nodes.
 	// TODO - Allow only in event context (within a Bind()).
@@ -558,7 +600,7 @@ rules
 		Map1T[[ params ^ (s, scope_params, s_global) : _ ]],
 		
 		// Resolve code in bind scope.
-		Map1T[[ code ^ (scope_bind, s_global) : _ ]].
+		SMap1T[[ code ^ (scope_bind, s_global) : _ ]].
 	
 	[[ ModifyEvent(paramExp, valExp, Some(throwOnFailExp)) ^ (s, s_global) : Boolean() ]] :=
 		[[ paramExp ^ (s, s_global) : paramType ]],
@@ -573,31 +615,31 @@ rules
 	
 	// Exceptions nodes.
 	[[ TryLegacy(code, None()) ^ (s, s_global) : Void() ]] :=
-		Map1T[[ code ^ (s, s_global) : _ ]].
+		SMap1T[[ code ^ (s, s_global) : _ ]].
 	[[ TryLegacy(code, Some(catchBlock)) ^ (s, s_global) : Void() ]] :=
-		Map1T[[ code ^ (s, s_global) : _ ]],
+		SMap1T[[ code ^ (s, s_global) : _ ]],
 		[[ catchBlock ^ (s, s_global) : _ ]].
 	[[ CatchCodeLegacy(code) ^ (s, s_global) : _ ]] :=
-		Map1T[[ code ^ (s, s_global) : _ ]].
+		SMap1T[[ code ^ (s, s_global) : _ ]].
 	[[ CatchBlockLegacy(param, code, None()) ^ (s, s_global) : _ ]] :=
 		[[ param ^ (s, s_global) : _ ]],
-		Map1T[[ code ^ (s, s_global) : _ ]].
+		SMap1T[[ code ^ (s, s_global) : _ ]].
 	[[ CatchBlockLegacy(param, code, Some(exceptions)) ^ (s, s_global) : _ ]] :=
 		[[ param ^ (s, s_global) : _ ]],
-		Map1T[[ code ^ (s, s_global) : _ ]],
+		SMap1T[[ code ^ (s, s_global) : _ ]],
 		[[ exceptions ^ (s, s_global) : exArrayType ]],
 		exArraySize <? Array().
 	
 	[[ CTry(code, catchBlocks, None()) ^ (s, s_global) : Void() ]] :=
-		Map1T[[ code ^ (s, s_global) : _ ]],
+		SMap1T[[ code ^ (s, s_global) : _ ]],
 		Map1T[[ catchBlocks ^ (s, s_global) : _ ]].
 	[[ CTry(code, catchBlocks, Some(finallyCode)) ^ (s, s_global) : Void() ]] :=
-		Map1T[[ code ^ (s, s_global) : _ ]],
+		SMap1T[[ code ^ (s, s_global) : _ ]],
 		Map1T[[ catchBlocks ^ (s, s_global) : _ ]],
-		Map1T[[ finallyCode ^ (s, s_global) : _ ]].
+		SMap1T[[ finallyCode ^ (s, s_global) : _ ]].
 	[[ CTryCatchBlock(param, code) ^ (s, s_global) : _ ]] :=
 		[[ param ^ (s, s_global) : _ ]],
-		Map1T[[ code ^ (s, s_global) : _ ]].
+		SMap1T[[ code ^ (s, s_global) : _ ]].
 	
 	[[ GetStackTrace() ^ (s, s_global) : Array() ]] :=
 		true.
