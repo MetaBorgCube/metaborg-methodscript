@@ -54,6 +54,19 @@ rules
 		Any()     <! Void(),
 		Any()     <! ClassType(),
 		Any()     <! ArrayAccess(),
+		Any()     <! Mixed(),
+		
+		Boolean() <! Mixed(),
+		Int()     <! Mixed(),
+		Double()  <! Mixed(),
+		String()  <! Mixed(),
+		Array()   <! Mixed(),
+		Slice()   <! Mixed(),
+		Closure() <! Mixed(),
+		Null()    <! Mixed(),
+		Void()    <! Mixed(),
+		ClassType() <! Mixed(),
+		ArrayAccess() <! Mixed(),
 		
 		Null()    <! Boolean(),
 		Null()    <! Int(),
@@ -63,6 +76,7 @@ rules
 		Null()    <! Slice(),
 		Null()    <! Closure(),
 		Null()    <! ClassType(),
+		Null()    <! Mixed(),
 		
 		Int()     <! Number(),
 		Double()  <! Number(),

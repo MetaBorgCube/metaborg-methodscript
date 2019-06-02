@@ -8,7 +8,7 @@ signature
 		 * ms.lang.barestring, ms.lang.byte_array, ms.lang.decimal,
 		 * ms.lang.mutable_primitive, ms.lang.Package, ms.lang.primitive,
 		 * ms.lang.resource, ms.lang.secure_string.
-		 * Source: com.laytonsmith.core.constructs.<type>.
+		 * Full list of types: https://methodscript.com/docs/3.3.4/api.json (under 'objects').
 		 */
 		Boolean     : Type // ms.lang.boolean.
 		Int         : Type // ms.lang.int.
@@ -21,6 +21,7 @@ signature
 		Void        : Type // void.
 		ClassType   : Type // ms.lang.ClassType.
 		
-		Any         : Type
+		Any         : Type // Wildcard datatype, this can be used as anything.
+		Mixed       : Type // ms.lang.mixed (Root datatype, all datatypes extend this).
 		Number      : Type // ms.lang.number (int or double).
 		ArrayAccess : Type // Types on which array_get() can be used (Array, Slice, String).
