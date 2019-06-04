@@ -508,28 +508,23 @@ rules
 //		new s_fvar2,
 //		s_fvar -P-> s,
 //		s_fvar -LP-> s_fvar2,
-//		IVar{varName} <- s_fvar2,
-//		IVar{varName} : FakeType(),
+//		IVar{varName@s_fvar2} <- s_fvar2,
+//		IVar{varName@s_fvar2} : FakeType(),
 //		IVar{varName} -> s_fvar,
 //		IVar{varName} |-> varDecl,
-//		varDecl != FakeType() | warning $[[varName] was already defined] @varName,
+//		varDecl : varFakeType,
+//		varFakeType == FakeType() | warning $[[varName] was already defined] @varName,
 		
 		// Disallow duplicate typed variable declarations.
 		distinct/name W(s)/TypedIVar | error $[Duplicate variable declaration: [NAME]] @NAMES,
 		
 		// Resolve and type check assigned value.
+		// TODO - Resolve valExp in a new scope that does not yet contain this variable declaration.
 		[[ valExp ^ (s, s_global) : valType ]],
 		valType <? declType | error $[Type mismatch: Cannot convert from [valType] to [declType]] @valExp,
 		
 		// Declare variable assign.
-		IVar{varName} <- s,
-		IVar{varName} : valType,
-		
-		// Resolve and type check the value expression.
 		[[ valExp ^ (s, s_global) : valType ]],
-		valType <? declType | error $[Type mismatch: Cannot convert from [valType] to [declType]] @valExp,
-		
-		// Declare the variable assign.
 		IVar{varName} <- s,
 		IVar{varName} : valType.
 	
