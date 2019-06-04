@@ -10,6 +10,7 @@ signature
 			P // Default scope edge label (s1 -P-> s2 === s1 ---> s2).
 			I // Default scope association label (occ ===> s === occ =I=> s).
 			LP // Low priority scope edge label.
+			BP // Brach scope edge label (for the extra lookahead scope).
 		
 		order
 			D < P,
@@ -17,10 +18,11 @@ signature
 			I < P,
 			D < LP,
 			I < LP,
-			P < LP
+			P < LP,
+			BP < P
 		
 		well-formedness
-			P* I* LP*
+			P* I* (LP* | BP* P*)
 	
 	namespaces Var IVar TypedIVar Proc ClassType
 	
@@ -39,7 +41,7 @@ rules
 	
 	// Double Scope Mapping rule with two additional scopes that will directly be passed on.
 	// The first two scopes are linked such that s1 <- s1' <- s2 <- s2'.
-	DSMap1T[[ [x|xs] ^ (s, s', s_extra, s_global) : [ty|tys] ]] :=
+	DSMap1T[[ [x|xs] ^ (_, s', s_extra, s_global) : [ty|tys] ]] :=
 		new s2,
 		new s2',
 		s2 -P-> s',
@@ -273,22 +275,40 @@ rules
 	
 	// ControlFlow nodes.
 	[[ IfElse(ifBlocks, None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ ifBlocks ^ (s, s', s_extra, s_global) : _ ]].
+		
+		// Create and link a new s_extra' scope to resolve references in branch code.
+		new s_extra',
+		s_extra -P-> s_extra',
+		s' -BP-> s_extra',
+		
+		Map1T[[ ifBlocks ^ (s, s_extra', s_global) : _ ]].
+	
 	[[ IfElse(ifBlocks, Some(elseCode)) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ ifBlocks ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ elseCode ^ (s, s', s_extra, s_global) : _ ]].
-	[[ IfElseIfBlock(cond, code) ^ (s, s', s_extra, s_global) : codeType ]] :=
-		[[ cond ^ (s, s', s_extra, s_global) : condType ]],
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : codeType ]],
+		
+		// Create and link a new s_extra' scope to resolve references in branch code.
+		new s_extra',
+		s_extra -P-> s_extra',
+		s' -BP-> s_extra',
+		
+		Map1T[[ ifBlocks ^ (s, s_extra', s_global) : _ ]],
+		DSMap1T[[ elseCode ^ (_, s, s_extra', s_global) : _ ]].
+	
+	[[ IfElseIfBlock(cond, code) ^ (s, s_extra, s_global) : codeType ]] :=
+		new s_cond,
+		new s_cond',
+		s_cond' -P-> s_cond,
+		s_cond -P-> s,
+		[[ cond ^ (s_cond, s_cond', s_extra, s_global) : condType ]],
+		DSMap1T[[ code ^ (_, s_cond', s_extra, s_global) : codeType ]],
 		condType <? Boolean().
 	
 	[[ While(cond, code) ^ (s, s', s_extra, s_global) : Void() ]] :=
 		[[ cond ^ (s, s', s_extra, s_global) : condType ]],
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
 		condType <? Boolean().
 	
 	[[ DoWhile(code, cond) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
 		[[ cond ^ (s, s', s_extra, s_global) : condType ]],
 		condType <? Boolean().
 	
@@ -296,37 +316,37 @@ rules
 		[[ assign ^ (s, s', s_extra, s_global) : _ ]],
 		[[ cond ^ (s, s', s_extra, s_global) : condType ]],
 		[[ exp ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
 		condType <? Boolean().
 	[[ For(assign, cond, exp, code, elseCode) ^ (s, s', s_extra, s_global) : Void() ]] :=
 		[[ assign ^ (s, s', s_extra, s_global) : _ ]],
 		[[ cond ^ (s, s', s_extra, s_global) : condType ]],
 		[[ exp ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ elseCode ^ (s, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ elseCode ^ (_, s', s_extra, s_global) : _ ]],
 		condType <? Boolean().
 	
 	[[ ForEach(key, val, arrayExp, code, None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
 		[[ key ^ (s, s', s_extra, s_global) : _ ]],
 		[[ val ^ (s, s', s_extra, s_global) : _ ]],
 		[[ arrayExp ^ (s, s', s_extra, s_global) : arrayType ]],
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
 		arrayType <? ArrayAccess().
 	[[ ForEach(key, val, arrayExp, code, elseCode) ^ (s, s', s_extra, s_global) : Void() ]] :=
 		[[ key ^ (s, s', s_extra, s_global) : _ ]],
 		[[ val ^ (s, s', s_extra, s_global) : _ ]],
 		[[ arrayExp ^ (s, s', s_extra, s_global) : arrayType ]],
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ elseCode ^ (s, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ elseCode ^ (_, s', s_extra, s_global) : _ ]],
 		arrayType <? ArrayAccess().
 	
 	[[ Switch(exp, cases, defaultCode) ^ (s, s', s_extra, s_global) : Void() ]] :=
 		[[ exp ^ (s, s', s_extra, s_global) : _ ]],
 		Map1[[ cases ^ (s, s', s_extra, s_global) ]],
-		DSMap1T[[ defaultCode ^ (s, s', s_extra, s_global) : _ ]].
+		DSMap1T[[ defaultCode ^ (_, s', s_extra, s_global) : _ ]].
 	[[ SwitchCase(vals, code) ^ (s, s', s_extra, s_global) ]] :=
 		Map1T[[ vals ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]].
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]].
 	
 	[[ SwitchExp(exp, cases, defaultExp) ^ (s, s', s_extra, s_global) : returnType ]] :=
 		[[ exp ^ (s, s', s_extra, s_global) : _ ]],
@@ -341,13 +361,13 @@ rules
 	[[ SwitchExpStmtsCase(vals, stmts) ^ (s, s', s_extra, s_global) : Void() ]] :=
 		[[ vals ^ (s, s', s_extra, s_global) : _ ]],
 		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		DSMap1T[[ stmts ^ (s, s', s_extra, s_global) : _ ]].
+		DSMap1T[[ stmts ^ (_, s', s_extra, s_global) : _ ]].
 	
 	[[ SwitchExpDefault(exp) ^ (s, s', s_extra, s_global) : t ]] :=
 		[[ exp ^ (s, s', s_extra, s_global) : t ]].
 	[[ SwitchExpStmtsDefault(stmts) ^ (s, s', s_extra, s_global) : Void() ]] :=
 		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		DSMap1T[[ stmts ^ (s, s', s_extra, s_global) : _ ]].
+		DSMap1T[[ stmts ^ (_, s', s_extra, s_global) : _ ]].
 	
 	[[ Break(None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
 		// TODO - Only allow in loops.
@@ -386,7 +406,7 @@ rules
 		[[ exp ^ (s, s', s_extra, s_global) : type ]].
 	[[ TernaryStmtsCase(stmts) ^ (s, s', s_extra, s_global) : Void() ]] :=
 		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		DSMap1T[[ stmts ^ (s, s', s_extra, s_global) : _ ]].
+		DSMap1T[[ stmts ^ (_, s', s_extra, s_global) : _ ]].
 	
 	[[ ProcCall(procName, argExps) ^ (s, s', s_extra, s_global) : Any() ]] :=
 		// TODO - Do argument length check. Warn about mismatching arg size?
@@ -430,7 +450,7 @@ rules
 		new s_proc',
 		s_proc' -P-> s_proc,
 		new s_extra',
-		DSMap1T[[ code ^ (s_proc, s_proc', s_extra', s_global) : _ ]].
+		DSMap1T[[ code ^ (_, s_proc', s_extra', s_global) : _ ]].
 	
 	[[ Array(entries) ^ (s, s', s_extra, s_global) : Array()]] :=
 		Map1T[[entries ^ (s, s', s_extra, s_global) : _ ]]. // TODO - Check for duplicate keys?
@@ -466,10 +486,8 @@ rules
 		Map1T[[ params ^ (s, s_params, s_global) : _ ]],
 		
 		// Resolve code in closure scope.
-		new s_closure',
-		s_closure' -P-> s_closure,
 		new s_extra',
-		DSMap1T[[ code ^ (s_closure, s_closure', s_extra', s_global) : _ ]].
+		DSMap1T[[ code ^ (_, s_closure, s_extra', s_global) : _ ]].
 	
 	[[ IClosure(params, code) ^ (s, s', s_extra, s_global) : Closure() ]] :=
 		// TODO - Store metadata (param types, return type).
@@ -487,10 +505,8 @@ rules
 		Map1T[[ params ^ (s, s_params, s_global) : _ ]],
 		
 		// Resolve code in closure scope.
-		new s_closure',
-		s_closure' -P-> s_closure,
 		new s_extra',
-		DSMap1T[[ code ^ (s_closure, s_closure', s_extra', s_global) : _ ]].
+		DSMap1T[[ code ^ (_, s_closure, s_extra', s_global) : _ ]].
 	
 	[[ RClosure(params, code) ^ (s, s', s_extra, s_global) : Closure() ]] :=
 		// TODO - Store metadata (param types, return type).
@@ -508,10 +524,8 @@ rules
 		Map1T[[ params ^ (s, s_params, s_global) : _ ]],
 		
 		// Resolve code in closure scope.
-		new s_closure',
-		s_closure' -P-> s_closure,
 		new s_extra',
-		DSMap1T[[ code ^ (s_closure, s_closure', s_extra', s_global) : _ ]].
+		DSMap1T[[ code ^ (_, s_closure, s_extra', s_global) : _ ]].
 	
 	[[ IVarAssign(Some(cType), varName, valExp) ^ (s, s', s_extra, s_global) : valType ]] :=
 		
@@ -521,7 +535,7 @@ rules
 		cTypeDecl : ClassType(declType),
 		
 		// Declare typed variable.
-		TypedIVar{varName} <- s,
+		TypedIVar{varName} <- s',
 		TypedIVar{varName} : declType,
 		
 		// TODO - Not possible due to IVar{varName} already being defined in 's' in this IVarAssign code?
@@ -538,16 +552,21 @@ rules
 //		varFakeType == FakeType() | warning $[[varName] was already defined] @varName,
 		
 		// Disallow duplicate typed variable declarations.
-		distinct/name W(s)/TypedIVar | error $[Duplicate variable declaration: [NAME]] @NAMES,
+		distinct/name W(s')/TypedIVar | error $[Duplicate variable declaration: [NAME]] @NAMES,
 		
 		// Resolve and type check assigned value.
-		// TODO - Resolve valExp in a new scope that does not yet contain this variable declaration.
 		[[ valExp ^ (s, s', s_extra, s_global) : valType ]],
 		valType <? declType | error $[Type mismatch: Cannot convert from [valType] to [declType]] @valExp,
 		
 		// Declare variable assign.
-		IVar{varName} <- s,
-		IVar{varName} : valType.
+		IVar{varName} <- s',
+		IVar{varName} : valType,
+		
+		// Declare variable assign in extra scope.
+		// TODO - Look up the current type in s_extra and somehow create a union type from that instead of declaring as Any().
+		// TODO - Note that this variable cannot be declared before the branching statement since it's a typed declaration.
+		IVar{varName@s_extra} <- s_extra,
+		IVar{varName@s_extra} : Any().
 	
 	[[ IVarAssign(None(), varName, valExp) ^ (s, s', s_extra, s_global) : Any() ]] :=
 		
@@ -568,9 +587,15 @@ rules
 		[[ valExp ^ (s, s', s_extra, s_global) : valType ]],
 		valType <? declType | error $[Type mismatch: Cannot convert from [valType] to [declType]] @valExp,
 		
-		// Declare the variable assign.
-		IVar{varName} <- s,
-		IVar{varName} : valType.
+		// Declare variable assign.
+		IVar{varName} <- s',
+		IVar{varName} : valType,
+		
+		// Declare variable assign in extra scope.
+		// TODO - Look up the current type in s_extra and somehow create a union type from that instead of declaring as Any().
+		// TODO - When this has a type, ensure that if the code before a branch assigns a type, this type is also considered.
+		IVar{varName@s_extra} <- s_extra,
+		IVar{varName@s_extra} : Any().
 	
 	// EventBinding nodes.
 	// TODO - Allow only in event context (within a Bind()).
@@ -616,10 +641,8 @@ rules
 		Map1T[[ params ^ (s, s_params, s_global) : _ ]],
 		
 		// Resolve code in bind scope.
-		new s_bind',
-		s_bind' -P-> s_bind,
 		new s_extra',
-		DSMap1T[[ code ^ (s_bind, s_bind', s_extra, s_global) : _ ]].
+		DSMap1T[[ code ^ (_, s_bind, s_extra', s_global) : _ ]].
 	
 	[[ ModifyEvent(paramExp, valExp, Some(throwOnFailExp)) ^ (s, s', s_extra, s_global) : Boolean() ]] :=
 		[[ paramExp ^ (s, s', s_extra, s_global) : paramType ]],
@@ -634,31 +657,31 @@ rules
 	
 	// Exceptions nodes.
 	[[ TryLegacy(code, None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]].
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]].
 	[[ TryLegacy(code, Some(catchBlock)) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
 		[[ catchBlock ^ (s, s', s_extra, s_global) : _ ]].
 	[[ CatchCodeLegacy(code) ^ (s, s', s_extra, s_global) : _ ]] :=
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]].
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]].
 	[[ CatchBlockLegacy(param, code, None()) ^ (s, s', s_extra, s_global) : _ ]] :=
 		[[ param ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]].
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]].
 	[[ CatchBlockLegacy(param, code, Some(exceptions)) ^ (s, s', s_extra, s_global) : _ ]] :=
 		[[ param ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
 		[[ exceptions ^ (s, s', s_extra, s_global) : exArrayType ]],
 		exArraySize <? Array().
 	
 	[[ CTry(code, catchBlocks, None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
 		Map1T[[ catchBlocks ^ (s, s', s_extra, s_global) : _ ]].
 	[[ CTry(code, catchBlocks, Some(finallyCode)) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]],
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
 		Map1T[[ catchBlocks ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ finallyCode ^ (s, s', s_extra, s_global) : _ ]].
+		DSMap1T[[ finallyCode ^ (_, s', s_extra, s_global) : _ ]].
 	[[ CTryCatchBlock(param, code) ^ (s, s', s_extra, s_global) : _ ]] :=
 		[[ param ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (s, s', s_extra, s_global) : _ ]].
+		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]].
 	
 	[[ GetStackTrace() ^ (s, s', s_extra, s_global) : Array() ]] :=
 		true.
