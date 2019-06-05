@@ -158,11 +158,11 @@ rules
 	
 	// Desugar 'ifelse' to IfElse(ifBlocks, elseCode).
 	desugar: IfElse(cond, ifCode, ifBlocks, elseCode) -> IfElse(ifBlocks', elseCode)
-		where ifBlocks' := <concat> [ifBlocks, [IfElseIfBlock(cond, ifCode)]]
+		where ifBlocks' := <concat> [[IfElseIfBlock(cond, ifCode)], ifBlocks]
 	desugar: IfElseBlock(code) -> code
 	
 	desugar: IfElseLegacy(cond, ifCode, ifBlocks, elseCode, _) -> IfElse(ifBlocks', elseCode)
-		where ifBlocks' := <concat> [ifBlocks, [IfElseIfBlock(cond, ifCode)]]
+		where ifBlocks' := <concat> [[IfElseIfBlock(cond, ifCode)], ifBlocks]
 	desugar: IfElseIfBlockLegacy(cond, code) -> IfElseIfBlock(cond, code)
 	desugar: IfElseBlockLegacy(code) -> IfElseBlock(code)
 	
