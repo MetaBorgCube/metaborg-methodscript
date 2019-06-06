@@ -54,6 +54,7 @@ signature
 			BR < P, // Prioritize branch resolve scope over the normal scope chain.
 			D < BR, // Prioritize declarations over branch resolve scopes.
 			IB < NB, // Prioritize branch scope chain over its branches.
+			D < IB, // Prioritize declarations over internal branch scopes.
 			LB < NB,
 			IB < LB
 			
