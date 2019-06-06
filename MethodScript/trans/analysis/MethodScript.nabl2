@@ -436,7 +436,7 @@ rules
 		// Create a branch on the branch scope chain.
 		new s_branch_ifelse,
 		s_branch -NB-> s_branch_ifelse,
-		s' -BR-> s_branch,
+		s' -BR-> s_branch_ifelse,
 		
 		BSMap3T[[ ifBlocks ^ (s, s_branch_ifelse, s_global) : _ ]].
 	
@@ -770,7 +770,7 @@ rules
 		// Create a branch on the branch scope chain.
 		new s_branch_ternary,
 		s_branch -NB-> s_branch_ternary,
-		s' -BR-> s_branch,
+		s' -BR-> s_branch_ternary,
 		
 		// Create ifCase and elseCase branch scopes.
 		new s_branch_if,
