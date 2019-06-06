@@ -434,25 +434,25 @@ rules
 	[[ IfElse(ifBlocks, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
 		// Create a branch on the branch scope chain.
-		new s_branch',
-		s_branch -NB-> s_branch',
+		new s_branch_ifelse,
+		s_branch -NB-> s_branch_ifelse,
 		s' -BR-> s_branch,
 		
-		BSMap3T[[ ifBlocks ^ (s, s_branch', s_global) : _ ]].
+		BSMap3T[[ ifBlocks ^ (s, s_branch_ifelse, s_global) : _ ]].
 	
 	[[ IfElse(ifBlocks, Some(elseCode)) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
 		// Create and link a new s_branch' scope to resolve references in branch code.
-		new s_branch',
-		s_branch -NB-> s_branch',
-		s' -BR-> s_branch',
+		new s_branch_ifelse,
+		s_branch -NB-> s_branch_ifelse,
+		s' -BR-> s_branch_ifelse,
 		
 		// Create low priority branch scope to prevent overlapping declarations from ifBlocks and elseCode.
-		new s_branch_else,
-		s_branch' -LB-> s_branch_else,
+		new s_branch_elseblock,
+		s_branch_ifelse -LB-> s_branch_elseblock,
 		
-		BSMap3T[[ ifBlocks ^ (s, s_branch', s_global) : _ ]],
-		DSMap4T[[ elseCode ^ (_, s, s_branch_else, s_global) : _ ]].
+		BSMap3T[[ ifBlocks ^ (s, s_branch_ifelse, s_global) : _ ]],
+		DSMap4T[[ elseCode ^ (_, s, s_branch_elseblock, s_global) : _ ]].
 	
 	[[ IfElseIfBlock(cond, code) ^ (s, s_branch, s_global) : codeType ]] :=
 		
@@ -462,19 +462,19 @@ rules
 		s_cond' -P-> s_cond,
 		s_cond -P-> s,
 		
-		new s_branch',
-		s_branch -LB-> s_branch',
+		new s_branch_ifblock,
+		s_branch -LB-> s_branch_ifblock,
 		
-		[[ cond ^ (s_cond, s_cond', s_branch', s_global) : condType ]],
-		DSMap4T[[ code ^ (_, s_cond', s_branch', s_global) : codeType ]],
+		[[ cond ^ (s_cond, s_cond', s_branch_ifblock, s_global) : condType ]],
+		DSMap4T[[ code ^ (_, s_cond', s_branch_ifblock, s_global) : codeType ]],
 		condType <? Boolean().
 	
 	[[ While(cond, code) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
 		// Create and link a new s_branch' scope to resolve references in branch code.
-		new s_branch',
-		s_branch -NB-> s_branch',
-		s' -BR-> s_branch',
+		new s_branch_while,
+		s_branch -NB-> s_branch_while,
+		s' -BR-> s_branch_while,
 		
 		// Create and link new condition scope.
 		new s_cond,
@@ -482,16 +482,16 @@ rules
 		s_cond' -P-> s_cond,
 		s_cond -P-> s,
 		
-		[[ cond ^ (s_cond, s_cond', s_branch', s_global) : condType ]],
-		DSMap4T[[ code ^ (_, s_cond', s_branch', s_global) : _ ]],
+		[[ cond ^ (s_cond, s_cond', s_branch_while, s_global) : condType ]],
+		DSMap4T[[ code ^ (_, s_cond', s_branch_while, s_global) : _ ]],
 		condType <? Boolean().
 	
 	[[ DoWhile(code, cond) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
 		// Create and link a new s_branch' scope to resolve references in branch code.
-		new s_branch',
-		s_branch -NB-> s_branch',
-		s' -BR-> s_branch',
+		new s_branch_dowhile,
+		s_branch -NB-> s_branch_dowhile,
+		s' -BR-> s_branch_dowhile,
 		
 		// Create and link new condition scope.
 		new s_cond,
@@ -499,16 +499,16 @@ rules
 		s_cond' -P-> s_cond,
 		s_cond -P-> s,
 		
-		DSMap4T[[ code ^ (_, s_cond', s_branch', s_global) : _ ]],
-		[[ cond ^ (s_cond, s_cond', s_branch', s_global) : condType ]],
+		DSMap4T[[ code ^ (_, s_cond', s_branch_dowhile, s_global) : _ ]],
+		[[ cond ^ (s_cond, s_cond', s_branch_dowhile, s_global) : condType ]],
 		condType <? Boolean().
 	
 	[[ For(assign, cond, exp, code, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
-		// Create and link a new s_branch' scope to resolve references in branch code.
-		new s_branch',
-		s_branch -NB-> s_branch',
-		s' -BR-> s_branch',
+		// Create and link a new s_branch_for scope to resolve references in branch code.
+		new s_branch_for,
+		s_branch -NB-> s_branch_for,
+		s' -BR-> s_branch_for,
 		
 		// Create and link new assign, condition and exp scope.
 		new s_assign,
@@ -524,18 +524,18 @@ rules
 		s_exp' -P-> s_exp,
 		s_exp -P-> s_cond',
 		
-		[[ assign ^ (s_assign, s_assign', s_branch', s_global) : _ ]],
-		[[ cond ^ (s_cond, s_cond', s_branch', s_global) : condType ]],
-		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : _ ]],
-		DSMap4T[[ code ^ (_, s_exp', s_branch', s_global) : _ ]],
+		[[ assign ^ (s_assign, s_assign', s_branch_for, s_global) : _ ]],
+		[[ cond ^ (s_cond, s_cond', s_branch_for, s_global) : condType ]],
+		[[ exp ^ (s_exp, s_exp', s_branch_for, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_exp', s_branch_for, s_global) : _ ]],
 		condType <? Boolean().
 	
 	[[ For(assign, cond, exp, code, elseCode) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
-		// Create and link a new s_branch' scope to resolve references in branch code.
-		new s_branch',
-		s_branch -NB-> s_branch',
-		s' -BR-> s_branch',
+		// Create and link a new s_branch_for scope to resolve references in branch code.
+		new s_branch_for,
+		s_branch -NB-> s_branch_for,
+		s' -BR-> s_branch_for,
 		
 		// Create and link new assign, condition and exp scope.
 		new s_assign,
@@ -552,22 +552,22 @@ rules
 		s_exp -P-> s_cond',
 		
 		// Create low priority branch scope to prevent overlapping declarations from code and elseCode.
-		new s_branch_else,
-		s_branch' -LB-> s_branch_else,
+		new s_branch_forelseblock,
+		s_branch_for -LB-> s_branch_forelseblock,
 		
-		[[ assign ^ (s_assign, s_assign', s_branch', s_global) : _ ]],
-		[[ cond ^ (s_cond, s_cond', s_branch', s_global) : condType ]],
-		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : _ ]],
-		DSMap4T[[ code ^ (_, s_exp', s_branch', s_global) : _ ]],
-		DSMap4T[[ elseCode ^ (_, s_exp', s_branch_else, s_global) : _ ]],
+		[[ assign ^ (s_assign, s_assign', s_branch_for, s_global) : _ ]],
+		[[ cond ^ (s_cond, s_cond', s_branch_for, s_global) : condType ]],
+		[[ exp ^ (s_exp, s_exp', s_branch_for, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_exp', s_branch_for, s_global) : _ ]],
+		DSMap4T[[ elseCode ^ (_, s_exp', s_branch_forelseblock, s_global) : _ ]],
 		condType <? Boolean().
 	
 	[[ ForEach(key, val, arrayExp, code, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
 		// Create and link a new s_branch' scope to resolve references in branch code.
-		new s_branch',
-		s_branch -NB-> s_branch',
-		s' -BR-> s_branch',
+		new s_branch_foreach,
+		s_branch -NB-> s_branch_foreach,
+		s' -BR-> s_branch_foreach,
 		
 		// Create and link new exp, key and val scope.
 		new s_exp,
@@ -583,17 +583,17 @@ rules
 		s_val' -P-> s_val,
 		s_val -P-> s_key',
 		
-		[[ arrayExp ^ (s_exp, s_exp', s_branch', s_global) : arrayType ]],
-		[[ key ^ (s_key, s_key', s_branch', s_global) : _ ]],
-		[[ val ^ (s_val, s_val', s_branch', s_global) : _ ]],
-		DSMap4T[[ code ^ (_, s_val', s_branch', s_global) : _ ]],
+		[[ arrayExp ^ (s_exp, s_exp', s_branch_foreach, s_global) : arrayType ]],
+		[[ key ^ (s_key, s_key', s_branch_foreach, s_global) : _ ]],
+		[[ val ^ (s_val, s_val', s_branch_foreach, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_val', s_branch_foreach, s_global) : _ ]],
 		arrayType <? ArrayAccess().
 	[[ ForEach(key, val, arrayExp, code, elseCode) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
-		// Create and link a new s_branch' scope to resolve references in branch code.
-		new s_branch',
-		s_branch -NB-> s_branch',
-		s' -BR-> s_branch',
+		// Create and link a new s_branch_foreachelse scope to resolve references in branch code.
+		new s_branch_foreachelse,
+		s_branch -NB-> s_branch_foreachelse,
+		s' -BR-> s_branch_foreachelse,
 		
 		// Create and link new exp, key and val scope.
 		new s_exp,
@@ -610,22 +610,22 @@ rules
 		s_val -P-> s_key',
 		
 		// Create low priority branch scope to prevent overlapping declarations from code and elseCode.
-		new s_branch_else,
-		s_branch' -LB-> s_branch_else,
+		new s_branch_elseblock,
+		s_branch_foreachelse -LB-> s_branch_elseblock,
 		
-		[[ arrayExp ^ (s_exp, s_exp', s_branch', s_global) : arrayType ]],
-		[[ key ^ (s_key, s_key', s_branch', s_global) : _ ]],
-		[[ val ^ (s_val, s_val', s_branch', s_global) : _ ]],
-		DSMap4T[[ code ^ (_, s_val', s_branch', s_global) : _ ]],
-		DSMap4T[[ elseCode ^ (_, s_val', s_branch_else, s_global) : _ ]],
+		[[ arrayExp ^ (s_exp, s_exp', s_branch_foreachelse, s_global) : arrayType ]],
+		[[ key ^ (s_key, s_key', s_branch_foreachelse, s_global) : _ ]],
+		[[ val ^ (s_val, s_val', s_branch_foreachelse, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_val', s_branch_foreachelse, s_global) : _ ]],
+		DSMap4T[[ elseCode ^ (_, s_val', s_branch_elseblock, s_global) : _ ]],
 		arrayType <? ArrayAccess().
 	
 	[[ Switch(exp, cases, defaultCode) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
-		// Create and link a new s_branch' scope to resolve references in branch code.
-		new s_branch',
-		s_branch -NB-> s_branch',
-		s' -BR-> s_branch',
+		// Create and link a new s_branch_switch scope to resolve references in branch code.
+		new s_branch_switch,
+		s_branch -NB-> s_branch_switch,
+		s' -BR-> s_branch_switch,
 		
 		// Create and link new exp scope.
 		new s_exp,
@@ -634,12 +634,12 @@ rules
 		s_exp -P-> s,
 		
 		// Create low priority branch scope to prevent overlapping declarations from cases and default case.
-		new s_branch_default,
-		s_branch' -LB-> s_branch_default,
+		new s_branch_defaultblock,
+		s_branch_switch -LB-> s_branch_defaultblock,
 		
-		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : _ ]],
-		BSMap3[[ cases ^ (s_exp', s_branch', s_global) ]],
-		DSMap4T[[ defaultCode ^ (_, s_exp', s_branch_default, s_global) : _ ]].
+		[[ exp ^ (s_exp, s_exp', s_branch_switch, s_global) : _ ]],
+		BSMap3[[ cases ^ (s_exp', s_branch_switch, s_global) ]],
+		DSMap4T[[ defaultCode ^ (_, s_exp', s_branch_defaultblock, s_global) : _ ]].
 	
 	[[ SwitchCase(vals, code) ^ (s, s_branch, s_global) ]] :=
 		new s_vals,
@@ -647,18 +647,18 @@ rules
 		s_vals' -P-> s_vals,
 		s_vals -P-> s,
 		
-		new s_branch',
-		s_branch -LB-> s_branch',
+		new s_branch_switchcaseblock,
+		s_branch -LB-> s_branch_switchcaseblock,
 		
-		Map1T[[ vals ^ (s_vals, s_vals', s_branch', s_global) : _ ]],
-		DSMap4T[[ code ^ (_, s_vals', s_branch', s_global) : _ ]].
+		Map1T[[ vals ^ (s_vals, s_vals', s_branch_switchcaseblock, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_vals', s_branch_switchcaseblock, s_global) : _ ]].
 	
 	[[ SwitchExp(exp, cases, Some(defaultExp)) ^ (s, s', s_branch, s_global) : returnType ]] :=
 		
-		// Create and link a new s_branch' scope to resolve references in branch code.
-		new s_branch',
-		s_branch -NB-> s_branch',
-		s' -BR-> s_branch',
+		// Create and link a new s_branch_switchexp scope to resolve references in branch code.
+		new s_branch_switchexp,
+		s_branch -NB-> s_branch_switchexp,
+		s' -BR-> s_branch_switchexp,
 		
 		// Create and link new exp and default scope.
 		new s_exp,
@@ -672,20 +672,20 @@ rules
 		
 		// Create low priority branch scope to prevent overlapping declarations from cases and default case.
 		new s_branch_default,
-		s_branch' -LB-> s_branch_default,
+		s_branch_switchexp -LB-> s_branch_default,
 		
-		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : _ ]],
+		[[ exp ^ (s_exp, s_exp', s_branch_switchexp, s_global) : _ ]],
 		// TODO - Set returnType based on caseExpTypes and defaultType.
-		BSMap3T[[ cases ^ (s_exp', s_branch', s_global) : caseExpTypes ]],
+		BSMap3T[[ cases ^ (s_exp', s_branch_switchexp, s_global) : caseExpTypes ]],
 		[[ defaultExp ^ (s_exp', s_branch_default, s_global) : defaultType ]],
 		returnType == Any().
 	
 	[[ SwitchExp(exp, cases, None()) ^ (s, s', s_branch, s_global) : returnType ]] :=
 		
-		// Create and link a new s_branch' scope to resolve references in branch code.
-		new s_branch',
-		s_branch -NB-> s_branch',
-		s' -BR-> s_branch',
+		// Create and link a new s_branch_switchexp scope to resolve references in branch code.
+		new s_branch_switchexp,
+		s_branch -NB-> s_branch_switchexp,
+		s' -BR-> s_branch_switchexp,
 		
 		// Create and link new exp and default scope.
 		new s_exp,
@@ -693,9 +693,9 @@ rules
 		s_exp' -P-> s_exp,
 		s_exp -P-> s,
 		
-		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : _ ]],
+		[[ exp ^ (s_exp, s_exp', s_branch_switchexp, s_global) : _ ]],
 		// TODO - Set returnType based on caseExpTypes.
-		BSMap3T[[ cases ^ (s_exp', s_branch', s_global) : caseExpTypes ]],
+		BSMap3T[[ cases ^ (s_exp', s_branch_switchexp, s_global) : caseExpTypes ]],
 		returnType == Any().
 	
 	[[ SwitchExpCase(vals, exp) ^ (s, s_branch, s_global) : t ]] :=
@@ -708,11 +708,11 @@ rules
 		s_exp' -P-> s_exp,
 		s_exp -P-> s_vals',
 		
-		new s_branch',
-		s_branch -LB-> s_branch',
+		new s_branch_switchexp_expblock,
+		s_branch -LB-> s_branch_switchexp_expblock,
 		
-		Map1T[[ vals ^ (s_vals, s_vals', s_branch', s_global) : _ ]],
-		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : t ]].
+		Map1T[[ vals ^ (s_vals, s_vals', s_branch_switchexp_expblock, s_global) : _ ]],
+		[[ exp ^ (s_exp, s_exp', s_branch_switchexp_expblock, s_global) : t ]].
 	
 	[[ SwitchExpStmtsCase(vals, stmts) ^ (s, s_branch, s_global) : Void() ]] :=
 		new s_vals,
@@ -720,12 +720,12 @@ rules
 		s_vals' -P-> s_vals,
 		s_vals -P-> s,
 		
-		new s_branch',
-		s_branch -LB-> s_branch',
+		new s_branch_switchexp_stmtblock,
+		s_branch -LB-> s_branch_switchexp_stmtblock,
 		
-		Map1T[[ vals ^ (s_vals, s_vals', s_branch', s_global) : _ ]],
+		Map1T[[ vals ^ (s_vals, s_vals', s_branch_switchexp_stmtblock, s_global) : _ ]],
 		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		DSMap4T[[ stmts ^ (_, s_vals', s_branch', s_global) : _ ]].
+		DSMap4T[[ stmts ^ (_, s_vals', s_branch_switchexp_stmtblock, s_global) : _ ]].
 	
 	[[ SwitchExpDefault(exp) ^ (s, s_branch, s_global) : t ]] :=
 		new s_exp,
@@ -825,16 +825,16 @@ rules
 		s_proc ---> s_params,
 		
 		// Add parameters to params scope.
-		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		new s_branch_start, // Create new extra scope to prevent resolving to these params from elsewhere.
 		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
 		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
-		Map1T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		Map1T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
 		
 		// Resolve code in proc scope.
 		new s_proc',
 		s_proc' -P-> s_proc,
-		new s_branch',
-		DSMap4T[[ code ^ (_, s_proc', s_branch', s_global) : _ ]].
+		new s_branch_start,
+		DSMap4T[[ code ^ (_, s_proc', s_branch_start, s_global) : _ ]].
 	
 	[[ Array(entries) ^ (s, s', s_branch, s_global) : Array()]] :=
 		Map1T[[entries ^ (s, s', s_branch, s_global) : _ ]]. // TODO - Check for duplicate keys?
@@ -867,10 +867,10 @@ rules
 		// Add parameters to params scope.
 		IVar{"@arguments"} <- s_params, // Automatically added.
 		IVar{"@arguments"} : Array(),
-		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		new s_branch_start, // Create new extra scope to prevent resolving to these params from elsewhere.
 		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
 		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
-		Map1T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		Map1T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
 		
 		// Resolve code in closure scope.
 		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
