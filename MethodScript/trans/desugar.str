@@ -95,6 +95,10 @@ rules
 	desugar: IVarAssignScopeParamLegacy(cTypeId, varName, valExp) -> IVarAssignScopeParam(cTypeId, varName, valExp)
 	desugar: IVarCTypeIdLegacy(cTypeId) -> cTypeId
 	
+	// TODO - Remove IVarAssignScopeParam, IVarScopeParam and its legacy variants entirely.
+	desugar: IVarAssignScopeParam(cTypeId, varName, valExp) -> IVarAssignParam(cTypeId, varName, valExp)
+	desugar: IVarScopeParam(cTypeId, varName) -> IVarParam(cTypeId, varName)
+	
 	// Desugar command declarations.
 	desugar: CmdDecl(cmdNameParts, args, optArgs, body) -> CmdDecl(<glue-strings> cmdNameParts, args, optArgs, body)
 	desugar: CmdOptArgDecl(var)                    -> CmdArgDecl(var)

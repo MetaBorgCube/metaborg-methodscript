@@ -4,13 +4,44 @@ imports
 	signatures/-
 	analysis/Types
 
+/*
+ * Scope management.
+ *
+ * Global scope:
+ *     A global scope is used to create procedure declarations and references in.
+ *     This scope should not have edges to other scopes.
+ *
+ * Statements and expressions scoping:
+ *     Statements and expressions get two non-shared linked main scopes, being s and s'. By convention, s is used for
+ *     references and s' is used for declarations. This allows for example the IVarAssign term to add a reference to
+ *     check whether a type for it has been set yet, and also declare a type, without resolving to itself.
+ *     Scopes are linked as follows: s1 <-P- s1' <-P- s2 <-P- s2'.
+ *
+ * Branching:
+ *     Statements and expressions have an extra non-shared scope s_branch to allow for references after a branching
+ *     statement or expression to resolve to the last declaration in that branching statement or expression.
+ *     These scopes are linked as follows: s_branch1 -IB-> s_branch2 -IB-> s_branch3 (note that they resolve in later
+ *     code and use an IB (Internal Branch) label).
+ *     Branching statements or expressions that have branches with code that can be referred to after that statement
+ *     or expression should create a new s_branch' scope that is connected with a NB (New Branch) label to the side of
+ *     the s_branch scope chain. Additionally, an edge with label BR (Branch Resolving) should be added from the
+ *     s' scope to the new s_branch' scope (s_branch' <-BR- s') to allow code after the branching statement or
+ *     expression to resolve to declarations made in the code branches.
+ *     Not that for variable declarations an IVar{varName} : Any() declaration has to be used, as the last type might
+ *     not be the actual type after the branching statement or expression. Ideally, this should be declared with a
+ *     union type that contains all possible types of the variable at the end of the branching statement or expression.
+ */
+
 signature
 	name resolution
 		labels
 			P // Default scope edge label (s1 -P-> s2 === s1 ---> s2).
 			I // Default scope association label (occ ===> s === occ =I=> s).
 			LP // Low priority scope edge label.
-			BP // Brach scope edge label (for the extra lookahead scope).
+			IB // Branch scope edge label (for connecting the branch scope chain).
+			LB // Low priority Branch scope edge label (IB, but with lower priority). 
+			NB // New Branch scope edge label (for branches from the branch scope chain).
+			BR // Branch Resolving scope edge label (for linking normal scopes to branch scopes).
 		
 		order
 			D < P,
@@ -19,10 +50,17 @@ signature
 			D < LP,
 			I < LP,
 			P < LP,
-			BP < P
+			
+			BR < P, // Prioritize branch resolve scope over the normal scope chain.
+			D < BR, // Prioritize declarations over branch resolve scopes.
+			IB < NB, // Prioritize branch scope chain over its branches.
+			LB < NB,
+			IB < LB
+			
+			
 		
 		well-formedness
-			P* I* (LP* | BP* P*)
+			P* (LP | BR ((IB|LB)* NB)* (IB|LB)*)?
 	
 	namespaces Var IVar TypedIVar Proc ClassType
 	
@@ -41,13 +79,28 @@ rules
 	
 	// Double Scope Mapping rule with two additional scopes that will directly be passed on.
 	// The first two scopes are linked such that s1 <- s1' <- s2 <- s2'.
-	DSMap1T[[ [x|xs] ^ (_, s', s_extra, s_global) : [ty|tys] ]] :=
+	// The branch scopes are linked such that s_branch1 -> s_branch2.
+	DSMap4T[[ [x|xs] ^ (_, s', s_branch, s_global) : [ty|tys] ]] :=
 		new s2,
 		new s2',
 		s2 -P-> s',
 		s2' -P-> s2,
-		[[ x ^ (s2, s2', s_extra, s_global) : ty ]],
-		DSMap1T[[ xs ^ (s2, s2', s_extra, s_global) : tys ]].
+		new s_branch',
+		s_branch -IB-> s_branch',
+		[[ x ^ (s2, s2', s_branch', s_global) : ty ]],
+		DSMap4T[[ xs ^ (s2, s2', s_branch', s_global) : tys ]].
+	
+	// Branch Scope Mapping rule. Creates a new branch scope per term.
+	BSMap3T[[ [x|xs] ^ (s, s_branch, s_global) : [ty|tys] ]] :=
+		new s_branch',
+		s_branch -IB-> s_branch',
+		[[ x ^ (s, s_branch', s_global) : ty ]],
+		BSMap3T[[ xs ^ (s, s_branch', s_global) : tys ]].
+	BSMap3[[ [x|xs] ^ (s, s_branch, s_global) ]] :=
+		new s_branch',
+		s_branch -IB-> s_branch',
+		[[ x ^ (s, s_branch', s_global) ]],
+		BSMap3[[ xs ^ (s, s_branch', s_global) ]].
 	
 	// Scope initialization.
 	init ^ (s_global) :=
@@ -78,6 +131,7 @@ rules
 		Null()    <! Mixed(),
 		Void()    <! Mixed(),
 		ClassType() <! Mixed(),
+		Number() <! Mixed(),
 		ArrayAccess() <! Mixed(),
 		
 		Null()    <! Boolean(),
@@ -130,20 +184,20 @@ rules
 		// Create new scopes.
 		new s_file, // File start scope.
 		new s_file', // Second scope for terms that require an extra scope in the scope chain.
-		new s_extra, // Extra scope that allows for looking up declarations in code branches.
+		new s_branch, // Extra scope that allows for looking up declarations in code branches.
 		s_file' -P-> s_file, // First part of scope chain. Each statement will a scope pair to the previous.
-		DSMap1T[[ statements ^ (s_file, s_file', s_extra, s_global) : _ ]].
+		DSMap4T[[ statements ^ (s_file, s_file', s_branch, s_global) : _ ]].
 	
 	[[ Msa(cmds) ^ (s_global) ]] :=
 		new s_file,
 		Map1[[ cmds ^ (s_file, s_global) ]].
 	
 	// Variable references.
-	[[ IVar(varName) ^ (s, s', s_extra, s_global) : t ]] :=
+	[[ IVar(varName) ^ (s, s', s_branch, s_global) : t ]] :=
 		IVar{varName} -> s, // varName is a reference in s.
 		IVar{varName} |-> d | error $[Cannot find variable: [varName]],
 		d : t.
-	[[ Var(varName) ^ (s, s', s_extra, s_global) : t ]] :=
+	[[ Var(varName) ^ (s, s', s_branch, s_global) : t ]] :=
 		Var{varName} -> s, // varName is a reference in s.
 		Var{varName} |-> d | error $[Cannot find variable: [varName]],
 		d : t.
@@ -151,383 +205,52 @@ rules
 	// IVariable parameters.
 	// With 1 scope, the param is declared and resolved in the same scope.
 	// With 2 scopes, the param is declared in the second scope and its value resolved in the first.
-	// TODO - Check how many scopes IVar...Param terms need.
-	[[ IVarParam(cType, varName) ^ (s, s', s_extra, s_global) : varType ]] :=
-		// TODO - Resolve cType (Some(str), None()) to a type and use this.
-		IVar{varName@s} <- s,
-		IVar{varName@s} : varType,
-		varType == Any().
-	[[ IVarAssignParam(cType, varName, valExp) ^ (s, s', s_extra, s_global) : varType ]] :=
-		// TODO - Resolve cType (Some(str), None()) to a type and use this.
-		IVar{varName@s} <- s,
-		IVar{varName@s} : varType,
-		[[ valExp ^ (s, s', s_extra, s_global) : valType ]],
-		varType == Any(). // TODO - Change to valType when every assign will have its own scope.
-//		valType <? varType.
-	[[ IVarScopeParam(cType, varName) ^ (s_parent, s_params, s_global) : varType ]] :=
-		// TODO - Resolve cType (Some(str), None()) to a type and use this.
-		IVar{varName} <- s_params,
-		IVar{varName} : varType,
-		varType == Any().
-	[[ IVarAssignScopeParam(cType, varName, valExp) ^ (s_parent, s_params, s_global) : varType ]] :=
-		// TODO - Resolve cType (Some(str), None()) to a type and use this.
-		IVar{varName} <- s_params,
-		IVar{varName} : varType,
-		[[ valExp ^ (s_parent, _, _, s_global) : valType ]],
-		varType == Any().
-//		valType <? varType.
-	
-	// Static values.
-	[[ IntVal(_) ^ (s, s', s_extra, s_global) : Int() ]].
-	[[ DoubleVal(_) ^ (s, s', s_extra, s_global) : Double() ]].
-	[[ StringVal(_) ^ (s, s', s_extra, s_global) : String() ]].
-	[[ SmartStringVal(_) ^ (s, s', s_extra, s_global) : String() ]].
-	[[ ClassTypeVal(_) ^ (s, s', s_extra, s_global) : ClassType() ]].
-	[[ True() ^ (s, s', s_extra, s_global) : Boolean() ]].
-	[[ False() ^ (s, s', s_extra, s_global) : Boolean() ]].
-	[[ Null() ^ (s, s', s_extra, s_global) : Null() ]].
-	
-	// Command declarations.
-	[[ CmdDecl(cmdName, args, optArgs, body) ^ (s, s_global) ]] :=
-		new s_cmd,
-		new s',
-		new s_extra,
-		s' -P-> s_cmd,
-		Map1[[ args ^ (s_cmd, s_global) ]],
-		Map1[[ optArgs ^ (s_cmd, s_global) ]],
-		[[ body ^ (s_cmd, s', s_extra, s_global) ]],
-		distinct/name W(s_cmd)/Var | error $[Duplicate variable declaration: [NAME]] @NAMES.
-	
-	[[ CmdArgDecl(varName) ^ (s, s_global) ]] :=
-		Var{varName} <- s,
-		Var{varName} : String(). // All $variables are strings.
-	
-	[[ CmdOptArgDeclDefault(varName, defaultVal) ^ (s, s_global) ]] :=
-		Var{varName} <- s,
-		Var{varName} : String(), // All $variables are strings.
-		[[ defaultVal ^ (s, _, _, s_global) : defaultValType ]],
-		defaultValType <? String() | error $[Expected String, found [defaultValType]].
-	
-	[[ SingleLine(statement) ^ (s, s', s_extra, s_global) ]] :=
-		[[ statement ^ (s, s', s_extra, s_global) : _ ]].
-	[[ MultiLine(statements) ^ (s, s', s_extra, s_global) ]] :=
-		DSMap1T[[ statements ^ (s, s', s_extra, s_global) : _ ]].
-	
-	// Unary and binary expressions.
-	[[ UnExp(_, e) ^ (s, s', s_extra, s_global) : Any() ]] :=
-		[[ e ^ (s, s', s_extra, s_global) : t1 ]].
-	[[ BinExp(Add(), e1, e2) ^ (s, s', s_extra, s_global) : t ]] := // TODO - Determine how to implement + move Math section?
-		[[ e1 ^ (s, s', s_extra, s_global) : t1 ]],
-		[[ e2 ^ (s, s', s_extra, s_global) : t2 ]],
-//		t1 <? Number(),
-//		t2 <? Number(),
-		t is binOpNumberType of (t1, t2). // TODO - Apply to all BinOps that take numbers like this.
-	[[ BinExp(_, e1, e2) ^ (s, s', s_extra, s_global) : Any() ]] :=
-		[[ e1 ^ (s, s', s_extra, s_global) : t1 ]],
-		[[ e2 ^ (s, s', s_extra, s_global) : t2 ]].
-	
-	// Generic optional node argument.
-	[[ None() ^ (s, s', s_extra, s_global) : _ ]] :=
-		true.
-	
-	// Statement brackets.
-	[[ Block(statements) ^ (s, s', s_extra, s_global) : _ ]] :=
-		DSMap1T[[ statements ^ (s, s', s_extra, s_global) : _ ]].
-	
-	// Function calls.
-	// TODO - Check against API to see whether a function exists?
-	// TODO - Obtain type info from the API somehow?
-	[[ FuncCall(funcName, argExps) ^ (s, s', s_extra, s_global) : Any() ]] :=
-		Map1T[[ argExps ^ (s, s', s_extra, s_global) : argTypes ]].
-	
-	// ArrayHandling nodes.
-	[[ ArrayPush(arrayExp, valExp) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		[[ arrayExp ^ (s, s', s_extra, s_global) : arrayType ]],
-		[[ valExp ^ (s, s', s_extra, s_global) : _ ]],
-		arrayType <? Array() | error $[Expected array, found [arrayType]].
-	
-	[[ ArrayClone(arrayExp) ^ (s, s', s_extra, s_global) : Array() ]] :=
-		[[ arrayExp ^ (s, s', s_extra, s_global) : arrayType ]],
-		arrayType <? Array() | error $[Expected array, found [arrayType]].
-	
-	[[ ArrayGet(arrayExp, indExp) ^ (s, s', s_extra, s_global) : Any() ]] :=
-		[[ arrayExp ^ (s, s', s_extra, s_global) : arrayType ]],
-		[[ indExp ^ (s, s', s_extra, s_global) : _ ]],
-		arrayType <? ArrayAccess() | error $[Type [arrayType] does not support array access].
-	
-	[[ SliceStatic(val1, val2) ^ (s, s', s_extra, s_global) : Slice() ]] :=
-		true.
-	
-	[[ SliceDynamic(exp1, exp2) ^ (s, s', s_extra, s_global) : Slice() ]] :=
-		[[ exp1 ^ (s, s', s_extra, s_global) : t1 ]],
-		[[ exp2 ^ (s, s', s_extra, s_global) : t2 ]],
-		t1 <? Int(),
-		t2 <? Int().
-	
-	[[ ArraySet(arrayExp, indExp, valExp) ^ (s, s', s_extra, s_global) : valType ]] :=
-		[[ arrayExp ^ (s, s', s_extra, s_global) : arrayType ]],
-		[[ indExp ^ (s, s', s_extra, s_global) : t1 ]], // TODO - Only allow int or string here?
-		[[ valExp ^ (s, s', s_extra, s_global) : valType ]],
-		arrayType <? Array() | error $[Expected array, found [arrayType]].
-	
-	// BasicLogic nodes.
-	// None (handled through UnOp and BinOp).
-	
-	// ControlFlow nodes.
-	[[ IfElse(ifBlocks, None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
+	[[ IVarParam(Some(cType), varName) ^ (s, s', s_branch, s_global) : _ ]] :=
 		
-		// Create and link a new s_extra' scope to resolve references in branch code.
-		new s_extra',
-		s_extra -P-> s_extra',
-		s' -BP-> s_extra',
+		// Resolve variable type.
+		ClassType{cType} -> s_global,
+		ClassType{cType} |-> cTypeDecl | error $[Unknown class type: [cType]] @cType,
+		cTypeDecl : ClassType(declType),
 		
-		Map1T[[ ifBlocks ^ (s, s_extra', s_global) : _ ]].
-	
-	[[ IfElse(ifBlocks, Some(elseCode)) ^ (s, s', s_extra, s_global) : Void() ]] :=
+		// Declare typed variable.
+		TypedIVar{varName} <- s',
+		TypedIVar{varName} : declType,
 		
-		// Create and link a new s_extra' scope to resolve references in branch code.
-		new s_extra',
-		s_extra -P-> s_extra',
-		s' -BP-> s_extra',
+		// TODO - Not possible due to IVar{varName} already being defined in 's' in this IVarAssign code?
+//		// Give a warning when an untyped variable declaration already exists for this varName.
+//		new s_fvar,
+//		new s_fvar2,
+//		s_fvar -P-> s,
+//		s_fvar -LP-> s_fvar2,
+//		IVar{varName@s_fvar2} <- s_fvar2,
+//		IVar{varName@s_fvar2} : FakeType(),
+//		IVar{varName} -> s_fvar,
+//		IVar{varName} |-> varDecl,
+//		varDecl : varFakeType,
+//		varFakeType == FakeType() | warning $[[varName] was already defined] @varName,
 		
-		Map1T[[ ifBlocks ^ (s, s_extra', s_global) : _ ]],
-		DSMap1T[[ elseCode ^ (_, s, s_extra', s_global) : _ ]].
-	
-	[[ IfElseIfBlock(cond, code) ^ (s, s_extra, s_global) : codeType ]] :=
-		new s_cond,
-		new s_cond',
-		s_cond' -P-> s_cond,
-		s_cond -P-> s,
-		[[ cond ^ (s_cond, s_cond', s_extra, s_global) : condType ]],
-		DSMap1T[[ code ^ (_, s_cond', s_extra, s_global) : codeType ]],
-		condType <? Boolean().
-	
-	[[ While(cond, code) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		[[ cond ^ (s, s', s_extra, s_global) : condType ]],
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
-		condType <? Boolean().
-	
-	[[ DoWhile(code, cond) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
-		[[ cond ^ (s, s', s_extra, s_global) : condType ]],
-		condType <? Boolean().
-	
-	[[ For(assign, cond, exp, code, None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		[[ assign ^ (s, s', s_extra, s_global) : _ ]],
-		[[ cond ^ (s, s', s_extra, s_global) : condType ]],
-		[[ exp ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
-		condType <? Boolean().
-	[[ For(assign, cond, exp, code, elseCode) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		[[ assign ^ (s, s', s_extra, s_global) : _ ]],
-		[[ cond ^ (s, s', s_extra, s_global) : condType ]],
-		[[ exp ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ elseCode ^ (_, s', s_extra, s_global) : _ ]],
-		condType <? Boolean().
-	
-	[[ ForEach(key, val, arrayExp, code, None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		[[ key ^ (s, s', s_extra, s_global) : _ ]],
-		[[ val ^ (s, s', s_extra, s_global) : _ ]],
-		[[ arrayExp ^ (s, s', s_extra, s_global) : arrayType ]],
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
-		arrayType <? ArrayAccess().
-	[[ ForEach(key, val, arrayExp, code, elseCode) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		[[ key ^ (s, s', s_extra, s_global) : _ ]],
-		[[ val ^ (s, s', s_extra, s_global) : _ ]],
-		[[ arrayExp ^ (s, s', s_extra, s_global) : arrayType ]],
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ elseCode ^ (_, s', s_extra, s_global) : _ ]],
-		arrayType <? ArrayAccess().
-	
-	[[ Switch(exp, cases, defaultCode) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		[[ exp ^ (s, s', s_extra, s_global) : _ ]],
-		Map1[[ cases ^ (s, s', s_extra, s_global) ]],
-		DSMap1T[[ defaultCode ^ (_, s', s_extra, s_global) : _ ]].
-	[[ SwitchCase(vals, code) ^ (s, s', s_extra, s_global) ]] :=
-		Map1T[[ vals ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]].
-	
-	[[ SwitchExp(exp, cases, defaultExp) ^ (s, s', s_extra, s_global) : returnType ]] :=
-		[[ exp ^ (s, s', s_extra, s_global) : _ ]],
-		// TODO - Set returnType based on caseExpTypes and defaultType.
-		Map1T[[ cases ^ (s, s', s_extra, s_global) : caseExpTypes ]],
-		[[ defaultExp ^ (s, s', s_extra, s_global) : defaultType ]],
-		returnType == Any().
-	
-	[[ SwitchExpCase(vals, exp) ^ (s, s', s_extra, s_global) : t ]] :=
-		Map1T[[ vals ^ (s, s', s_extra, s_global) : _ ]],
-		[[ exp ^ (s, s', s_extra, s_global) : t ]].
-	[[ SwitchExpStmtsCase(vals, stmts) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		[[ vals ^ (s, s', s_extra, s_global) : _ ]],
-		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		DSMap1T[[ stmts ^ (_, s', s_extra, s_global) : _ ]].
-	
-	[[ SwitchExpDefault(exp) ^ (s, s', s_extra, s_global) : t ]] :=
-		[[ exp ^ (s, s', s_extra, s_global) : t ]].
-	[[ SwitchExpStmtsDefault(stmts) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		DSMap1T[[ stmts ^ (_, s', s_extra, s_global) : _ ]].
-	
-	[[ Break(None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		// TODO - Only allow in loops.
-		true.
-	[[ Break(Some(numLoops)) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		// TODO - Only allow in loops. How to deal with numLoops?
-		[[ numLoops ^ (s, s', s_extra, s_global) : numLoopsType ]],
-		numLoopsType <? Int().
-	[[ Continue(None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		// TODO - Only allow in specific loops.
-		true.
-	[[ Continue(Some(numLoopsSkipped)) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		// TODO - Only allow in specific loops.
-		[[ numLoopsSkipped ^ (s, s', s_extra, s_global) : numLoopsSkippedType ]],
-		numLoopsSkippedType <? Int().
-	[[ Return(Some(exp)) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		// TODO - Only allow in procedures and closures.
-		[[ exp ^ (s, s', s_extra, s_global) : _ ]]. // TODO - Use this to determine procedure return types?
-	[[ Return(None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		// TODO - Only allow in procedures and closures.
-		true.
-	[[ Die(Some(exp)) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		[[ exp ^ (s, s', s_extra, s_global) : expType ]],
-		expType <? String().
-	[[ Die(None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		true.
-	
-	[[ Ternary(cond, ifCase, elseCase) ^ (s, s', s_extra, s_global) : returnType ]] :=
-		// TODO - Return hybrid type if possible?
-		[[ cond ^ (s, s', s_extra, s_global) : condType ]],
-		[[ ifCase ^ (s, s', s_extra, s_global) : t1 ]],
-		[[ elseCase ^ (s, s', s_extra, s_global) : t2 ]],
-		returnType == Any(),
-		condType <? Boolean().
-	[[ TernaryExpCase(exp) ^ (s, s', s_extra, s_global) : type ]] :=
-		[[ exp ^ (s, s', s_extra, s_global) : type ]].
-	[[ TernaryStmtsCase(stmts) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		DSMap1T[[ stmts ^ (_, s', s_extra, s_global) : _ ]].
-	
-	[[ ProcCall(procName, argExps) ^ (s, s', s_extra, s_global) : Any() ]] :=
-		// TODO - Do argument length check. Warn about mismatching arg size?
-		// The MS compiler simply ignores too many arguments and assigns null to undefined args.
-		// TODO - Get return type from return statements.
-		Proc{procName} -> s_global,
-		Proc{procName} |-> d | error $[Cannot find procedure: [procName]],
-		Map1T[[ argExps ^ (s, s', s_extra, s_global) : argTypes ]].
-	
-	[[ ProcCallDynamic(procNameExp, argExps) ^ (s, s', s_extra, s_global) : returnType ]] :=
-		[[ procNameExp ^ (s, s', s_extra, s_global) : procNameType ]],
-		Map1T[[ argExps ^ (s, s', s_extra, s_global) : argTypes ]],
-		returnType == Any(),
-		procNameType <? String().
-	
-	[[ ProcCallDynamicArray(procNameExp, argsArray) ^ (s, s', s_extra, s_global) : returnType ]] :=
-		[[ procNameExp ^ (s, s', s_extra, s_global) : procNameType ]],
-		[[ argsArray ^ (s, s', s_extra, s_global) : Array() ]],
-		returnType == Any(),
-		procNameType <? String().
-	
-	// DataHandling nodes.
-	[[ ProcDecl(procName, params, code) ^ (s, s', s_extra, s_global) : Void() ]] :=
+		// Disallow duplicate typed variable declarations.
+		distinct/name W(s')/TypedIVar | error $[Duplicate variable declaration: [NAME]] @NAMES,
 		
-		// Store proc declaration in global scope.
-		Proc{procName} <- s_global,
-		// TODO - Store proc metadata (param types, return type).
+		// Declare variable assign.
+		IVar{varName} <- s',
+		IVar{varName} : Any(),
 		
-		// Add s_params as child of the parent scope.
-		new s_params,
-		s_params ---> s,
-		
-		// Add s_proc as child of the params scope.
-		new s_proc,
-		s_proc ---> s_params,
-		
-		// Add parameters to params scope.
-		Map1T[[ params ^ (s, s_params, s_global) : _ ]],
-		
-		// Resolve code in proc scope.
-		new s_proc',
-		s_proc' -P-> s_proc,
-		new s_extra',
-		DSMap1T[[ code ^ (_, s_proc', s_extra', s_global) : _ ]].
+		// Declare variable assign in extra scope.
+		IVar{varName@s_branch} <- s_branch,
+		IVar{varName@s_branch} : Any().
 	
-	[[ Array(entries) ^ (s, s', s_extra, s_global) : Array()]] :=
-		Map1T[[entries ^ (s, s', s_extra, s_global) : _ ]]. // TODO - Check for duplicate keys?
-	[[ AssocArray(entries) ^ (s, s', s_extra, s_global) : Array() ]] :=
-		Map1T[[entries ^ (s, s', s_extra, s_global) : _ ]]. // TODO - Check for duplicate keys?
-	[[ ArrayLabelEntry(_, valExp) ^ (s, s', s_extra, s_global): _ ]] :=
-		[[ valExp ^ (s, s', s_extra, s_global) : _ ]].
+	[[ IVarParam(None(), varName) ^ (s, s', s_branch, s_global) : _ ]] :=
+		
+		// Declare variable assign.
+		IVar{varName} <- s',
+		IVar{varName} : Any(),
+		
+		// Declare variable assign in extra scope.
+		IVar{varName@s_branch} <- s_branch,
+		IVar{varName@s_branch} : Any().
 	
-	// TODO - Check whether casts are possible on the given types?
-	[[ BoolCast(exp) ^ (s, s', s_extra, s_global) : Boolean() ]] :=
-		[[ exp ^ (s, s', s_extra, s_global) : t ]].
-	[[ DoubleCast(exp) ^ (s, s', s_extra, s_global) : Double() ]] :=
-		[[ exp ^ (s, s', s_extra, s_global) : t ]].
-	[[ IntCast(exp) ^ (s, s', s_extra, s_global) : Int() ]] :=
-		[[ exp ^ (s, s', s_extra, s_global) : t ]].
-	[[ StringCast(exp) ^ (s, s', s_extra, s_global) : String() ]] :=
-		[[ exp ^ (s, s', s_extra, s_global) : t ]].
-	
-	[[ Closure(params, code) ^ (s, s', s_extra, s_global) : Closure() ]] :=
-		// TODO - Store metadata (param types, return type).
-		
-		// Add s_params as child of the parent scope.
-		new s_params,
-		s_params ---> s,
-		
-		// Add s_closure as child of the params scope.
-		new s_closure,
-		s_closure ---> s_params,
-		
-		// Add parameters to params scope.
-		IVar{"@arguments"} <- s_params, // Automatically added.
-		IVar{"@arguments"} : Array(),
-		Map1T[[ params ^ (s, s_params, s_global) : _ ]],
-		
-		// Resolve code in closure scope.
-		new s_extra',
-		DSMap1T[[ code ^ (_, s_closure, s_extra', s_global) : _ ]].
-	
-	[[ IClosure(params, code) ^ (s, s', s_extra, s_global) : Closure() ]] :=
-		// TODO - Store metadata (param types, return type).
-		
-		// Create s_params.
-		new s_params,
-		
-		// Add s_closure as child of the params scope.
-		new s_closure,
-		s_closure ---> s_params,
-		
-		// Add parameters to params scope.
-		IVar{"@arguments"} <- s_params, // Automatically added.
-		IVar{"@arguments"} : Array(),
-		Map1T[[ params ^ (s, s_params, s_global) : _ ]],
-		
-		// Resolve code in closure scope.
-		new s_extra',
-		DSMap1T[[ code ^ (_, s_closure, s_extra', s_global) : _ ]].
-	
-	[[ RClosure(params, code) ^ (s, s', s_extra, s_global) : Closure() ]] :=
-		// TODO - Store metadata (param types, return type).
-		
-		// Create s_params.
-		new s_params,
-		
-		// Add s_closure as child of the params scope.
-		new s_closure,
-		s_closure ---> s_params,
-		
-		// Add parameters to params scope.
-		IVar{"@arguments"} <- s_params, // Automatically added.
-		IVar{"@arguments"} : Array(),
-		Map1T[[ params ^ (s, s_params, s_global) : _ ]],
-		
-		// Resolve code in closure scope.
-		new s_extra',
-		DSMap1T[[ code ^ (_, s_closure, s_extra', s_global) : _ ]].
-	
-	[[ IVarAssign(Some(cType), varName, valExp) ^ (s, s', s_extra, s_global) : valType ]] :=
+	[[ IVarAssignParam(Some(cType), varName, valExp) ^ (s, s', s_branch, s_global) : _ ]] :=
 		
 		// Resolve variable type.
 		ClassType{cType} -> s_global,
@@ -555,7 +278,7 @@ rules
 		distinct/name W(s')/TypedIVar | error $[Duplicate variable declaration: [NAME]] @NAMES,
 		
 		// Resolve and type check assigned value.
-		[[ valExp ^ (s, s', s_extra, s_global) : valType ]],
+		[[ valExp ^ (s, s', s_branch, s_global) : valType ]],
 		valType <? declType | error $[Type mismatch: Cannot convert from [valType] to [declType]] @valExp,
 		
 		// Declare variable assign.
@@ -563,12 +286,12 @@ rules
 		IVar{varName} : valType,
 		
 		// Declare variable assign in extra scope.
-		// TODO - Look up the current type in s_extra and somehow create a union type from that instead of declaring as Any().
+		// TODO - Look up the current type in s_branch and somehow create a union type from that instead of declaring as Any().
 		// TODO - Note that this variable cannot be declared before the branching statement since it's a typed declaration.
-		IVar{varName@s_extra} <- s_extra,
-		IVar{varName@s_extra} : Any().
+		IVar{varName@s_branch} <- s_branch,
+		IVar{varName@s_branch} : Any().
 	
-	[[ IVarAssign(None(), varName, valExp) ^ (s, s', s_extra, s_global) : Any() ]] :=
+	[[ IVarAssignParam(None(), varName, valExp) ^ (s, s', s_branch, s_global) : _ ]] :=
 		
 		// Fake a typed variable declaration to set a default variable type.
 		new s_fvar,
@@ -584,7 +307,7 @@ rules
 		typedVarDecl : declType,
 		
 		// Resolve and type check the value expression.
-		[[ valExp ^ (s, s', s_extra, s_global) : valType ]],
+		[[ valExp ^ (s, s', s_branch, s_global) : valType ]],
 		valType <? declType | error $[Type mismatch: Cannot convert from [valType] to [declType]] @valExp,
 		
 		// Declare variable assign.
@@ -592,40 +315,707 @@ rules
 		IVar{varName} : valType,
 		
 		// Declare variable assign in extra scope.
-		// TODO - Look up the current type in s_extra and somehow create a union type from that instead of declaring as Any().
+		// TODO - Look up the current type in s_branch and somehow create a union type from that instead of declaring as Any().
 		// TODO - When this has a type, ensure that if the code before a branch assigns a type, this type is also considered.
-		IVar{varName@s_extra} <- s_extra,
-		IVar{varName@s_extra} : Any().
+		IVar{varName@s_branch} <- s_branch,
+		IVar{varName@s_branch} : Any().
+	
+	// TODO - Remove these IVarScopeParams and manage scoping in branching functions instead.
+//	[[ IVarScopeParam(cType, varName) ^ (s_parent, s_params, s_global) : varType ]] :=
+//		// TODO - Resolve cType (Some(str), None()) to a type and use this.
+//		IVar{varName} <- s_params,
+//		IVar{varName} : varType,
+//		varType == Any().
+//	
+//	[[ IVarAssignScopeParam(cType, varName, valExp) ^ (s_parent, s_params, s_global) : varType ]] :=
+//		// TODO - Resolve cType (Some(str), None()) to a type and use this.
+//		IVar{varName} <- s_params,
+//		IVar{varName} : varType,
+//		[[ valExp ^ (s_parent, _, _, s_global) : valType ]],
+//		varType == Any().
+	
+	// Static values.
+	[[ IntVal(_) ^ (s, s', s_branch, s_global) : Int() ]].
+	[[ DoubleVal(_) ^ (s, s', s_branch, s_global) : Double() ]].
+	[[ StringVal(_) ^ (s, s', s_branch, s_global) : String() ]].
+	[[ SmartStringVal(_) ^ (s, s', s_branch, s_global) : String() ]].
+	[[ ClassTypeVal(_) ^ (s, s', s_branch, s_global) : ClassType() ]].
+	[[ True() ^ (s, s', s_branch, s_global) : Boolean() ]].
+	[[ False() ^ (s, s', s_branch, s_global) : Boolean() ]].
+	[[ Null() ^ (s, s', s_branch, s_global) : Null() ]].
+	
+	// Command declarations.
+	[[ CmdDecl(cmdName, args, optArgs, body) ^ (s, s_global) ]] :=
+		new s_cmd,
+		new s',
+		new s_branch,
+		s' -P-> s_cmd,
+		Map1[[ args ^ (s_cmd, s_global) ]],
+		Map1[[ optArgs ^ (s_cmd, s_global) ]],
+		[[ body ^ (s_cmd, s', s_branch, s_global) ]],
+		distinct/name W(s_cmd)/Var | error $[Duplicate variable declaration: [NAME]] @NAMES.
+	
+	[[ CmdArgDecl(varName) ^ (s, s_global) ]] :=
+		Var{varName} <- s,
+		Var{varName} : String(). // All $variables are strings.
+	
+	[[ CmdOptArgDeclDefault(varName, defaultVal) ^ (s, s_global) ]] :=
+		Var{varName} <- s,
+		Var{varName} : String(), // All $variables are strings.
+		[[ defaultVal ^ (s, _, _, s_global) : defaultValType ]],
+		defaultValType <? String() | error $[Expected String, found [defaultValType]].
+	
+	[[ SingleLine(statement) ^ (s, s', s_branch, s_global) ]] :=
+		[[ statement ^ (s, s', s_branch, s_global) : _ ]].
+	[[ MultiLine(statements) ^ (s, s', s_branch, s_global) ]] :=
+		DSMap4T[[ statements ^ (s, s', s_branch, s_global) : _ ]].
+	
+	// Unary and binary expressions.
+	[[ UnExp(_, e) ^ (s, s', s_branch, s_global) : Any() ]] :=
+		[[ e ^ (s, s', s_branch, s_global) : t1 ]].
+	[[ BinExp(Add(), e1, e2) ^ (s, s', s_branch, s_global) : t ]] := // TODO - Determine how to implement + move Math section?
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+//		t1 <? Number(),
+//		t2 <? Number(),
+		t is binOpNumberType of (t1, t2). // TODO - Apply to all BinOps that take numbers like this.
+	[[ BinExp(_, e1, e2) ^ (s, s', s_branch, s_global) : Any() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]].
+	
+	// Generic optional node argument.
+	[[ None() ^ (s, s', s_branch, s_global) : _ ]] :=
+		true.
+	
+	// Statement brackets.
+	[[ Block(statements) ^ (s, s', s_branch, s_global) : _ ]] :=
+		DSMap4T[[ statements ^ (s, s', s_branch, s_global) : _ ]].
+	
+	// Function calls.
+	// TODO - Check against API to see whether a function exists?
+	// TODO - Obtain type info from the API somehow?
+	[[ FuncCall(funcName, argExps) ^ (s, s', s_branch, s_global) : Any() ]] :=
+		Map1T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]].
+	
+	// ArrayHandling nodes.
+	[[ ArrayPush(arrayExp, valExp) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		[[ arrayExp ^ (s, s', s_branch, s_global) : arrayType ]],
+		[[ valExp ^ (s, s', s_branch, s_global) : _ ]],
+		arrayType <? Array() | error $[Expected array, found [arrayType]].
+	
+	[[ ArrayClone(arrayExp) ^ (s, s', s_branch, s_global) : Array() ]] :=
+		[[ arrayExp ^ (s, s', s_branch, s_global) : arrayType ]],
+		arrayType <? Array() | error $[Expected array, found [arrayType]].
+	
+	[[ ArrayGet(arrayExp, indExp) ^ (s, s', s_branch, s_global) : Any() ]] :=
+		[[ arrayExp ^ (s, s', s_branch, s_global) : arrayType ]],
+		[[ indExp ^ (s, s', s_branch, s_global) : _ ]],
+		arrayType <? ArrayAccess() | error $[Type [arrayType] does not support array access].
+	
+	[[ SliceStatic(val1, val2) ^ (s, s', s_branch, s_global) : Slice() ]] :=
+		true.
+	
+	[[ SliceDynamic(exp1, exp2) ^ (s, s', s_branch, s_global) : Slice() ]] :=
+		[[ exp1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ exp2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Int(),
+		t2 <? Int().
+	
+	[[ ArraySet(arrayExp, indExp, valExp) ^ (s, s', s_branch, s_global) : valType ]] :=
+		[[ arrayExp ^ (s, s', s_branch, s_global) : arrayType ]],
+		[[ indExp ^ (s, s', s_branch, s_global) : t1 ]], // TODO - Only allow int or string here?
+		[[ valExp ^ (s, s', s_branch, s_global) : valType ]],
+		arrayType <? Array() | error $[Expected array, found [arrayType]].
+	
+	// BasicLogic nodes.
+	// None (handled through UnOp and BinOp).
+	
+	// ControlFlow nodes.
+	[[ IfElse(ifBlocks, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create a branch on the branch scope chain.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch,
+		
+		BSMap3T[[ ifBlocks ^ (s, s_branch', s_global) : _ ]].
+	
+	[[ IfElse(ifBlocks, Some(elseCode)) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create low priority branch scope to prevent overlapping declarations from ifBlocks and elseCode.
+		new s_branch_else,
+		s_branch' -LB-> s_branch_else,
+		
+		BSMap3T[[ ifBlocks ^ (s, s_branch', s_global) : _ ]],
+		DSMap4T[[ elseCode ^ (_, s, s_branch_else, s_global) : _ ]].
+	
+	[[ IfElseIfBlock(cond, code) ^ (s, s_branch, s_global) : codeType ]] :=
+		
+		// Create and link new condition scope.
+		new s_cond,
+		new s_cond',
+		s_cond' -P-> s_cond,
+		s_cond -P-> s,
+		
+		new s_branch',
+		s_branch -LB-> s_branch',
+		
+		[[ cond ^ (s_cond, s_cond', s_branch', s_global) : condType ]],
+		DSMap4T[[ code ^ (_, s_cond', s_branch', s_global) : codeType ]],
+		condType <? Boolean().
+	
+	[[ While(cond, code) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create and link new condition scope.
+		new s_cond,
+		new s_cond',
+		s_cond' -P-> s_cond,
+		s_cond -P-> s,
+		
+		[[ cond ^ (s_cond, s_cond', s_branch', s_global) : condType ]],
+		DSMap4T[[ code ^ (_, s_cond', s_branch', s_global) : _ ]],
+		condType <? Boolean().
+	
+	[[ DoWhile(code, cond) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create and link new condition scope.
+		new s_cond,
+		new s_cond',
+		s_cond' -P-> s_cond,
+		s_cond -P-> s,
+		
+		DSMap4T[[ code ^ (_, s_cond', s_branch', s_global) : _ ]],
+		[[ cond ^ (s_cond, s_cond', s_branch', s_global) : condType ]],
+		condType <? Boolean().
+	
+	[[ For(assign, cond, exp, code, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create and link new assign, condition and exp scope.
+		new s_assign,
+		new s_assign',
+		s_assign' -P-> s_assign,
+		s_assign -P-> s,
+		new s_cond,
+		new s_cond',
+		s_cond' -P-> s_cond,
+		s_cond -P-> s_assign',
+		new s_exp,
+		new s_exp',
+		s_exp' -P-> s_exp,
+		s_exp -P-> s_cond',
+		
+		[[ assign ^ (s_assign, s_assign', s_branch', s_global) : _ ]],
+		[[ cond ^ (s_cond, s_cond', s_branch', s_global) : condType ]],
+		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_exp', s_branch', s_global) : _ ]],
+		condType <? Boolean().
+	
+	[[ For(assign, cond, exp, code, elseCode) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create and link new assign, condition and exp scope.
+		new s_assign,
+		new s_assign',
+		s_assign' -P-> s_assign,
+		s_assign -P-> s,
+		new s_cond,
+		new s_cond',
+		s_cond' -P-> s_cond,
+		s_cond -P-> s_assign',
+		new s_exp,
+		new s_exp',
+		s_exp' -P-> s_exp,
+		s_exp -P-> s_cond',
+		
+		// Create low priority branch scope to prevent overlapping declarations from code and elseCode.
+		new s_branch_else,
+		s_branch' -LB-> s_branch_else,
+		
+		[[ assign ^ (s_assign, s_assign', s_branch', s_global) : _ ]],
+		[[ cond ^ (s_cond, s_cond', s_branch', s_global) : condType ]],
+		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_exp', s_branch', s_global) : _ ]],
+		DSMap4T[[ elseCode ^ (_, s_exp', s_branch_else, s_global) : _ ]],
+		condType <? Boolean().
+	
+	[[ ForEach(key, val, arrayExp, code, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create and link new exp, key and val scope.
+		new s_exp,
+		new s_exp',
+		s_exp' -P-> s_exp,
+		s_exp -P-> s,
+		new s_key,
+		new s_key',
+		s_key' -P-> s_key,
+		s_key -P-> s_exp',
+		new s_val,
+		new s_val',
+		s_val' -P-> s_val,
+		s_val -P-> s_key',
+		
+		[[ arrayExp ^ (s_exp, s_exp', s_branch', s_global) : arrayType ]],
+		[[ key ^ (s_key, s_key', s_branch', s_global) : _ ]],
+		[[ val ^ (s_val, s_val', s_branch', s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_val', s_branch', s_global) : _ ]],
+		arrayType <? ArrayAccess().
+	[[ ForEach(key, val, arrayExp, code, elseCode) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create and link new exp, key and val scope.
+		new s_exp,
+		new s_exp',
+		s_exp' -P-> s_exp,
+		s_exp -P-> s,
+		new s_key,
+		new s_key',
+		s_key' -P-> s_key,
+		s_key -P-> s_exp',
+		new s_val,
+		new s_val',
+		s_val' -P-> s_val,
+		s_val -P-> s_key',
+		
+		// Create low priority branch scope to prevent overlapping declarations from code and elseCode.
+		new s_branch_else,
+		s_branch' -LB-> s_branch_else,
+		
+		[[ arrayExp ^ (s_exp, s_exp', s_branch', s_global) : arrayType ]],
+		[[ key ^ (s_key, s_key', s_branch', s_global) : _ ]],
+		[[ val ^ (s_val, s_val', s_branch', s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_val', s_branch', s_global) : _ ]],
+		DSMap4T[[ elseCode ^ (_, s_val', s_branch_else, s_global) : _ ]],
+		arrayType <? ArrayAccess().
+	
+	[[ Switch(exp, cases, defaultCode) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create and link new exp scope.
+		new s_exp,
+		new s_exp',
+		s_exp' -P-> s_exp,
+		s_exp -P-> s,
+		
+		// Create low priority branch scope to prevent overlapping declarations from cases and default case.
+		new s_branch_default,
+		s_branch' -LB-> s_branch_default,
+		
+		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : _ ]],
+		BSMap3[[ cases ^ (s_exp', s_branch', s_global) ]],
+		DSMap4T[[ defaultCode ^ (_, s_exp', s_branch_default, s_global) : _ ]].
+	
+	[[ SwitchCase(vals, code) ^ (s, s_branch, s_global) ]] :=
+		new s_vals,
+		new s_vals',
+		s_vals' -P-> s_vals,
+		s_vals -P-> s,
+		
+		new s_branch',
+		s_branch -LB-> s_branch',
+		
+		Map1T[[ vals ^ (s_vals, s_vals', s_branch', s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_vals', s_branch', s_global) : _ ]].
+	
+	[[ SwitchExp(exp, cases, Some(defaultExp)) ^ (s, s', s_branch, s_global) : returnType ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create and link new exp and default scope.
+		new s_exp,
+		new s_exp',
+		s_exp' -P-> s_exp,
+		s_exp -P-> s,
+		new s_default,
+		new s_default',
+		s_default' -P-> s_default,
+		s_default -P-> s_exp',
+		
+		// Create low priority branch scope to prevent overlapping declarations from cases and default case.
+		new s_branch_default,
+		s_branch' -LB-> s_branch_default,
+		
+		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : _ ]],
+		// TODO - Set returnType based on caseExpTypes and defaultType.
+		BSMap3T[[ cases ^ (s_exp', s_branch', s_global) : caseExpTypes ]],
+		[[ defaultExp ^ (s_exp', s_branch_default, s_global) : defaultType ]],
+		returnType == Any().
+	
+	[[ SwitchExp(exp, cases, None()) ^ (s, s', s_branch, s_global) : returnType ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create and link new exp and default scope.
+		new s_exp,
+		new s_exp',
+		s_exp' -P-> s_exp,
+		s_exp -P-> s,
+		
+		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : _ ]],
+		// TODO - Set returnType based on caseExpTypes.
+		BSMap3T[[ cases ^ (s_exp', s_branch', s_global) : caseExpTypes ]],
+		returnType == Any().
+	
+	[[ SwitchExpCase(vals, exp) ^ (s, s_branch, s_global) : t ]] :=
+		new s_vals,
+		new s_vals',
+		s_vals' -P-> s_vals,
+		s_vals -P-> s,
+		new s_exp,
+		new s_exp',
+		s_exp' -P-> s_exp,
+		s_exp -P-> s_vals',
+		
+		new s_branch',
+		s_branch -LB-> s_branch',
+		
+		Map1T[[ vals ^ (s_vals, s_vals', s_branch', s_global) : _ ]],
+		[[ exp ^ (s_exp, s_exp', s_branch', s_global) : t ]].
+	
+	[[ SwitchExpStmtsCase(vals, stmts) ^ (s, s_branch, s_global) : Void() ]] :=
+		new s_vals,
+		new s_vals',
+		s_vals' -P-> s_vals,
+		s_vals -P-> s,
+		
+		new s_branch',
+		s_branch -LB-> s_branch',
+		
+		Map1T[[ vals ^ (s_vals, s_vals', s_branch', s_global) : _ ]],
+		// TODO - Ensure that the last stmt results in a throw, die, break, ...
+		DSMap4T[[ stmts ^ (_, s_vals', s_branch', s_global) : _ ]].
+	
+	[[ SwitchExpDefault(exp) ^ (s, s_branch, s_global) : t ]] :=
+		new s_exp,
+		new s_exp',
+		s_exp' -P-> s_exp,
+		s_exp -P-> s,
+		[[ exp ^ (s_exp, s_exp', s_branch, s_global) : t ]].
+	
+	[[ SwitchExpStmtsDefault(stmts) ^ (s, s_branch, s_global) : Void() ]] :=
+		// TODO - Ensure that the last stmt results in a throw, die, break, ...
+		DSMap4T[[ stmts ^ (_, s, s_branch, s_global) : _ ]].
+	
+	[[ Break(None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		// TODO - Only allow in loops.
+		true.
+	[[ Break(Some(numLoops)) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		// TODO - Only allow in loops. How to deal with numLoops?
+		[[ numLoops ^ (s, s', s_branch, s_global) : numLoopsType ]],
+		numLoopsType <? Int().
+	[[ Continue(None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		// TODO - Only allow in specific loops.
+		true.
+	[[ Continue(Some(numLoopsSkipped)) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		// TODO - Only allow in specific loops.
+		[[ numLoopsSkipped ^ (s, s', s_branch, s_global) : numLoopsSkippedType ]],
+		numLoopsSkippedType <? Int().
+	[[ Return(Some(exp)) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		// TODO - Only allow in procedures and closures.
+		[[ exp ^ (s, s', s_branch, s_global) : _ ]]. // TODO - Use this to determine procedure return types?
+	[[ Return(None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		// TODO - Only allow in procedures and closures.
+		true.
+	[[ Die(Some(exp)) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : expType ]],
+		expType <? String().
+	[[ Die(None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		true.
+	
+	[[ Ternary(cond, ifCase, elseCase) ^ (s, s', s_branch, s_global) : returnType ]] :=
+		// TODO - Return hybrid type if possible?
+		
+		// Create a branch on the branch scope chain.
+		new s_branch_ternary,
+		s_branch -NB-> s_branch_ternary,
+		s' -BR-> s_branch,
+		
+		// Create ifCase and elseCase branch scopes.
+		new s_branch_if,
+		s_branch_ternary -LB-> s_branch_if,
+		new s_branch_else,
+		s_branch_ternary -IB-> s_branch_else,
+		
+		[[ cond ^ (s, s', s_branch, s_global) : condType ]],
+		[[ ifCase ^ (s, s', s_branch_if, s_global) : t1 ]],
+		[[ elseCase ^ (s, s', s_branch_else, s_global) : t2 ]],
+		returnType == Any(),
+		condType <? Boolean().
+	[[ TernaryExpCase(exp) ^ (s, s', s_branch, s_global) : type ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : type ]].
+	[[ TernaryStmtsCase(stmts) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		// TODO - Ensure that the last stmt results in a throw, die, break, ...
+		DSMap4T[[ stmts ^ (_, s', s_branch, s_global) : _ ]].
+	
+	[[ ProcCall(procName, argExps) ^ (s, s', s_branch, s_global) : Any() ]] :=
+		// TODO - Do argument length check. Warn about mismatching arg size?
+		// The MS compiler simply ignores too many arguments and assigns null to undefined args.
+		// TODO - Get return type from return statements.
+		Proc{procName} -> s_global,
+		Proc{procName} |-> d | error $[Cannot find procedure: [procName]],
+		Map1T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]].
+	
+	[[ ProcCallDynamic(procNameExp, argExps) ^ (s, s', s_branch, s_global) : returnType ]] :=
+		[[ procNameExp ^ (s, s', s_branch, s_global) : procNameType ]],
+		Map1T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]],
+		returnType == Any(),
+		procNameType <? String().
+	
+	[[ ProcCallDynamicArray(procNameExp, argsArray) ^ (s, s', s_branch, s_global) : returnType ]] :=
+		[[ procNameExp ^ (s, s', s_branch, s_global) : procNameType ]],
+		[[ argsArray ^ (s, s', s_branch, s_global) : Array() ]],
+		returnType == Any(),
+		procNameType <? String().
+	
+	// DataHandling nodes.
+	[[ ProcDecl(procName, params, code) ^ (s, s', _, s_global) : Void() ]] :=
+		
+		// Store proc declaration in global scope.
+		Proc{procName} <- s_global,
+		// TODO - Store proc metadata (param types, return type).
+		
+		// Add s_params as child of the parent scope.
+		new s_params,
+		s_params ---> s,
+		
+		// Add s_proc as child of the params scope.
+		new s_proc,
+		s_proc ---> s_params,
+		
+		// Add parameters to params scope.
+		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
+		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
+		Map1T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		
+		// Resolve code in proc scope.
+		new s_proc',
+		s_proc' -P-> s_proc,
+		new s_branch',
+		DSMap4T[[ code ^ (_, s_proc', s_branch', s_global) : _ ]].
+	
+	[[ Array(entries) ^ (s, s', s_branch, s_global) : Array()]] :=
+		Map1T[[entries ^ (s, s', s_branch, s_global) : _ ]]. // TODO - Check for duplicate keys?
+	[[ AssocArray(entries) ^ (s, s', s_branch, s_global) : Array() ]] :=
+		Map1T[[entries ^ (s, s', s_branch, s_global) : _ ]]. // TODO - Check for duplicate keys?
+	[[ ArrayLabelEntry(_, valExp) ^ (s, s', s_branch, s_global): _ ]] :=
+		[[ valExp ^ (s, s', s_branch, s_global) : _ ]].
+	
+	// TODO - Check whether casts are possible on the given types?
+	[[ BoolCast(exp) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+	[[ DoubleCast(exp) ^ (s, s', s_branch, s_global) : Double() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+	[[ IntCast(exp) ^ (s, s', s_branch, s_global) : Int() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+	[[ StringCast(exp) ^ (s, s', s_branch, s_global) : String() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+	
+	[[ Closure(params, code) ^ (s, s', _, s_global) : Closure() ]] :=
+		// TODO - Store metadata (param types, return type).
+		
+		// Add s_params as child of the parent scope.
+		new s_params,
+		s_params ---> s,
+		
+		// Add s_closure as child of the params scope.
+		new s_closure,
+		s_closure ---> s_params,
+		
+		// Add parameters to params scope.
+		IVar{"@arguments"} <- s_params, // Automatically added.
+		IVar{"@arguments"} : Array(),
+		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
+		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
+		Map1T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		
+		// Resolve code in closure scope.
+		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
+	
+	[[ IClosure(params, code) ^ (s, s', _, s_global) : Closure() ]] :=
+		// TODO - Store metadata (param types, return type).
+		
+		// Create s_params.
+		new s_params,
+		
+		// Add s_closure as child of the params scope.
+		new s_closure,
+		s_closure ---> s_params,
+		
+		// Add parameters to params scope.
+		IVar{"@arguments"} <- s_params, // Automatically added.
+		IVar{"@arguments"} : Array(),
+		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
+		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
+		Map1T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		
+		// Resolve code in closure scope.
+		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
+	
+	[[ RClosure(params, code) ^ (s, s', s_branch, s_global) : Closure() ]] :=
+		// TODO - Store metadata (param types, return type).
+		
+		// Create s_params.
+		new s_params,
+		
+		// Add s_closure as child of the params scope.
+		new s_closure,
+		s_closure ---> s_params,
+		
+		// Add parameters to params scope.
+		IVar{"@arguments"} <- s_params, // Automatically added.
+		IVar{"@arguments"} : Array(),
+		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
+		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
+		Map1T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		
+		// Resolve code in closure scope.
+		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
+	
+	[[ IVarAssign(Some(cType), varName, valExp) ^ (s, s', s_branch, s_global) : valType ]] :=
+		
+		// Resolve variable type.
+		ClassType{cType} -> s_global,
+		ClassType{cType} |-> cTypeDecl | error $[Unknown class type: [cType]] @cType,
+		cTypeDecl : ClassType(declType),
+		
+		// Declare typed variable.
+		TypedIVar{varName} <- s',
+		TypedIVar{varName} : declType,
+		
+		// TODO - Not possible due to IVar{varName} already being defined in 's' in this IVarAssign code?
+//		// Give a warning when an untyped variable declaration already exists for this varName.
+//		new s_fvar,
+//		new s_fvar2,
+//		s_fvar -P-> s,
+//		s_fvar -LP-> s_fvar2,
+//		IVar{varName@s_fvar2} <- s_fvar2,
+//		IVar{varName@s_fvar2} : FakeType(),
+//		IVar{varName} -> s_fvar,
+//		IVar{varName} |-> varDecl,
+//		varDecl : varFakeType,
+//		varFakeType == FakeType() | warning $[[varName] was already defined] @varName,
+		
+		// Disallow duplicate typed variable declarations.
+		distinct/name W(s')/TypedIVar | error $[Duplicate variable declaration: [NAME]] @NAMES,
+		
+		// Resolve and type check assigned value.
+		[[ valExp ^ (s, s', s_branch, s_global) : valType ]],
+		valType <? declType | error $[Type mismatch: Cannot convert from [valType] to [declType]] @valExp,
+		
+		// Declare variable assign.
+		IVar{varName} <- s',
+		IVar{varName} : valType,
+		
+		// Declare variable assign in extra scope.
+		// TODO - Look up the current type in s_branch and somehow create a union type from that instead of declaring as Any().
+		// TODO - Note that this variable cannot be declared before the branching statement since it's a typed declaration.
+		IVar{varName@s_branch} <- s_branch,
+		IVar{varName@s_branch} : Any().
+	
+	[[ IVarAssign(None(), varName, valExp) ^ (s, s', s_branch, s_global) : Any() ]] :=
+		
+		// Fake a typed variable declaration to set a default variable type.
+		new s_fvar,
+		new s_fvar2,
+		s_fvar -P-> s,
+		s_fvar -LP-> s_fvar2,
+		TypedIVar{varName} <- s_fvar2,
+		TypedIVar{varName} : Mixed(),
+		
+		// Get variable declaration type.
+		TypedIVar{varName} -> s_fvar,
+		TypedIVar{varName} |-> typedVarDecl,
+		typedVarDecl : declType,
+		
+		// Resolve and type check the value expression.
+		[[ valExp ^ (s, s', s_branch, s_global) : valType ]],
+		valType <? declType | error $[Type mismatch: Cannot convert from [valType] to [declType]] @valExp,
+		
+		// Declare variable assign.
+		IVar{varName} <- s',
+		IVar{varName} : valType,
+		
+		// Declare variable assign in extra scope.
+		// TODO - Look up the current type in s_branch and somehow create a union type from that instead of declaring as Any().
+		// TODO - When this has a type, ensure that if the code before a branch assigns a type, this type is also considered.
+		IVar{varName@s_branch} <- s_branch,
+		IVar{varName@s_branch} : Any().
 	
 	// EventBinding nodes.
 	// TODO - Allow only in event context (within a Bind()).
-	[[ Cancel(None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
+	[[ Cancel(None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		true.
-	[[ Cancel(exp) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		[[ exp ^ (s, s', s_extra, s_global) : Boolean() ]].
+	[[ Cancel(exp) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : Boolean() ]].
 	
-	[[ Consume() ^ (s, s', s_extra, s_global) : Void() ]] :=
+	[[ Consume() ^ (s, s', s_branch, s_global) : Void() ]] :=
 		true.
 	
-	[[ Lock(exps) ^ (s, s', s_extra, s_global) : Void() ]] :=
+	[[ Lock(exps) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		// TODO - Check types.
-		Map1T[[ exps ^ (s, s', s_extra, s_global) : types ]].
+		Map1T[[ exps ^ (s, s', s_branch, s_global) : types ]].
 	
-	[[ IsCancelled() ^ (s, s', s_extra, s_global) : Boolean() ]] :=
+	[[ IsCancelled() ^ (s, s', s_branch, s_global) : Boolean() ]] :=
 		true.
 	
-	[[ IsConsumed() ^ (s, s', s_extra, s_global) : Boolean() ]] :=
+	[[ IsConsumed() ^ (s, s', s_branch, s_global) : Boolean() ]] :=
 		true.
 	
-	[[ IsLocked(exp) ^ (s, s', s_extra, s_global) : Boolean() ]] :=
-		[[ exp ^ (s, s', s_extra, s_global) : String() ]].
+	[[ IsLocked(exp) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : String() ]].
 	
-	[[ Bind(name, prio, filter, eventVarName, params, code) ^ (s, s', s_extra, s_global) : String() ]] :=
-		[[ name ^ (s, s', s_extra, s_global) : nameType ]],
+	[[ Bind(name, prio, filter, eventVarName, params, code) ^ (s, s', _, s_global) : String() ]] :=
+		[[ name ^ (s, s', s_branch, s_global) : nameType ]],
 		nameType <? String(),
-		[[ prio ^ (s, s', s_extra, s_global) : prioType ]],
+		[[ prio ^ (s, s', s_branch, s_global) : prioType ]],
 		prioType <? Array(),
-		[[ filter ^ (s, s', s_extra, s_global) : filterType ]],
+		[[ filter ^ (s, s', s_branch, s_global) : filterType ]],
 		filterType <? Array(),
 		
 		// Create s_params.
@@ -638,52 +1028,119 @@ rules
 		// Add event variable and parameters to params scope.
 		IVar{eventVarName} <- s_params,
 		IVar{eventVarName} : Array(),
-		Map1T[[ params ^ (s, s_params, s_global) : _ ]],
+		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
+		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
+		Map1T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
 		
 		// Resolve code in bind scope.
-		new s_extra',
-		DSMap1T[[ code ^ (_, s_bind, s_extra', s_global) : _ ]].
+		DSMap4T[[ code ^ (_, s_bind, s_branch', s_global) : _ ]].
 	
-	[[ ModifyEvent(paramExp, valExp, Some(throwOnFailExp)) ^ (s, s', s_extra, s_global) : Boolean() ]] :=
-		[[ paramExp ^ (s, s', s_extra, s_global) : paramType ]],
+	[[ ModifyEvent(paramExp, valExp, Some(throwOnFailExp)) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ paramExp ^ (s, s', s_branch, s_global) : paramType ]],
 		paramType <? String(),
-		[[ valExp ^ (s, s', s_extra, s_global) : _ ]],
-		[[ throwOnFailExp ^ (s, s', s_extra, s_global) : throwOnFailType ]],
+		[[ valExp ^ (s, s', s_branch, s_global) : _ ]],
+		[[ throwOnFailExp ^ (s, s', s_branch, s_global) : throwOnFailType ]],
 		throwOnFailType <? Boolean().
-	[[ ModifyEvent(paramExp, valExp, None()) ^ (s, s', s_extra, s_global) : Boolean() ]] :=
-		[[ paramExp ^ (s, s', s_extra, s_global) : paramType ]],
+	[[ ModifyEvent(paramExp, valExp, None()) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ paramExp ^ (s, s', s_branch, s_global) : paramType ]],
 		paramType <? String(),
-		[[ valExp ^ (s, s', s_extra, s_global) : _ ]].
+		[[ valExp ^ (s, s', s_branch, s_global) : _ ]].
 	
 	// Exceptions nodes.
-	[[ TryLegacy(code, None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]].
-	[[ TryLegacy(code, Some(catchBlock)) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
-		[[ catchBlock ^ (s, s', s_extra, s_global) : _ ]].
-	[[ CatchCodeLegacy(code) ^ (s, s', s_extra, s_global) : _ ]] :=
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]].
-	[[ CatchBlockLegacy(param, code, None()) ^ (s, s', s_extra, s_global) : _ ]] :=
-		[[ param ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]].
-	[[ CatchBlockLegacy(param, code, Some(exceptions)) ^ (s, s', s_extra, s_global) : _ ]] :=
-		[[ param ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
-		[[ exceptions ^ (s, s', s_extra, s_global) : exArrayType ]],
+	[[ TryLegacy(code, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		DSMap4T[[ code ^ (_, s', s_branch', s_global) : _ ]].
+	
+	[[ TryLegacy(code, Some(catchBlock)) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create low priority branch scope to prevent overlapping declarations from try and catch code.
+		new s_branch_catch,
+		s_branch' -LB-> s_branch_catch,
+		
+		DSMap4T[[ code ^ (_, s', s_branch', s_global) : _ ]],
+		[[ catchBlock ^ (s', s_branch_catch, s_global) : _ ]].
+	
+	[[ CatchCodeLegacy(code) ^ (s, s_branch, s_global) : _ ]] :=
+		DSMap4T[[ code ^ (_, s, s_branch, s_global) : _ ]].
+	
+	[[ CatchBlockLegacy(param, code, None()) ^ (s, s_branch, s_global) : _ ]] :=
+		new s_param,
+		new s_param',
+		s_param' -P-> s_param,
+		s_param -P-> s,
+		[[ param ^ (s_param, s_param', s_branch, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_param', s_branch, s_global) : _ ]].
+	
+	[[ CatchBlockLegacy(param, code, Some(exceptions)) ^ (s, s_branch, s_global) : _ ]] :=
+		new s_param,
+		new s_param',
+		s_param' -P-> s_param,
+		s_param -P-> s,
+		new s_ex,
+		new s_ex',
+		s_ex' -P-> s_ex,
+		s_ex -P-> s,
+		[[ param ^ (s_param, s_param', s_branch, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_param', s_branch, s_global) : _ ]],
+		[[ exceptions ^ (s_ex, s_ex', s_branch, s_global) : exArrayType ]],
 		exArraySize <? Array().
 	
-	[[ CTry(code, catchBlocks, None()) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
-		Map1T[[ catchBlocks ^ (s, s', s_extra, s_global) : _ ]].
-	[[ CTry(code, catchBlocks, Some(finallyCode)) ^ (s, s', s_extra, s_global) : Void() ]] :=
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]],
-		Map1T[[ catchBlocks ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ finallyCode ^ (_, s', s_extra, s_global) : _ ]].
-	[[ CTryCatchBlock(param, code) ^ (s, s', s_extra, s_global) : _ ]] :=
-		[[ param ^ (s, s', s_extra, s_global) : _ ]],
-		DSMap1T[[ code ^ (_, s', s_extra, s_global) : _ ]].
+	[[ CTry(code, catchBlocks, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new branch scope to resolve references in branch code.
+		new s_branch_try,
+		s_branch -NB-> s_branch_try,
+		s' -BR-> s_branch_try,
+		
+		// Create low priority branch scope to prevent overlapping declarations from try and catch code.
+		new s_branch_catch,
+		s_branch_try -LB-> s_branch_catch,
+		
+		DSMap4T[[ code ^ (_, s', s_branch_try, s_global) : _ ]],
+		BSMap3T[[ catchBlocks ^ (s', s_branch_catch, s_global) : _ ]].
 	
-	[[ GetStackTrace() ^ (s, s', s_extra, s_global) : Array() ]] :=
+	[[ CTry(code, catchBlocks, Some(finallyCode)) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new branch scope to resolve references in branch code.
+		new s_branch_try,
+		s_branch -NB-> s_branch_try,
+		s' -BR-> s_branch_try,
+		
+		// Create low priority branch scopes to prevent overlapping declarations from try, catch and finally code.
+		new s_branch_finally,
+		s_branch_try -LB-> s_branch_finally,
+		new s_branch_catch,
+		s_branch_finally -LB-> s_branch_catch,
+		
+		DSMap4T[[ code ^ (_, s', s_branch_try, s_global) : _ ]],
+		BSMap3T[[ catchBlocks ^ (s', s_branch_catch, s_global) : _ ]],
+		DSMap4T[[ finallyCode ^ (_, s', s_branch_finally, s_global) : _ ]].
+	
+	[[ CTryCatchBlock(param, code) ^ (s, s_branch, s_global) : _ ]] :=
+		// TODO - IVarParam must be typed with an exception type. Check this.
+		new s_param,
+		new s_param',
+		s_param' -P-> s_param,
+		s_param -P-> s,
+		
+		new s_branch',
+		s_branch -LB-> s_branch',
+		
+		[[ param ^ (s_param, s_param', s_branch', s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_param', s_branch', s_global) : _ ]].
+	
+	[[ GetStackTrace() ^ (s, s', s_branch, s_global) : Array() ]] :=
 		true.
 	
 	// Math nodes.

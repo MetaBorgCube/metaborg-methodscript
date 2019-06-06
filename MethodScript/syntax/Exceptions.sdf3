@@ -37,7 +37,6 @@ context-free syntax
 	Statement.CTry = <try {
 		<Statement*>
 	}<CTryCatchBlock+><CTryFinallyBlock?>>
-	// TODO - IVarParam must be typed, replace with IVarTypedParam when implemented.
 	CTryCatchBlock.CTryCatchBlock = < catch (<IVarParam>) {
 		<Statement*>
 	}>
