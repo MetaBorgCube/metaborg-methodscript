@@ -72,7 +72,7 @@ signature
 		}
 	
 	constructors
-		ClassType : TYPE -> ClassType
+		ClassType : Type -> ClassType
 
 rules
 	
