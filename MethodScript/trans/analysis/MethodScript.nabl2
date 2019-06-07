@@ -57,8 +57,6 @@ signature
 			D < IB, // Prioritize declarations over internal branch scopes.
 			LB < NB,
 			IB < LB
-			
-			
 		
 		well-formedness
 			P* (LP | BR ((IB|LB)* NB)* (IB|LB)*)?
@@ -90,6 +88,10 @@ rules
 		s_branch -IB-> s_branch',
 		[[ x ^ (s2, s2', s_branch', s_global) : ty ]],
 		DSMap4T[[ xs ^ (s2, s2', s_branch', s_global) : tys ]].
+	
+	Map4T[[ [x|xs] ^ (s1, s2, s3, s4) : [ty|tys] ]] :=
+		[[ x ^ (s1, s2, s3, s4) : ty ]],
+		Map4T[[ xs ^ (s1, s2, s3, s4) : tys ]].
 	
 	// Branch Scope Mapping rule. Creates a new branch scope per term.
 	BSMap3T[[ [x|xs] ^ (s, s_branch, s_global) : [ty|tys] ]] :=
@@ -191,7 +193,7 @@ rules
 	
 	[[ Msa(cmds) ^ (s_global) ]] :=
 		new s_file,
-		Map1[[ cmds ^ (s_file, s_global) ]].
+		Map2[[ cmds ^ (s_file, s_global) ]].
 	
 	// Variable references.
 	[[ IVar(varName) ^ (s, s', s_branch, s_global) : t ]] :=
@@ -351,8 +353,8 @@ rules
 		new s',
 		new s_branch,
 		s' -P-> s_cmd,
-		Map1[[ args ^ (s_cmd, s_global) ]],
-		Map1[[ optArgs ^ (s_cmd, s_global) ]],
+		Map2[[ args ^ (s_cmd, s_global) ]],
+		Map2[[ optArgs ^ (s_cmd, s_global) ]],
 		[[ body ^ (s_cmd, s', s_branch, s_global) ]],
 		distinct/name W(s_cmd)/Var | error $[Duplicate variable declaration: [NAME]] @NAMES.
 	
@@ -396,7 +398,7 @@ rules
 	// TODO - Check against API to see whether a function exists?
 	// TODO - Obtain type info from the API somehow?
 	[[ FuncCall(funcName, argExps) ^ (s, s', s_branch, s_global) : Any() ]] :=
-		Map1T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]].
+		Map4T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]].
 	
 	// ArrayHandling nodes.
 	[[ ArrayPush(arrayExp, valExp) ^ (s, s', s_branch, s_global) : Void() ]] :=
@@ -651,7 +653,7 @@ rules
 		new s_branch_switchcaseblock,
 		s_branch -LB-> s_branch_switchcaseblock,
 		
-		Map1T[[ vals ^ (s_vals, s_vals', s_branch_switchcaseblock, s_global) : _ ]],
+		Map4T[[ vals ^ (s_vals, s_vals', s_branch_switchcaseblock, s_global) : _ ]],
 		DSMap4T[[ code ^ (_, s_vals', s_branch_switchcaseblock, s_global) : _ ]].
 	
 	[[ SwitchExp(exp, cases, Some(defaultExp)) ^ (s, s', s_branch, s_global) : returnType ]] :=
@@ -712,7 +714,7 @@ rules
 		new s_branch_switchexp_expblock,
 		s_branch -LB-> s_branch_switchexp_expblock,
 		
-		Map1T[[ vals ^ (s_vals, s_vals', s_branch_switchexp_expblock, s_global) : _ ]],
+		Map4T[[ vals ^ (s_vals, s_vals', s_branch_switchexp_expblock, s_global) : _ ]],
 		[[ exp ^ (s_exp, s_exp', s_branch_switchexp_expblock, s_global) : t ]].
 	
 	[[ SwitchExpStmtsCase(vals, stmts) ^ (s, s_branch, s_global) : Void() ]] :=
@@ -724,7 +726,7 @@ rules
 		new s_branch_switchexp_stmtblock,
 		s_branch -LB-> s_branch_switchexp_stmtblock,
 		
-		Map1T[[ vals ^ (s_vals, s_vals', s_branch_switchexp_stmtblock, s_global) : _ ]],
+		Map4T[[ vals ^ (s_vals, s_vals', s_branch_switchexp_stmtblock, s_global) : _ ]],
 		// TODO - Ensure that the last stmt results in a throw, die, break, ...
 		DSMap4T[[ stmts ^ (_, s_vals', s_branch_switchexp_stmtblock, s_global) : _ ]].
 	
@@ -806,11 +808,11 @@ rules
 		// TODO - Get return type from return statements.
 		Proc{procName} -> s_global,
 		Proc{procName} |-> d | error $[Cannot find procedure: [procName]],
-		Map1T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]].
+		Map4T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]].
 	
 	[[ ProcCallDynamic(procNameExp, argExps) ^ (s, s', s_branch, s_global) : returnType ]] :=
 		[[ procNameExp ^ (s, s', s_branch, s_global) : procNameType ]],
-		Map1T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]],
+		Map4T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]],
 		returnType == Any(),
 		procNameType <? String().
 	
@@ -839,7 +841,7 @@ rules
 		new s_branch_start, // Create new extra scope to prevent resolving to these params from elsewhere.
 		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
 		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
-		Map1T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
+		Map4T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
 		
 		// Resolve code in proc scope.
 		new s_proc',
@@ -848,9 +850,9 @@ rules
 		DSMap4T[[ code ^ (_, s_proc', s_branch_start, s_global) : _ ]].
 	
 	[[ Array(entries) ^ (s, s', s_branch, s_global) : Array()]] :=
-		Map1T[[entries ^ (s, s', s_branch, s_global) : _ ]]. // TODO - Check for duplicate keys?
+		Map4T[[entries ^ (s, s', s_branch, s_global) : _ ]]. // TODO - Check for duplicate keys?
 	[[ AssocArray(entries) ^ (s, s', s_branch, s_global) : Array() ]] :=
-		Map1T[[entries ^ (s, s', s_branch, s_global) : _ ]]. // TODO - Check for duplicate keys?
+		Map4T[[entries ^ (s, s', s_branch, s_global) : _ ]]. // TODO - Check for duplicate keys?
 	[[ ArrayLabelEntry(_, valExp) ^ (s, s', s_branch, s_global): _ ]] :=
 		[[ valExp ^ (s, s', s_branch, s_global) : _ ]].
 	
@@ -881,7 +883,7 @@ rules
 		new s_branch_start, // Create new extra scope to prevent resolving to these params from elsewhere.
 		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
 		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
-		Map1T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
+		Map4T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
 		
 		// Resolve code in closure scope.
 		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
@@ -902,7 +904,7 @@ rules
 		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
 		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
 		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
-		Map1T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		Map4T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
 		
 		// Resolve code in closure scope.
 		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
@@ -923,7 +925,7 @@ rules
 		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
 		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
 		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
-		Map1T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		Map4T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
 		
 		// Resolve code in closure scope.
 		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
@@ -1010,7 +1012,7 @@ rules
 	
 	[[ Lock(exps) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		// TODO - Check types.
-		Map1T[[ exps ^ (s, s', s_branch, s_global) : types ]].
+		Map4T[[ exps ^ (s, s', s_branch, s_global) : types ]].
 	
 	[[ IsCancelled() ^ (s, s', s_branch, s_global) : Boolean() ]] :=
 		true.
@@ -1042,7 +1044,7 @@ rules
 		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
 		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
 		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
-		Map1T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		Map4T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
 		
 		// Resolve code in bind scope.
 		DSMap4T[[ code ^ (_, s_bind, s_branch', s_global) : _ ]].
