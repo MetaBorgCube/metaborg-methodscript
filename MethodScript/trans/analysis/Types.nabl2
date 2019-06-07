@@ -3,27 +3,144 @@ module analysis/Types
 signature
 	constructors
 		
-		/* Types.
-		 * Unsupported types that exist in the MethodScript compiler are:
-		 * ms.lang.barestring, ms.lang.byte_array, ms.lang.decimal,
-		 * ms.lang.mutable_primitive, ms.lang.Package, ms.lang.primitive,
-		 * ms.lang.resource, ms.lang.secure_string.
-		 * Full list of types: https://methodscript.com/docs/3.3.4/api.json (under 'objects').
-		 */
-		Boolean     : Type // ms.lang.boolean.
-		Int         : Type // ms.lang.int.
-		Double      : Type // ms.lang.double.
-		String      : Type // ms.lang.string.
-		Array       : Type // ms.lang.array.
-		Slice       : Type // ms.lang.slice.
-		Closure     : Type // ms.lang.closure, ms.lang.iclosure.
-		Null        : Type // null.
-		Void        : Type // void.
-		ClassType   : Type // ms.lang.ClassType.
-		
-		Any         : Type // Wildcard datatype, this can be used as anything.
-		Mixed       : Type // ms.lang.mixed (Root datatype, all datatypes extend this).
-		Number      : Type // ms.lang.number (int or double).
-		ArrayAccess : Type // Types on which array_get() can be used (Array, Slice, String).
-		
-		FakeType    : Type // Used to create 'fake' declarations and detect that no other declaration was found.
+		// Class type constructors.
+		// This file is auto-generated and should only be changed through the generator.
+		Art                             : Type // com.commandhelper.Art.
+		BadEntityException              : Type // com.commandhelper.BadEntityException.
+		BadEntityTypeException          : Type // com.commandhelper.BadEntityTypeException.
+		BarColor                        : Type // com.commandhelper.BarColor.
+		BarStyle                        : Type // com.commandhelper.BarStyle.
+		BiomeType                       : Type // com.commandhelper.BiomeType.
+		BlockFace                       : Type // com.commandhelper.BlockFace.
+		CatType                         : Type // com.commandhelper.CatType.
+		ChatColor                       : Type // com.commandhelper.ChatColor.
+		ClickType                       : Type // com.commandhelper.ClickType.
+		CollisionType                   : Type // com.commandhelper.CollisionType.
+		CreeperType                     : Type // com.commandhelper.CreeperType.
+		Criteria                        : Type // com.commandhelper.Criteria.
+		Difficulty                      : Type // com.commandhelper.Difficulty.
+		DisplaySlot                     : Type // com.commandhelper.DisplaySlot.
+		DragType                        : Type // com.commandhelper.DragType.
+		DyeColor                        : Type // com.commandhelper.DyeColor.
+		Effect                          : Type // com.commandhelper.Effect.
+		EnchantmentException            : Type // com.commandhelper.EnchantmentException.
+		EntityEffect                    : Type // com.commandhelper.EntityEffect.
+		EntityType                      : Type // com.commandhelper.EntityType.
+		EquipmentSlot                   : Type // com.commandhelper.EquipmentSlot.
+		FireworkType                    : Type // com.commandhelper.FireworkType.
+		FishingState                    : Type // com.commandhelper.FishingState.
+		FoxType                         : Type // com.commandhelper.FoxType.
+		GameMode                        : Type // com.commandhelper.GameMode.
+		GameRule                        : Type // com.commandhelper.GameRule.
+		HorseColor                      : Type // com.commandhelper.HorseColor.
+		HorsePattern                    : Type // com.commandhelper.HorsePattern.
+		IgniteCause                     : Type // com.commandhelper.IgniteCause.
+		Instrument                      : Type // com.commandhelper.Instrument.
+		InvalidPluginException          : Type // com.commandhelper.InvalidPluginException.
+		InvalidWorldException           : Type // com.commandhelper.InvalidWorldException.
+		InventoryAction                 : Type // com.commandhelper.InventoryAction.
+		InventoryType                   : Type // com.commandhelper.InventoryType.
+		ItemFlag                        : Type // com.commandhelper.ItemFlag.
+		LlamaColor                      : Type // com.commandhelper.LlamaColor.
+		Mobs                            : Type // com.commandhelper.Mobs.
+		MushroomCowType                 : Type // com.commandhelper.MushroomCowType.
+		OcelotType                      : Type // com.commandhelper.OcelotType.
+		Option                          : Type // com.commandhelper.Option.
+		OptionStatus                    : Type // com.commandhelper.OptionStatus.
+		ParrotType                      : Type // com.commandhelper.ParrotType.
+		Particle                        : Type // com.commandhelper.Particle.
+		PatternShape                    : Type // com.commandhelper.PatternShape.
+		PigType                         : Type // com.commandhelper.PigType.
+		PlayerOfflineException          : Type // com.commandhelper.PlayerOfflineException.
+		PluginChannelException          : Type // com.commandhelper.PluginChannelException.
+		PotionEffectType                : Type // com.commandhelper.PotionEffectType.
+		PotionType                      : Type // com.commandhelper.PotionType.
+		Profession                      : Type // com.commandhelper.Profession.
+		RabbitType                      : Type // com.commandhelper.RabbitType.
+		RemoveCause                     : Type // com.commandhelper.RemoveCause.
+		Rotation                        : Type // com.commandhelper.Rotation.
+		ScoreboardException             : Type // com.commandhelper.ScoreboardException.
+		SlotType                        : Type // com.commandhelper.SlotType.
+		Sound                           : Type // com.commandhelper.Sound.
+		SoundCategory                   : Type // com.commandhelper.SoundCategory.
+		SpawnReason                     : Type // com.commandhelper.SpawnReason.
+		TeleportCause                   : Type // com.commandhelper.TeleportCause.
+		Tone                            : Type // com.commandhelper.Tone.
+		TreeType                        : Type // com.commandhelper.TreeType.
+		TropicalFishPattern             : Type // com.commandhelper.TropicalFishPattern.
+		UnageableMobException           : Type // com.commandhelper.UnageableMobException.
+		UntameableMobException          : Type // com.commandhelper.UntameableMobException.
+		WolfType                        : Type // com.commandhelper.WolfType.
+		WoodType                        : Type // com.commandhelper.WoodType.
+		WorldEnvironment                : Type // com.commandhelper.WorldEnvironment.
+		WorldType                       : Type // com.commandhelper.WorldType.
+		ZombieType                      : Type // com.commandhelper.ZombieType.
+		Any                             : Type // custom.Any.
+		FakeType                        : Type // custom.FakeType.
+		Null                            : Type // custom.Null.
+		Void                            : Type // custom.Void.
+		AccessModifier                  : Type // ms.lang.AccessModifier.
+		Array                           : Type // ms.lang.array.
+		ArrayAccess                     : Type // ms.lang.ArrayAccess.
+		ArrayIntersectComparisonMode    : Type // ms.lang.ArrayIntersectComparisonMode.
+		ArraySortType                   : Type // ms.lang.ArraySortType.
+		OAuthException                  : Type // ms.lang.auth.OAuthException.
+		Barestring                      : Type // ms.lang.barestring.
+		BindException                   : Type // ms.lang.BindException.
+		Boolean                         : Type // ms.lang.boolean.
+		Booleanish                      : Type // ms.lang.Booleanish.
+		Byte_array                      : Type // ms.lang.byte_array.
+		ByteArrayReadOnlyException      : Type // ms.lang.ByteArrayReadOnlyException.
+		ByteBackingArray                : Type // ms.lang.ByteBackingArray.
+		CastException                   : Type // ms.lang.CastException.
+		ClassDefinitionError            : Type // ms.lang.ClassDefinitionError.
+		ClassType                       : Type // ms.lang.ClassType.
+		Closure                         : Type // ms.lang.closure.
+		Decimal                         : Type // ms.lang.decimal.
+		Double                          : Type // ms.lang.double.
+		ElementModifier                 : Type // ms.lang.ElementModifier.
+		Enum                            : Type // ms.lang.enum.
+		Error                           : Type // ms.lang.Error.
+		EventException                  : Type // ms.lang.EventException.
+		Exception                       : Type // ms.lang.Exception.
+		FileWriteMode                   : Type // ms.lang.FileWriteMode.
+		FindType                        : Type // ms.lang.FindType.
+		FormatException                 : Type // ms.lang.FormatException.
+		Iclosure                        : Type // ms.lang.iclosure.
+		IllegalArgumentException        : Type // ms.lang.IllegalArgumentException.
+		IncludeException                : Type // ms.lang.IncludeException.
+		IndexOverflowException          : Type // ms.lang.IndexOverflowException.
+		InsufficientArgumentsException  : Type // ms.lang.InsufficientArgumentsException.
+		InsufficientPermissionException : Type // ms.lang.InsufficientPermissionException.
+		Int                             : Type // ms.lang.int.
+		InvalidProcedureException       : Type // ms.lang.InvalidProcedureException.
+		IOException                     : Type // ms.lang.IOException.
+		Iterable                        : Type // ms.lang.Iterable.
+		LengthException                 : Type // ms.lang.LengthException.
+		MathConstants                   : Type // ms.lang.MathConstants.
+		Method                          : Type // ms.lang.Method.
+		Mixed                           : Type // ms.lang.mixed.
+		Mutable_primitive               : Type // ms.lang.mutable_primitive.
+		NotFoundException               : Type // ms.lang.NotFoundException.
+		NullPointerException            : Type // ms.lang.NullPointerException.
+		Number                          : Type // ms.lang.number.
+		ObjectModifier                  : Type // ms.lang.ObjectModifier.
+		ObjectType                      : Type // ms.lang.ObjectType.
+		Package                         : Type // ms.lang.Package.
+		PluginInternalException         : Type // ms.lang.PluginInternalException.
+		Primitive                       : Type // ms.lang.primitive.
+		RangeException                  : Type // ms.lang.RangeException.
+		ReadOnlyException               : Type // ms.lang.ReadOnlyException.
+		Resource                        : Type // ms.lang.resource.
+		Secure_string                   : Type // ms.lang.secure_string.
+		SecurityException               : Type // ms.lang.SecurityException.
+		ShellException                  : Type // ms.lang.ShellException.
+		Sizeable                        : Type // ms.lang.Sizeable.
+		Slice                           : Type // ms.lang.slice.
+		SQLException                    : Type // ms.lang.SQLException.
+		StackOverflowError              : Type // ms.lang.StackOverflowError.
+		String                          : Type // ms.lang.string.
+		Throwable                       : Type // ms.lang.Throwable.
+		UnsupportedOperationException   : Type // ms.lang.UnsupportedOperationException.
+		UUIDType                        : Type // ms.lang.UUIDType.
+		ValueType                       : Type // ms.lang.ValueType.
