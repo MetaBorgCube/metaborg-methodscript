@@ -1,0 +1,29 @@
+module analysis/Commands
+
+rules
+	
+	// Command declarations.
+	[[ CmdDecl(cmdName, args, optArgs, body) ^ (s, s_global) ]] :=
+		new s_cmd,
+		new s',
+		new s_branch,
+		s' -P-> s_cmd,
+		Map2[[ args ^ (s_cmd, s_global) ]],
+		Map2[[ optArgs ^ (s_cmd, s_global) ]],
+		[[ body ^ (s_cmd, s', s_branch, s_global) ]],
+		distinct/name W(s_cmd)/Var | error $[Duplicate variable declaration: [NAME]] @NAMES.
+	
+	[[ CmdArgDecl(varName) ^ (s, s_global) ]] :=
+		Var{varName} <- s,
+		Var{varName} : String(). // All $variables are strings.
+	
+	[[ CmdOptArgDeclDefault(varName, defaultVal) ^ (s, s_global) ]] :=
+		Var{varName} <- s,
+		Var{varName} : String(), // All $variables are strings.
+		[[ defaultVal ^ (s, _, _, s_global) : defaultValType ]],
+		defaultValType <? String() | error $[Expected String, found [defaultValType]].
+	
+	[[ SingleLine(statement) ^ (s, s', s_branch, s_global) ]] :=
+		[[ statement ^ (s, s', s_branch, s_global) : _ ]].
+	[[ MultiLine(statements) ^ (s, s', s_branch, s_global) ]] :=
+		DSMap4T[[ statements ^ (s, s', s_branch, s_global) : _ ]].

@@ -1,0 +1,62 @@
+module analysis/EventBinding
+
+rules
+	
+	// TODO - Allow only in event context (within a Bind()).
+	[[ Cancel(None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		true.
+	[[ Cancel(exp) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : Boolean() ]].
+	
+	[[ Consume() ^ (s, s', s_branch, s_global) : Void() ]] :=
+		true.
+	
+	[[ Lock(exps) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		// TODO - Check types.
+		Map4T[[ exps ^ (s, s', s_branch, s_global) : types ]].
+	
+	[[ IsCancelled() ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		true.
+	
+	[[ IsConsumed() ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		true.
+	
+	[[ IsLocked(exp) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : String() ]].
+	
+	[[ Bind(name, prio, filter, eventVarName, params, code) ^ (s, s', _, s_global) : String() ]] :=
+		[[ name ^ (s, s', s_branch, s_global) : nameType ]],
+		nameType <? String(),
+		[[ prio ^ (s, s', s_branch, s_global) : prioType ]],
+		prioType <? Array(),
+		[[ filter ^ (s, s', s_branch, s_global) : filterType ]],
+		filterType <? Array(),
+		
+		// Create s_params.
+		new s_params,
+		
+		// Add s_bind as child of the params scope.
+		new s_bind,
+		s_bind ---> s_params,
+		
+		// Add event variable and parameters to params scope.
+		IVar{eventVarName} <- s_params,
+		IVar{eventVarName} : Array(),
+		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
+		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
+		Map4T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		
+		// Resolve code in bind scope.
+		DSMap4T[[ code ^ (_, s_bind, s_branch', s_global) : _ ]].
+	
+	[[ ModifyEvent(paramExp, valExp, Some(throwOnFailExp)) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ paramExp ^ (s, s', s_branch, s_global) : paramType ]],
+		paramType <? String(),
+		[[ valExp ^ (s, s', s_branch, s_global) : _ ]],
+		[[ throwOnFailExp ^ (s, s', s_branch, s_global) : throwOnFailType ]],
+		throwOnFailType <? Boolean().
+	[[ ModifyEvent(paramExp, valExp, None()) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ paramExp ^ (s, s', s_branch, s_global) : paramType ]],
+		paramType <? String(),
+		[[ valExp ^ (s, s', s_branch, s_global) : _ ]].

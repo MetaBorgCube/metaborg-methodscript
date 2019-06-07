@@ -1,0 +1,98 @@
+module analysis/Exceptions
+
+rules
+	
+	[[ TryLegacy(code, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		DSMap4T[[ code ^ (_, s', s_branch', s_global) : _ ]].
+	
+	[[ TryLegacy(code, Some(catchBlock)) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch' scope to resolve references in branch code.
+		new s_branch',
+		s_branch -NB-> s_branch',
+		s' -BR-> s_branch',
+		
+		// Create low priority branch scope to prevent overlapping declarations from try and catch code.
+		new s_branch_catch,
+		s_branch' -LB-> s_branch_catch,
+		
+		DSMap4T[[ code ^ (_, s', s_branch', s_global) : _ ]],
+		[[ catchBlock ^ (s', s_branch_catch, s_global) : _ ]].
+	
+	[[ CatchCodeLegacy(code) ^ (s, s_branch, s_global) : _ ]] :=
+		DSMap4T[[ code ^ (_, s, s_branch, s_global) : _ ]].
+	
+	[[ CatchBlockLegacy(param, code, None()) ^ (s, s_branch, s_global) : _ ]] :=
+		new s_param,
+		new s_param',
+		s_param' -P-> s_param,
+		s_param -P-> s,
+		[[ param ^ (s_param, s_param', s_branch, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_param', s_branch, s_global) : _ ]].
+	
+	[[ CatchBlockLegacy(param, code, Some(exceptions)) ^ (s, s_branch, s_global) : _ ]] :=
+		new s_param,
+		new s_param',
+		s_param' -P-> s_param,
+		s_param -P-> s,
+		new s_ex,
+		new s_ex',
+		s_ex' -P-> s_ex,
+		s_ex -P-> s,
+		[[ param ^ (s_param, s_param', s_branch, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_param', s_branch, s_global) : _ ]],
+		[[ exceptions ^ (s_ex, s_ex', s_branch, s_global) : exArrayType ]],
+		exArraySize <? Array().
+	
+	[[ CTry(code, catchBlocks, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new branch scope to resolve references in branch code.
+		new s_branch_try,
+		s_branch -NB-> s_branch_try,
+		s' -BR-> s_branch_try,
+		
+		// Create low priority branch scope to prevent overlapping declarations from try and catch code.
+		new s_branch_catch,
+		s_branch_try -LB-> s_branch_catch,
+		
+		DSMap4T[[ code ^ (_, s', s_branch_try, s_global) : _ ]],
+		BSMap3T[[ catchBlocks ^ (s', s_branch_catch, s_global) : _ ]].
+	
+	[[ CTry(code, catchBlocks, Some(finallyCode)) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new branch scope to resolve references in branch code.
+		new s_branch_try,
+		s_branch -NB-> s_branch_try,
+		s' -BR-> s_branch_try,
+		
+		// Create low priority branch scopes to prevent overlapping declarations from try, catch and finally code.
+		new s_branch_finally,
+		s_branch_try -LB-> s_branch_finally,
+		new s_branch_catch,
+		s_branch_finally -LB-> s_branch_catch,
+		
+		DSMap4T[[ code ^ (_, s', s_branch_try, s_global) : _ ]],
+		BSMap3T[[ catchBlocks ^ (s', s_branch_catch, s_global) : _ ]],
+		DSMap4T[[ finallyCode ^ (_, s', s_branch_finally, s_global) : _ ]].
+	
+	[[ CTryCatchBlock(param, code) ^ (s, s_branch, s_global) : _ ]] :=
+		// TODO - IVarParam must be typed with an exception type. Check this.
+		new s_param,
+		new s_param',
+		s_param' -P-> s_param,
+		s_param -P-> s,
+		
+		new s_branch',
+		s_branch -LB-> s_branch',
+		
+		[[ param ^ (s_param, s_param', s_branch', s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_param', s_branch', s_global) : _ ]].
+	
+	[[ GetStackTrace() ^ (s, s', s_branch, s_global) : Array() ]] :=
+		true.

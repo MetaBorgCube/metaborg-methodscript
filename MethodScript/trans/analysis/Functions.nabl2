@@ -1,0 +1,9 @@
+module analysis/Functions
+
+rules
+	
+	// Function calls.
+	// TODO - Check against API to see whether a function exists?
+	// TODO - Obtain type info from the API somehow?
+	[[ FuncCall(funcName, argExps) ^ (s, s', s_branch, s_global) : Any() ]] :=
+		Map4T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]].

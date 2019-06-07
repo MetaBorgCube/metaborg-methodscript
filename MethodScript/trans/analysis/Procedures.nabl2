@@ -1,0 +1,51 @@
+module analysis/Procedures
+
+rules
+	
+	// Procedure declarations.
+	[[ ProcDecl(procName, params, code) ^ (s, s', _, s_global) : Void() ]] :=
+		
+		// Store proc declaration in global scope.
+		Proc{procName} <- s_global,
+		// TODO - Store proc metadata (param types, return type).
+		
+		// Add s_params as child of the parent scope.
+		new s_params,
+		s_params ---> s,
+		
+		// Add s_proc as child of the params scope.
+		new s_proc,
+		s_proc ---> s_params,
+		
+		// Add parameters to params scope.
+		new s_branch_start, // Create new extra scope to prevent resolving to these params from elsewhere.
+		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
+		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
+		Map4T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
+		
+		// Resolve code in proc scope.
+		new s_proc',
+		s_proc' -P-> s_proc,
+		new s_branch_start,
+		DSMap4T[[ code ^ (_, s_proc', s_branch_start, s_global) : _ ]].
+	
+	// Procedure calls.
+	[[ ProcCall(procName, argExps) ^ (s, s', s_branch, s_global) : Any() ]] :=
+		// TODO - Do argument length check. Warn about mismatching arg size?
+		// The MS compiler simply ignores too many arguments and assigns null to undefined args.
+		// TODO - Get return type from return statements.
+		Proc{procName} -> s_global,
+		Proc{procName} |-> d | error $[Cannot find procedure: [procName]],
+		Map4T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]].
+	
+	[[ ProcCallDynamic(procNameExp, argExps) ^ (s, s', s_branch, s_global) : returnType ]] :=
+		[[ procNameExp ^ (s, s', s_branch, s_global) : procNameType ]],
+		Map4T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]],
+		returnType == Any(),
+		procNameType <? String().
+	
+	[[ ProcCallDynamicArray(procNameExp, argsArray) ^ (s, s', s_branch, s_global) : returnType ]] :=
+		[[ procNameExp ^ (s, s', s_branch, s_global) : procNameType ]],
+		[[ argsArray ^ (s, s', s_branch, s_global) : Array() ]],
+		returnType == Any(),
+		procNameType <? String().

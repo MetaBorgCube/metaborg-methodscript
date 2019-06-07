@@ -1,0 +1,84 @@
+module analysis/DataHandling
+
+rules
+	
+	[[ Array(entries) ^ (s, s', s_branch, s_global) : Array()]] :=
+		Map4T[[entries ^ (s, s', s_branch, s_global) : _ ]]. // TODO - Check for duplicate keys?
+	[[ AssocArray(entries) ^ (s, s', s_branch, s_global) : Array() ]] :=
+		Map4T[[entries ^ (s, s', s_branch, s_global) : _ ]]. // TODO - Check for duplicate keys?
+	[[ ArrayLabelEntry(_, valExp) ^ (s, s', s_branch, s_global): _ ]] :=
+		[[ valExp ^ (s, s', s_branch, s_global) : _ ]].
+	
+	// TODO - Check whether casts are possible on the given types?
+	[[ BoolCast(exp) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+	[[ DoubleCast(exp) ^ (s, s', s_branch, s_global) : Double() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+	[[ IntCast(exp) ^ (s, s', s_branch, s_global) : Int() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+	[[ StringCast(exp) ^ (s, s', s_branch, s_global) : String() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+	
+	[[ Closure(params, code) ^ (s, s', _, s_global) : Closure() ]] :=
+		// TODO - Store metadata (param types, return type).
+		
+		// Add s_params as child of the parent scope.
+		new s_params,
+		s_params ---> s,
+		
+		// Add s_closure as child of the params scope.
+		new s_closure,
+		s_closure ---> s_params,
+		
+		// Add parameters to params scope.
+		IVar{"@arguments"} <- s_params, // Automatically added.
+		IVar{"@arguments"} : Array(),
+		new s_branch_start, // Create new extra scope to prevent resolving to these params from elsewhere.
+		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
+		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
+		Map4T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
+		
+		// Resolve code in closure scope.
+		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
+	
+	[[ IClosure(params, code) ^ (s, s', _, s_global) : Closure() ]] :=
+		// TODO - Store metadata (param types, return type).
+		
+		// Create s_params.
+		new s_params,
+		
+		// Add s_closure as child of the params scope.
+		new s_closure,
+		s_closure ---> s_params,
+		
+		// Add parameters to params scope.
+		IVar{"@arguments"} <- s_params, // Automatically added.
+		IVar{"@arguments"} : Array(),
+		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
+		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
+		Map4T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		
+		// Resolve code in closure scope.
+		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
+	
+	[[ RClosure(params, code) ^ (s, s', s_branch, s_global) : Closure() ]] :=
+		// TODO - Store metadata (param types, return type).
+		
+		// Create s_params.
+		new s_params,
+		
+		// Add s_closure as child of the params scope.
+		new s_closure,
+		s_closure ---> s_params,
+		
+		// Add parameters to params scope.
+		IVar{"@arguments"} <- s_params, // Automatically added.
+		IVar{"@arguments"} : Array(),
+		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
+		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
+		Map4T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		
+		// Resolve code in closure scope.
+		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].

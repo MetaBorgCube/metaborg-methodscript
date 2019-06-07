@@ -1,0 +1,72 @@
+module analysis/Init
+
+rules
+	
+	// Global initialization rule.
+	init ^ (s_global) :=
+		
+		// Initialize global scope.
+		new s_global,
+		
+		// Define type relations.
+		// Child  <! Parent: "Child can be used as Parent".
+		Any()     <! Boolean(),
+		Any()     <! Int(),
+		Any()     <! Double(),
+		Any()     <! String(),
+		Any()     <! Array(),
+		Any()     <! Slice(),
+		Any()     <! Closure(),
+		Any()     <! Null(),
+		Any()     <! Void(),
+		Any()     <! ClassType(),
+		Any()     <! ArrayAccess(),
+		Any()     <! Mixed(),
+		
+		Boolean() <! Mixed(),
+		Int()     <! Mixed(),
+		Double()  <! Mixed(),
+		String()  <! Mixed(),
+		Array()   <! Mixed(),
+		Slice()   <! Mixed(),
+		Closure() <! Mixed(),
+		Null()    <! Mixed(),
+		Void()    <! Mixed(),
+		ClassType() <! Mixed(),
+		Number() <! Mixed(),
+		ArrayAccess() <! Mixed(),
+		
+		Null()    <! Boolean(),
+		Null()    <! Int(),
+		Null()    <! Double(),
+		Null()    <! String(),
+		Null()    <! Array(),
+		Null()    <! Slice(),
+		Null()    <! Closure(),
+		Null()    <! ClassType(),
+		Null()    <! Mixed(),
+		
+		Int()     <! Number(),
+		Double()  <! Number(),
+		
+		Array()   <! ArrayAccess(),
+		Slice()   <! ArrayAccess(),
+		String()  <! ArrayAccess(),
+		
+		Slice()   <! Array(),
+		
+		// Define class types.
+		ClassType{"boolean"} <- s_global,
+		ClassType{"boolean"} : ClassType(Boolean()),
+		ClassType{"int"} <- s_global,
+		ClassType{"int"} : ClassType(Int()),
+		ClassType{"double"} <- s_global,
+		ClassType{"double"} : ClassType(Double()),
+		ClassType{"string"} <- s_global,
+		ClassType{"string"} : ClassType(String()),
+		ClassType{"array"} <- s_global,
+		ClassType{"array"} : ClassType(Array()),
+		ClassType{"slice"} <- s_global,
+		ClassType{"slice"} : ClassType(Slice()),
+		ClassType{"closure"} <- s_global,
+		ClassType{"closure"} : ClassType(Closure()).

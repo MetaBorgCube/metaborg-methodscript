@@ -1,0 +1,27 @@
+module analysis/Program
+
+rules
+	
+	// Empty program.
+	[[ Empty() ^ (s_global) ]].
+	
+	// MethodScript program.
+	[[ Program(prog) ^ (s_global) ]] :=
+		
+		// Disallow duplicate procedure declarations.
+		distinct/name W(s_global)/Proc | error $[Duplicate procedure declaration: [NAME]] @NAMES,
+		
+		[[ prog ^ (s_global) ]].
+	
+	[[ Ms(statements) ^ (s_global) ]] :=
+		
+		// Create new scopes.
+		new s_file, // File start scope.
+		new s_file', // Second scope for terms that require an extra scope in the scope chain.
+		new s_branch, // Extra scope that allows for looking up declarations in code branches.
+		s_file' -P-> s_file, // First part of scope chain. Each statement will a scope pair to the previous.
+		DSMap4T[[ statements ^ (s_file, s_file', s_branch, s_global) : _ ]].
+	
+	[[ Msa(cmds) ^ (s_global) ]] :=
+		new s_file,
+		Map2[[ cmds ^ (s_file, s_global) ]].
