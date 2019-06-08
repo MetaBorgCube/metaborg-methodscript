@@ -26,11 +26,11 @@ rules
 	
 	[[ Bind(name, prio, filter, eventVarName, params, code) ^ (s, s', _, s_global) : String() ]] :=
 		[[ name ^ (s, s', s_branch, s_global) : nameType ]],
-		nameType <? String(),
+		nameType <? String() | error $[Expected string, found [nameType]] @name,
 		[[ prio ^ (s, s', s_branch, s_global) : prioType ]],
-		prioType <? Array(),
+		prioType <? Array() | error $[Expected array, found [prioType]] @prio,
 		[[ filter ^ (s, s', s_branch, s_global) : filterType ]],
-		filterType <? Array(),
+		filterType <? Array() | error $[Expected array, found [filterType]] @filter,
 		
 		// Create s_params.
 		new s_params,
@@ -52,11 +52,11 @@ rules
 	
 	[[ ModifyEvent(paramExp, valExp, Some(throwOnFailExp)) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
 		[[ paramExp ^ (s, s', s_branch, s_global) : paramType ]],
-		paramType <? String(),
+		paramType <? String() | error $[Expected string, found [paramType]] @paramExp,
 		[[ valExp ^ (s, s', s_branch, s_global) : _ ]],
 		[[ throwOnFailExp ^ (s, s', s_branch, s_global) : throwOnFailType ]],
-		throwOnFailType <? Boolean().
+		throwOnFailType <? Booleanish() | error $[Expected booleanish, found [throwOnFailType]] @throwOnFailExp.
 	[[ ModifyEvent(paramExp, valExp, None()) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
 		[[ paramExp ^ (s, s', s_branch, s_global) : paramType ]],
-		paramType <? String(),
+		paramType <? String() | error $[Expected string, found [paramType]] @paramExp,
 		[[ valExp ^ (s, s', s_branch, s_global) : _ ]].
