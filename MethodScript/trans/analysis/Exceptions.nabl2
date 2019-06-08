@@ -84,7 +84,6 @@ rules
 		DSMap4T[[ finallyCode ^ (_, s', s_branch_finally, s_global) : _ ]].
 	
 	[[ CTryCatchBlock(param, code) ^ (s, s_branch, s_global) : _ ]] :=
-		// TODO - IVarParam must be typed with an exception type. Check this.
 		new s_param,
 		new s_param',
 		s_param' -P-> s_param,
@@ -94,6 +93,7 @@ rules
 		s_branch -LB-> s_branch',
 		
 		[[ param ^ (s_param, s_param', s_branch', s_global) : exType ]],
+		exType != Mixed() | error $[Missing exception type] @param, // TODO - Error doesn't show (error below does).
 		exType <? Throwable() | error $[Invalid exception type: [exType]] @param,
 		DSMap4T[[ code ^ (_, s_param', s_branch', s_global) : _ ]].
 	
