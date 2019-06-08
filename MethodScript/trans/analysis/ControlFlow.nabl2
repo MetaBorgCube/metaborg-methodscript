@@ -38,7 +38,7 @@ rules
 		
 		[[ cond ^ (s_cond, s_cond', s_branch_ifblock, s_global) : condType ]],
 		DSMap4T[[ code ^ (_, s_cond', s_branch_ifblock, s_global) : codeType ]],
-		condType <? Boolean().
+		condType <? Booleanish() | error $[Expected booleanish, found [condType]] @cond.
 	
 	[[ While(cond, code) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
@@ -55,7 +55,7 @@ rules
 		
 		[[ cond ^ (s_cond, s_cond', s_branch_while, s_global) : condType ]],
 		DSMap4T[[ code ^ (_, s_cond', s_branch_while, s_global) : _ ]],
-		condType <? Boolean().
+		condType <? Booleanish() | error $[Expected booleanish, found [condType]] @cond.
 	
 	[[ DoWhile(code, cond) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
@@ -72,7 +72,7 @@ rules
 		
 		DSMap4T[[ code ^ (_, s_cond', s_branch_dowhile, s_global) : _ ]],
 		[[ cond ^ (s_cond, s_cond', s_branch_dowhile, s_global) : condType ]],
-		condType <? Boolean().
+		condType <? Booleanish() | error $[Expected booleanish, found [condType]] @cond.
 	
 	[[ For(assign, cond, exp, code, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
@@ -99,7 +99,7 @@ rules
 		[[ cond ^ (s_cond, s_cond', s_branch_for, s_global) : condType ]],
 		[[ exp ^ (s_exp, s_exp', s_branch_for, s_global) : _ ]],
 		DSMap4T[[ code ^ (_, s_exp', s_branch_for, s_global) : _ ]],
-		condType <? Boolean().
+		condType <? Booleanish() | error $[Expected booleanish, found [condType]] @cond.
 	
 	[[ For(assign, cond, exp, code, elseCode) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
@@ -131,7 +131,7 @@ rules
 		[[ exp ^ (s_exp, s_exp', s_branch_for, s_global) : _ ]],
 		DSMap4T[[ code ^ (_, s_exp', s_branch_for, s_global) : _ ]],
 		DSMap4T[[ elseCode ^ (_, s_exp', s_branch_forelseblock, s_global) : _ ]],
-		condType <? Boolean().
+		condType <? Booleanish() | error $[Expected booleanish, found [condType]] @cond.
 	
 	[[ ForEach(key, val, arrayExp, code, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
@@ -363,7 +363,7 @@ rules
 		[[ ifCase ^ (s_if_exp, s_if_exp', s_branch_if, s_global) : t1 ]],
 		[[ elseCase ^ (s_else_exp, s_else_exp', s_branch_else, s_global) : t2 ]],
 		returnType == Any(),
-		condType <? Boolean().
+		condType <? Booleanish() | error $[Expected booleanish, found [condType]] @cond.
 	[[ TernaryExpCase(exp) ^ (s, s', s_branch, s_global) : type ]] :=
 		[[ exp ^ (s, s', s_branch, s_global) : type ]].
 	[[ TernaryStmtsCase(stmts) ^ (s, s', s_branch, s_global) : Void() ]] :=
