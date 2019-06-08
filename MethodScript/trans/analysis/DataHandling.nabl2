@@ -11,13 +11,14 @@ rules
 	
 	// TODO - Check whether casts are possible on the given types?
 	[[ BoolCast(exp) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
-		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+		[[ exp ^ (s, s', s_branch, s_global) : t ]],
+		exp <? Booleanish() | error $[Expected booleanish, found [t]] @exp.
 	[[ DoubleCast(exp) ^ (s, s', s_branch, s_global) : Double() ]] :=
-		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+		[[ exp ^ (s, s', s_branch, s_global) : _ ]].
 	[[ IntCast(exp) ^ (s, s', s_branch, s_global) : Int() ]] :=
-		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+		[[ exp ^ (s, s', s_branch, s_global) : _ ]].
 	[[ StringCast(exp) ^ (s, s', s_branch, s_global) : String() ]] :=
-		[[ exp ^ (s, s', s_branch, s_global) : t ]].
+		[[ exp ^ (s, s', s_branch, s_global) : _ ]].
 	
 	[[ Closure(params, code) ^ (s, s', _, s_global) : Closure() ]] :=
 		// TODO - Store metadata (param types, return type).
