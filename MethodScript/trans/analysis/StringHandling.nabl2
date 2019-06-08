@@ -1,0 +1,7 @@
+module analysis/StringHandling
+
+rules
+	
+	[[ BinExp(Concat(), e1, e2) ^ (s, s', s_branch, s_global) : String() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : _ ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : _ ]].
