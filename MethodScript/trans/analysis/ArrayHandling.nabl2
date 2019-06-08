@@ -5,16 +5,16 @@ rules
 	[[ ArrayPush(arrayExp, valExp) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		[[ arrayExp ^ (s, s', s_branch, s_global) : arrayType ]],
 		[[ valExp ^ (s, s', s_branch, s_global) : _ ]],
-		arrayType <? Array() | error $[Expected array, found [arrayType]].
+		arrayType <? Array() | error $[Expected array, found [arrayType]] @arrayExp.
 	
 	[[ ArrayClone(arrayExp) ^ (s, s', s_branch, s_global) : Array() ]] :=
 		[[ arrayExp ^ (s, s', s_branch, s_global) : arrayType ]],
-		arrayType <? Array() | error $[Expected array, found [arrayType]].
+		arrayType <? Array() | error $[Expected array, found [arrayType]] @arrayExp.
 	
 	[[ ArrayGet(arrayExp, indExp) ^ (s, s', s_branch, s_global) : Any() ]] :=
 		[[ arrayExp ^ (s, s', s_branch, s_global) : arrayType ]],
 		[[ indExp ^ (s, s', s_branch, s_global) : _ ]],
-		arrayType <? ArrayAccess() | error $[Type [arrayType] does not support array access].
+		arrayType <? ArrayAccess() | error $[Type [arrayType] does not support array access] @arrayExp.
 	
 	[[ SliceStatic(val1, val2) ^ (s, s', s_branch, s_global) : Slice() ]] :=
 		true.
@@ -22,11 +22,11 @@ rules
 	[[ SliceDynamic(exp1, exp2) ^ (s, s', s_branch, s_global) : Slice() ]] :=
 		[[ exp1 ^ (s, s', s_branch, s_global) : t1 ]],
 		[[ exp2 ^ (s, s', s_branch, s_global) : t2 ]],
-		t1 <? Int(),
-		t2 <? Int().
+		t1 <? Int() | error $[Expected int, found[t1]] @exp1,
+		t2 <? Int() | error $[Expected int, found[t2]] @exp2.
 	
 	[[ ArraySet(arrayExp, indExp, valExp) ^ (s, s', s_branch, s_global) : valType ]] :=
 		[[ arrayExp ^ (s, s', s_branch, s_global) : arrayType ]],
 		[[ indExp ^ (s, s', s_branch, s_global) : t1 ]], // TODO - Only allow int or string here?
 		[[ valExp ^ (s, s', s_branch, s_global) : valType ]],
-		arrayType <? Array() | error $[Expected array, found [arrayType]].
+		arrayType <? Array() | error $[Expected array, found [arrayType]] @arrayExp.
