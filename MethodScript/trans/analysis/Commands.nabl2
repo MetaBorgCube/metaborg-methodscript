@@ -21,7 +21,7 @@ rules
 		Var{varName} <- s,
 		Var{varName} : String(), // All $variables are strings.
 		[[ defaultVal ^ (s, _, _, s_global) : defaultValType ]],
-		defaultValType <? String() | error $[Expected String, found [defaultValType]].
+		defaultValType <? String() | error $[Expected String, found [defaultValType]] @defaultVal.
 	
 	[[ SingleLine(statement) ^ (s, s', s_branch, s_global) ]] :=
 		[[ statement ^ (s, s', s_branch, s_global) : _ ]].
