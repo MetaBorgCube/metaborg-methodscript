@@ -1,8 +1,23 @@
 module analysis/MethodScript
 
 imports
+	// NaBL2 files cannot be imported using '/-' as this ignores function declarations and causes failing builds.
 	signatures/-
-	analysis/-
+	analysis/ArrayHandling
+	analysis/BasicLogic
+	analysis/Commands
+	analysis/ControlFlow
+	analysis/DataHandling
+	analysis/EventBinding
+	analysis/Exceptions
+	analysis/Functions
+	analysis/Init
+	analysis/Math
+	analysis/Procedures
+	analysis/Program
+	analysis/StringHandling
+	analysis/Types
+	analysis/Variables
 
 /*
  * Scope management.
@@ -62,14 +77,6 @@ signature
 			P* (LP | BR ((IB|LB)* NB)* (IB|LB)*)?
 	
 	namespaces Var IVar TypedIVar Proc ClassType
-	
-	functions
-		binOpNumberType : (Type * Type) -> Type {
-			(Int()   , Int())    -> Int(),
-			(Double(), _)        -> Double(),
-			(_       , Double()) -> Double(),
-			(_       , _)        -> Number()
-		}
 	
 	constructors
 		ClassType : Type -> ClassType
