@@ -1,0 +1,92 @@
+module analysis/Math
+
+signature
+	functions
+		
+		// Binary math operation return type.
+		binMathOpRetType : (Type * Type) -> Type {
+			(Int()   , Int())    -> Int(),
+			(Double(), _)        -> Double(),
+			(_       , Double()) -> Double(),
+			(_       , _)        -> Number()
+		}
+		
+		// Divide math operation return type.
+		divMathOpRetType : (Type * Type) -> Type {
+			(Int()   , Int())    -> Number(),
+			(Double(), _)        -> Double(),
+			(_       , Double()) -> Double(),
+			(_       , _)        -> Number()
+		}
+		
+		// inc/dec/postinc/postdec math operation return type.
+		incdecMathOpRetType : (Type) -> Type {
+			Int()    -> Int(),
+			Double() -> Double(),
+			Any()    -> Number()
+		}
+
+rules
+	
+	// Unary expressions.
+	[[ UnExp(Neg(), exp) ^ (s, s', s_branch, s_global) : Any() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : expType ]],
+		expType <? Number() | error $[Expected number, found [expType]] @exp.
+	
+	[[ UnExp(Inc(), exp) ^ (s, s', s_branch, s_global) : retType ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : expType ]],
+		expType <? Number() | error $[Expected number, found [expType]] @exp,
+		retType is incdecMathOpRetType of expType.
+	[[ UnExp(Dec(), exp) ^ (s, s', s_branch, s_global) : retType ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : expType ]],
+		expType <? Number() | error $[Expected number, found [expType]] @exp,
+		retType is incdecMathOpRetType of expType.
+	[[ UnExp(PostInc(), exp) ^ (s, s', s_branch, s_global) : retType ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : expType ]],
+		expType <? Number() | error $[Expected number, found [expType]] @exp,
+		retType is incdecMathOpRetType of expType.
+	[[ UnExp(PostDec(), exp) ^ (s, s', s_branch, s_global) : retType ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : expType ]],
+		expType <? Number() | error $[Expected number, found [expType]] @exp,
+		retType is incdecMathOpRetType of expType.
+	
+	// Binary expressions.
+	[[ BinExp(Add(), e1, e2) ^ (s, s', s_branch, s_global) : t ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Number() | error $[Expected number, found [t1]] @e1,
+		t2 <? Number() | error $[Expected number, found [t2]] @e2,
+		t is binMathOpRetType of (t1, t2).
+	
+	[[ BinExp(Subtract(), e1, e2) ^ (s, s', s_branch, s_global) : t ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Number() | error $[Expected number, found [t1]] @e1,
+		t2 <? Number() | error $[Expected number, found [t2]] @e2,
+		t is binMathOpRetType of (t1, t2).
+	
+	[[ BinExp(Multiply(), e1, e2) ^ (s, s', s_branch, s_global) : t ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Number() | error $[Expected number, found [t1]] @e1,
+		t2 <? Number() | error $[Expected number, found [t2]] @e2,
+		t is binMathOpRetType of (t1, t2).
+	
+	[[ BinExp(Divide(), e1, e2) ^ (s, s', s_branch, s_global) : t ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Number() | error $[Expected number, found [t1]] @e1,
+		t2 <? Number() | error $[Expected number, found [t2]] @e2,
+		t is divMathOpRetType of (t1, t2).
+	
+	[[ BinExp(Mod(), e1, e2) ^ (s, s', s_branch, s_global) : Int() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Int() | error $[Expected int, found [t1]] @e1,
+		t2 <? Int() | error $[Expected int, found [t2]] @e2.
+	
+	[[ BinExp(Pow(), e1, e2) ^ (s, s', s_branch, s_global) : Double() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Number() | error $[Expected number, found [t1]] @e1,
+		t2 <? Number() | error $[Expected number, found [t2]] @e2.
