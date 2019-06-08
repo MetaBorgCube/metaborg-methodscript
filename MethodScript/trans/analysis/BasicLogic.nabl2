@@ -1,0 +1,58 @@
+module analysis/BasicLogic
+
+rules
+	
+	// Unary expressions.
+	[[ UnExp(Not(), exp) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : expType ]],
+		expType <? Booleanish() | error $[Expected booleanish, found [expType]] @exp.
+	
+	// Binary expressions.
+	[[ BinExp(And(), e1, e2) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Booleanish() | error $[Expected booleanish, found [t1]] @e1,
+		t2 <? Booleanish() | error $[Expected booleanish, found [t2]] @e2.
+	[[ BinExp(Or(), e1, e2) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Booleanish() | error $[Expected booleanish, found [t1]] @e1,
+		t2 <? Booleanish() | error $[Expected booleanish, found [t2]] @e2.
+	[[ BinExp(Dand(), e1, e2) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Booleanish() | error $[Expected booleanish, found [t1]] @e1,
+		t2 <? Booleanish() | error $[Expected booleanish, found [t2]] @e2.
+	[[ BinExp(Dor(), e1, e2) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Booleanish() | error $[Expected booleanish, found [t1]] @e1,
+		t2 <? Booleanish() | error $[Expected booleanish, found [t2]] @e2.
+	
+	[[ BinExp(Equals(), e1, e2) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : _ ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : _ ]].
+	[[ BinExp(Sequals(), e1, e2) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : _ ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : _ ]].
+	
+	[[ BinExp(Lt(), e1, e2) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Number() | error $[Expected number, found [t1]] @e1,
+		t2 <? Number() | error $[Expected number, found [t2]] @e2.
+	[[ BinExp(Lte(), e1, e2) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Number() | error $[Expected number, found [t1]] @e1,
+		t2 <? Number() | error $[Expected number, found [t2]] @e2.
+	[[ BinExp(Gt(), e1, e2) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Number() | error $[Expected number, found [t1]] @e1,
+		t2 <? Number() | error $[Expected number, found [t2]] @e2.
+	[[ BinExp(Gte(), e1, e2) ^ (s, s', s_branch, s_global) : Boolean() ]] :=
+		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
+		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
+		t1 <? Number() | error $[Expected number, found [t1]] @e1,
+		t2 <? Number() | error $[Expected number, found [t2]] @e2.
