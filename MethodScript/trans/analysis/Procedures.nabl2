@@ -35,17 +35,17 @@ rules
 		// The MS compiler simply ignores too many arguments and assigns null to undefined args.
 		// TODO - Get return type from return statements.
 		Proc{procName} -> s_global,
-		Proc{procName} |-> d | error $[Cannot find procedure: [procName]],
+		Proc{procName} |-> d | error $[Cannot find procedure: [procName]] @procName,
 		Map4T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]].
 	
 	[[ ProcCallDynamic(procNameExp, argExps) ^ (s, s', s_branch, s_global) : returnType ]] :=
 		[[ procNameExp ^ (s, s', s_branch, s_global) : procNameType ]],
 		Map4T[[ argExps ^ (s, s', s_branch, s_global) : argTypes ]],
 		returnType == Any(),
-		procNameType <? String().
+		procNameType <? String() | error $[Expected string, found [procNameType]] @procNameExp.
 	
 	[[ ProcCallDynamicArray(procNameExp, argsArray) ^ (s, s', s_branch, s_global) : returnType ]] :=
 		[[ procNameExp ^ (s, s', s_branch, s_global) : procNameType ]],
 		[[ argsArray ^ (s, s', s_branch, s_global) : Array() ]],
 		returnType == Any(),
-		procNameType <? String().
+		procNameType <? String() | error $[Expected string, found [procNameType]] @procNameExp.
