@@ -86,7 +86,7 @@ rules
 	// IVariable parameters.
 	// With 1 scope, the param is declared and resolved in the same scope.
 	// With 2 scopes, the param is declared in the second scope and its value resolved in the first.
-	[[ IVarParam(Some(cType), varName) ^ (s, s', s_branch, s_global) : _ ]] :=
+	[[ IVarParam(Some(cType), varName) ^ (s, s', s_branch, s_global) : declType ]] :=
 		
 		// Resolve variable type.
 		ClassType{cType} -> s_global,
@@ -121,7 +121,7 @@ rules
 		IVar{varName@s_branch} <- s_branch,
 		IVar{varName@s_branch} : Any().
 	
-	[[ IVarParam(None(), varName) ^ (s, s', s_branch, s_global) : _ ]] :=
+	[[ IVarParam(None(), varName) ^ (s, s', s_branch, s_global) : Mixed() ]] :=
 		
 		// Declare variable assign.
 		IVar{varName} <- s',
@@ -131,7 +131,7 @@ rules
 		IVar{varName@s_branch} <- s_branch,
 		IVar{varName@s_branch} : Any().
 	
-	[[ IVarAssignParam(Some(cType), varName, valExp) ^ (s, s', s_branch, s_global) : _ ]] :=
+	[[ IVarAssignParam(Some(cType), varName, valExp) ^ (s, s', s_branch, s_global) : declType ]] :=
 		
 		// Resolve variable type.
 		ClassType{cType} -> s_global,
@@ -172,7 +172,7 @@ rules
 		IVar{varName@s_branch} <- s_branch,
 		IVar{varName@s_branch} : Any().
 	
-	[[ IVarAssignParam(None(), varName, valExp) ^ (s, s', s_branch, s_global) : _ ]] :=
+	[[ IVarAssignParam(None(), varName, valExp) ^ (s, s', s_branch, s_global) : Mixed() ]] :=
 		
 		// Fake a typed variable declaration to set a default variable type.
 		new s_fvar,

@@ -33,7 +33,8 @@ rules
 		new s_param',
 		s_param' -P-> s_param,
 		s_param -P-> s,
-		[[ param ^ (s_param, s_param', s_branch, s_global) : _ ]],
+		[[ param ^ (s_param, s_param', s_branch, s_global) : exType ]],
+		exType <? Throwable() | error $[Invalid exception type: [exType]] @param,
 		DSMap4T[[ code ^ (_, s_param', s_branch, s_global) : _ ]].
 	
 	[[ CatchBlockLegacy(param, code, Some(exceptions)) ^ (s, s_branch, s_global) : _ ]] :=
@@ -45,7 +46,8 @@ rules
 		new s_ex',
 		s_ex' -P-> s_ex,
 		s_ex -P-> s,
-		[[ param ^ (s_param, s_param', s_branch, s_global) : _ ]],
+		[[ param ^ (s_param, s_param', s_branch, s_global) : exType ]],
+		exType <? Throwable() | error $[Invalid exception type: [exType]] @param,
 		DSMap4T[[ code ^ (_, s_param', s_branch, s_global) : _ ]],
 		[[ exceptions ^ (s_ex, s_ex', s_branch, s_global) : exArrayType ]],
 		exArraySize <? Array().
@@ -91,7 +93,8 @@ rules
 		new s_branch',
 		s_branch -LB-> s_branch',
 		
-		[[ param ^ (s_param, s_param', s_branch', s_global) : _ ]],
+		[[ param ^ (s_param, s_param', s_branch', s_global) : exType ]],
+		exType <? Throwable() | error $[Invalid exception type: [exType]] @param,
 		DSMap4T[[ code ^ (_, s_param', s_branch', s_global) : _ ]].
 	
 	[[ GetStackTrace() ^ (s, s', s_branch, s_global) : Array() ]] :=
