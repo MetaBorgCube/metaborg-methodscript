@@ -48,6 +48,35 @@ imports
  */
 
 signature
+	
+	// Functions that cannot be in their own file due to a NaBL2 bug.
+	functions
+		
+		// Math functions.
+		
+		// Binary math operation return type.
+		binMathOpRetType : (Type * Type) -> Type {
+			(Int()   , Int())    -> Int(),
+			(Double(), _)        -> Double(),
+			(_       , Double()) -> Double(),
+			(_       , _)        -> IntOrDouble()
+		}
+		
+		// Divide math operation return type.
+		divMathOpRetType : (Type * Type) -> Type {
+			(Int()   , Int())    -> IntOrDouble(),
+			(Double(), _)        -> Double(),
+			(_       , Double()) -> Double(),
+			(_       , _)        -> IntOrDouble()
+		}
+		
+		// inc/dec/postinc/postdec math operation return type.
+		incdecMathOpRetType : Type -> Type {
+			Int()    -> Int(),
+			Double() -> Double(),
+			_        -> IntOrDouble()
+		}
+		
 	name resolution
 		labels
 			P // Default scope edge label (s1 -P-> s2 === s1 ---> s2).
