@@ -33,7 +33,8 @@ rules
 		new s_param',
 		s_param' -P-> s_param,
 		s_param -P-> s,
-		[[ param ^ (s_param, s_param', s_branch, s_global) : exType ]],
+		[[ param ^ (s_param, s_param', s_branch, s_global) : rawExType ]],
+		exType is maybeTypedExType of rawExType,
 		exType <? Throwable() | error $[Invalid exception type: [exType]] @param,
 		DSMap4T[[ code ^ (_, s_param', s_branch, s_global) : _ ]].
 	
@@ -46,7 +47,8 @@ rules
 		new s_ex',
 		s_ex' -P-> s_ex,
 		s_ex -P-> s,
-		[[ param ^ (s_param, s_param', s_branch, s_global) : exType ]],
+		[[ param ^ (s_param, s_param', s_branch, s_global) : rawExType ]],
+		exType is maybeTypedExType of rawExType,
 		exType <? Throwable() | error $[Invalid exception type: [exType]] @param,
 		DSMap4T[[ code ^ (_, s_param', s_branch, s_global) : _ ]],
 		[[ exceptions ^ (s_ex, s_ex', s_branch, s_global) : exArrayType ]],

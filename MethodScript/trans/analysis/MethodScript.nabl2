@@ -77,6 +77,14 @@ signature
 			_        -> IntOrDouble()
 		}
 		
+		// Exceptions functions.
+		
+		// Map untyped (Mixed()) variables to Throwable().
+		maybeTypedExType : Type -> Type {
+			Mixed() -> Throwable(),
+			exType -> exType
+		}
+		
 	name resolution
 		labels
 			P // Default scope edge label (s1 -P-> s2 === s1 ---> s2).
