@@ -159,19 +159,6 @@ rules
 	[[ False() ^ (s, s', s_branch, s_global) : Boolean() ]].
 	[[ Null() ^ (s, s', s_branch, s_global) : Null() ]].
 	
-	// Unary and binary expressions.
-	[[ UnExp(_, e) ^ (s, s', s_branch, s_global) : Any() ]] :=
-		[[ e ^ (s, s', s_branch, s_global) : t1 ]].
-	[[ BinExp(Add(), e1, e2) ^ (s, s', s_branch, s_global) : t ]] := // TODO - Determine how to implement + move Math section?
-		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
-		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]],
-//		t1 <? Number(),
-//		t2 <? Number(),
-		t is binOpNumberType of (t1, t2). // TODO - Apply to all BinOps that take numbers like this.
-	[[ BinExp(_, e1, e2) ^ (s, s', s_branch, s_global) : Any() ]] :=
-		[[ e1 ^ (s, s', s_branch, s_global) : t1 ]],
-		[[ e2 ^ (s, s', s_branch, s_global) : t2 ]].
-	
 	// Generic optional node argument.
 	[[ None() ^ (s, s', s_branch, s_global) : _ ]] :=
 		true.
