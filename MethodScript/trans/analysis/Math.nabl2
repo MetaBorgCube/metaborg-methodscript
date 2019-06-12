@@ -8,22 +8,22 @@ signature
 			(Int()   , Int())    -> Int(),
 			(Double(), _)        -> Double(),
 			(_       , Double()) -> Double(),
-			(_       , _)        -> Number()
+			(_       , _)        -> IntOrDouble()
 		}
 		
 		// Divide math operation return type.
 		divMathOpRetType : (Type * Type) -> Type {
-			(Int()   , Int())    -> Number(),
+			(Int()   , Int())    -> IntOrDouble(),
 			(Double(), _)        -> Double(),
 			(_       , Double()) -> Double(),
-			(_       , _)        -> Number()
+			(_       , _)        -> IntOrDouble()
 		}
 		
 		// inc/dec/postinc/postdec math operation return type.
-		incdecMathOpRetType : (Type) -> Type {
+		incdecMathOpRetType : Type -> Type {
 			Int()    -> Int(),
 			Double() -> Double(),
-			Any()    -> Number()
+			Any()    -> IntOrDouble()
 		}
 
 rules

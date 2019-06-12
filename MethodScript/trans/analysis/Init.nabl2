@@ -117,6 +117,8 @@ rules
 		InsufficientArgumentsException()  <! Exception(),
 		InsufficientPermissionException() <! Exception(),
 		Int()                             <! Number(),
+		IntOrDouble()                     <! Double(),
+		IntOrDouble()                     <! Int(),
 		InvalidPluginException()          <! Exception(),
 		InvalidProcedureException()       <! Exception(),
 		InvalidWorldException()           <! Exception(),
