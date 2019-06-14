@@ -3,7 +3,7 @@ id: io.github.pieter12345:MethodScript.test:0.0.2-SNAPSHOT
 name: MethodScript
 dependencies:
   compile:
-  - io.github.pieter12345:MethodScript:0.0.2
+  - io.github.pieter12345:MethodScript:0.0.3-SNAPSHOT
   - org.metaborg:org.metaborg.meta.lang.spt:${metaborgVersion}
 build:
   useBuildSystemSpec: true
