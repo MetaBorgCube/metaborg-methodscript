@@ -25,7 +25,8 @@ language:
     placeholder:
       prefix: "$"
   stratego:
-    format: ctree
+    format: jar # Default: ctree.
+    build: incremental # Default: batch.
     args:
     - -la
     - stratego-lib
