@@ -3,7 +3,7 @@ id: io.github.pieter12345:MethodScript.example:0.0.2-SNAPSHOT
 name: MethodScript
 dependencies:
   compile:
-  - io.github.pieter12345:MethodScript:0.0.2-SNAPSHOT
+  - io.github.pieter12345:MethodScript:0.0.2
 debug:
   typesmart: false
 runtime:

@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.pieter12345</groupId>
   <artifactId>MethodScript.eclipse</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.2</version>
   <packaging>eclipse-plugin</packaging>
 
   <parent>

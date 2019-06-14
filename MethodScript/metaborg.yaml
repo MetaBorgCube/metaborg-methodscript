@@ -1,5 +1,5 @@
 ---
-id: io.github.pieter12345:MethodScript:0.0.2-SNAPSHOT
+id: io.github.pieter12345:MethodScript:0.0.2
 name: MethodScript
 dependencies:
   compile:
