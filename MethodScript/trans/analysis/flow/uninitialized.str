@@ -1,0 +1,11 @@
+module analysis/flow/uninitialized
+
+imports
+	nabl2/api
+	flowspec/api
+	signatures/flowspec/runtime/-
+	signatures/-
+
+rules
+	error-uninitialized(|a): _ -> []
+	warn-uninitialized(|a): _ -> []

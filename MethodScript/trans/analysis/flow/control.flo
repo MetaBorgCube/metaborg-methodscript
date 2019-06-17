@@ -1,0 +1,234 @@
+module analysis/flow/control
+
+control-flow rules
+	
+	// Lists.
+	Cons(h, t) = entry -> h -> t -> exit
+	Nil() = entry -> exit
+	
+	// Static values.
+	node IntVal(_)
+	node DoubleVal(_)
+	node StringVal(_)
+	node SmartStringVal(_)
+	node ClassTypeVal(_)
+	node True()
+	node False()
+	node Null()
+	
+	// None/Some terms.
+	None() = entry -> exit
+	Some(term) =
+		entry -> term -> exit
+	
+	// Statement brackets.
+	Block(statements) =
+		entry -> statements -> this -> exit
+	
+	// Unary and binary expressions.
+	UnExp(_, exp) =
+		entry -> exp -> this -> exit
+	BinExp(_, e1, e2) =
+		entry -> e1 -> e2 -> this -> exit
+	
+	// Program.
+	node Empty()
+	root Program(prog) =
+		start -> prog -> this -> end
+	Ms(statements) =
+		entry -> statements -> this -> exit
+	Msa(cmds) =
+		entry -> cmds -> this -> exit
+	
+	// ArrayHandling.
+	ArrayPush(arrayExp, valExp) =
+		entry -> arrayExp -> valExp -> this -> exit
+	ArrayClone(arrayExp) =
+		entry -> arrayExp -> this -> exit
+	ArrayGet(arrayExp, indExp) =
+		entry -> arrayExp -> indExp -> this -> exit
+	node SliceStatic(_, _)
+	SliceStatic(exp1, exp2) =
+		entry -> exp1 -> exp2 -> this -> exit
+	ArraySet(arrayExp, indExp, valExp) =
+		entry -> arrayExp -> indExp -> valExp -> this -> exit
+	
+	// BasicLogic.
+	// Handled through UnExp and BinExp.
+	
+	// Commands.
+	CmdDecl(_, args, optArgs, body) =
+		entry -> args -> optArgs -> body -> this -> exit
+	node CmdArgDecl(_)
+	CmdOptArgDeclDefault(_, defaultVal) =
+		entry -> defaultVal -> this -> exit
+	SingleLine(statement) =
+		entry -> statement -> this -> exit
+	MultiLine(statements) =
+		entry -> statements -> this -> exit
+	
+	// ControlFlow.
+	// TODO - Flow could go through all if/elseif/else cases. Fix if necessary.
+	IfElse(ifBlocks, elseCode) =
+		entry -> ifBlocks -> this -> exit,
+		entry -> ifBlocks -> elseCode -> this -> exit
+	IfElseIfBlock(cond, code) =
+		entry -> cond -> this -> exit,
+		entry -> cond -> code -> this -> exit
+	IfElseBlock(code) =
+		entry -> code -> this -> exit
+	
+	While(cond, code) =
+		entry -> cond -> code -> cond,
+		cond -> this -> exit
+	
+	DoWhile(code, cond) =
+		entry -> code -> cond -> code,
+		cond -> this -> exit
+	
+	For(assign, cond, exp, code, elseCode) =
+		entry -> assign -> cond -> code -> exp -> cond,
+		cond -> this -> exit
+	
+	ForEach(key, val, array, code, elseCode) =
+		entry -> array -> key -> val -> code -> code -> exit,
+		val -> elseCode -> exit
+	
+	// TODO - Flow could go through all cases. Fix if necessary.
+	Switch(exp, cases, defaultCode) =
+		entry -> exp -> cases -> defaultCode -> this -> exit
+	SwitchCase(vals, code) =
+		entry -> vals -> code -> this -> exit,
+		entry -> vals -> this -> exit
+	
+	// TODO - Flow could go through all cases. Fix if necessary.
+	SwitchExp(exp, cases, defaultExp) =
+		entry -> exp -> cases -> defaultExp -> this -> exit,
+		entry -> exp -> cases -> this -> exit
+	SwitchExpCase(vals, exp) =
+		entry -> vals -> this -> exit,
+		entry -> vals -> exp -> this -> exit
+	SwitchExpStmtsCase(vals, stmts) =
+		entry -> vals -> this -> exit,
+		entry -> vals -> stmts -> this -> exit
+	SwitchExpDefault(exp) =
+		entry -> exp -> this -> exit
+	SwitchExpStmtsDefault(stmts) =
+		entry -> stmts -> this -> exit
+	
+	Break(numLoops) =
+		entry -> numLoops -> this -> exit // TODO - End here? Branch back?
+	Continue(numLoopsSkipped) =
+		entry -> numLoopsSkipped -> this -> exit // TODO - End here? Branch back?
+	Return(exp) =
+		entry -> exp -> this -> end
+	Die(exp) =
+		entry -> exp -> this -> end
+	
+	Ternary(cond, ifCase, elseCase) =
+		entry -> cond -> ifCase -> this -> exit,
+		entry -> cond -> elseCase -> this -> exit
+	TernaryExpCase(exp) =
+		entry -> exp -> this -> exit
+	TernaryStmtsCase(stmts) =
+		entry -> stmts -> this -> exit
+	
+	// DataHandling.
+	Array(entries) =
+		entry -> entries -> this -> exit
+	AssocArray(entries) =
+		entry -> entries -> this -> exit
+	ArrayLabelEntry(_, valExp) =
+		entry -> valExp -> this -> exit
+	
+	BoolCast(exp) =
+		entry -> exp -> this -> exit
+	DoubleCast(exp) =
+		entry -> exp -> this -> exit
+	IntCast(exp) =
+		entry -> exp -> this -> exit
+	StringCast(exp) =
+		entry -> exp -> this -> exit
+	
+	Closure(params, paramDecls, paramVals, code) =
+		entry -> paramVals -> this -> exit
+	Closure(params, paramDecls, paramVals, code) =
+		entry -> params -> code -> this -> end
+	
+	IClosure(params, paramDecls, paramVals, code) =
+		entry -> paramVals -> this -> exit
+	root IClosure(params, paramDecls, paramVals, code) =
+		start -> paramDecls -> code -> this -> end
+	
+	RClosure(params, paramDecls, paramVals, code) =
+		entry -> paramVals -> this -> exit
+	root RClosure(params, paramDecls, paramVals, code) =
+		start -> paramDecls -> code -> this -> end
+	
+	// EventBinding.
+	Cancel(exp) =
+		entry -> exp -> this -> exit
+	node Consume()
+	Lock(exps) =
+		entry -> exps -> this -> exit
+	node IsCancelled()
+	node IsConsumed()
+	IsLocked(exp) =
+		entry -> exp -> this -> exit
+	
+	Bind(eventName, prio, filter, eventVar, params, paramDecls, paramVals, code) =
+		entry -> prio -> filter -> eventVar -> params -> this -> exit
+	root Bind(eventName, prio, filter, eventVar, params, paramDecls, paramVals, code) =
+		start -> eventVar -> paramDecls -> code -> this -> end
+	
+	ModifyEvent(paramExp, valExp, throwOnFailExp) =
+		entry -> paramExp -> valExp -> throwOnFailExp -> this -> exit
+	
+	// Exceptions.
+	Throw(exTypeExp, msgExp, causeExp) =
+		entry -> exTypeExp -> msgExp -> causeExp -> this -> exit
+	ThrowArray(exArrayExp) =
+		entry -> exArrayExp -> this -> exit
+	
+    TryLegacy(code, catchBlock) =
+        entry -> code -> this -> exit,
+        entry -> catchBlock -> this -> exit
+    CatchCodeLegacy(code) =
+    	entry -> code -> exit
+	CatchBlockLegacy(param, code, exceptions) =
+		entry -> param -> code -> exceptions -> exit
+	
+	// TODO - Flow could go through all catch blocks. Fix if necessary.
+	CTry(code, catchBlocks, finallyCode) =
+		entry -> code -> finallyCode -> this -> exit,
+		entry -> catchBlocks -> finallyCode -> this -> exit
+	CTryCatchBlock(param, code) =
+		entry -> param -> code -> this -> exit,
+		entry -> this -> exit
+	
+	node GetStackTrace()
+	
+	// Functions.
+	FuncCall(_, argExps) =
+		entry -> argExps -> this -> exit
+	
+	// Math.
+	// Handled through UnExp and BinExp.
+	
+	// Procedures.
+	ProcDecl(procName, params, paramDecls, paramVals, code) =
+		entry -> paramVals -> this -> exit
+	root ProcDecl(procName, params, paramDecls, paramVals, code) =
+		start -> paramDecls -> code -> this -> end
+	
+	// StringHangling.
+	// Handled through BinExp.
+	
+	// Variables.
+	node IVar(_)
+	node Var(_)
+	IVarAssign(_, _, valExp) =
+		entry -> valExp -> this -> exit
+	node IVarParam(_, _)
+	IVarAssignParam(_, _, valExp) =
+		entry -> valExp -> this -> exit

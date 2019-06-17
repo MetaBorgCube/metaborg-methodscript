@@ -1,0 +1,51 @@
+module desugar-flowspec
+
+imports
+	src-gen/signatures/-
+
+signature
+	
+	constructors
+		
+		Closure : [ClosureParam] * [IVarAssign] * [Exp] * [Statement] -> Exp
+		IClosure : [ClosureParam] * [IVarAssign] * [Exp] * [Statement] -> Exp
+		RClosure : [ClosureParam] * [IVarAssign] * [Exp] * [Statement] -> Exp
+		
+		ProcDecl : PROC-ID * [ProcParam] * [IVarAssign] * [Exp] * [Statement] -> Statement
+		
+		Bind : Exp * Exp * Exp * IVarAssign * [BindParam] * [IVarAssign] * [Exp] * [Statement] -> SExp
+
+strategies
+	/*
+	 * Desugars all scoped terms that have parameters that are declared in a different scope than the scope used
+	 * to resolve their value expression in.
+	 * These terms are: Closure, IClosure, RClosure, ProcDecl, Bind, CTry (catch param), TryLegacy, ...
+	 */
+	desugar-flowspec-all = innermost(desugar-flowspec)
+
+rules
+	
+	desugar-flowspec: Closure(params, code) -> Closure(params, paramDecls, paramVals, code)
+		where paramDecls := <map(param-to-valueless-ivar-assign)> params
+		where paramVals := <map(param-to-val-exp)> params
+	desugar-flowspec: IClosure(params, code) -> IClosure(params, paramDecls, paramVals, code)
+		where paramDecls := <map(param-to-valueless-ivar-assign)> params
+		where paramVals := <map(param-to-val-exp)> params
+	desugar-flowspec: RClosure(params, code) -> RClosure(params, paramDecls, paramVals, code)
+		where paramDecls := <map(param-to-valueless-ivar-assign)> params
+		where paramVals := <map(param-to-val-exp)> params
+	
+	desugar-flowspec: ProcDecl(name, params, code) -> ProcDecl(name, params, paramDecls, paramVals, code)
+		where paramDecls := <map(param-to-valueless-ivar-assign)> params
+		where paramVals := <map(param-to-val-exp)> params
+	
+	desugar-flowspec: Bind(name, prio, filter, eventVarName, params, code)
+			-> Bind(name, prio, filter, eventVar, params, paramDecls, paramVals, code)
+		where paramDecls := <map(param-to-valueless-ivar-assign)> params
+		where paramVals := <map(param-to-val-exp)> params
+		where eventVar := IVarParam("array", eventVarName)
+	
+	param-to-valueless-ivar-assign: IVarAssignParam(cType, varName, valExp) -> IVarAssign(cType, varName, None())
+	param-to-valueless-ivar-assign: IVarParam(cType, varName) -> IVarAssign(cType, varName, None())
+	param-to-val-exp: IVarAssignParam(cType, varName, valExp) -> valExp
+	param-to-val-exp: IVarParam(cType, varName) -> None()

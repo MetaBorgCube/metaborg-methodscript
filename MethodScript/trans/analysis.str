@@ -3,13 +3,28 @@ module analysis
 imports
 	nabl2/api
 	nabl2/runtime
+	nabl2shared
+	nabl2runtime
 	analysis/MethodScript
+	analysis/flow/uninitialized
 	desugar
+	desugar-flowspec
 	pp
 
 // Analysis.
 rules
+	
+	// NaBL2 analysis.
 	editor-analyze = nabl2-analyze(desugar-all)
+	
+	// FlowSpec analysis.
+	nabl2-custom-analysis-final-hook(|a): (_, _, custom-unit-results) -> (errors, warnings, notes, custom-final-result)
+		with <nabl2-custom-analysis-info(|"Running FlowSpec for more errors")> a
+			; asts     := <map(\(resource, ast) -> <nabl2--index-ast(|resource)> <desugar-flowspec-all> ast\)> custom-unit-results
+			; custom-final-result := <flowspec-analyze(|a)> asts
+			; errors   := <error-uninitialized(|custom-final-result)> asts
+			; warnings := <warn-uninitialized(|custom-final-result)> asts
+			; notes    := []
 
 // Debugging.
 rules
