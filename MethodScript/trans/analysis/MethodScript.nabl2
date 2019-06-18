@@ -123,6 +123,7 @@ rules
 	// Double Scope Mapping rule with two additional scopes that will directly be passed on.
 	// The first two scopes are linked such that s1 <- s1' <- s2 <- s2'.
 	// The branch scopes are linked such that s_branch1 -> s_branch2.
+	DSMap4T[[ [] ^ (_, _, _, _) : [] ]].
 	DSMap4T[[ [x|xs] ^ (_, s', s_branch, s_global) : [ty|tys] ]] :=
 		new s2,
 		new s2',
@@ -133,16 +134,19 @@ rules
 		[[ x ^ (s2, s2', s_branch', s_global) : ty ]],
 		DSMap4T[[ xs ^ (s2, s2', s_branch', s_global) : tys ]].
 	
+	Map4T[[ [] ^ (_, _, _, _) : [] ]].
 	Map4T[[ [x|xs] ^ (s1, s2, s3, s4) : [ty|tys] ]] :=
 		[[ x ^ (s1, s2, s3, s4) : ty ]],
 		Map4T[[ xs ^ (s1, s2, s3, s4) : tys ]].
 	
 	// Branch Scope Mapping rule. Creates a new branch scope per term.
+	BSMap3T[[ [] ^ (_, _, _) : [] ]].
 	BSMap3T[[ [x|xs] ^ (s, s_branch, s_global) : [ty|tys] ]] :=
 		new s_branch',
 		s_branch -IB-> s_branch',
 		[[ x ^ (s, s_branch', s_global) : ty ]],
 		BSMap3T[[ xs ^ (s, s_branch', s_global) : tys ]].
+	BSMap3[[ [] ^ (_, _, _) ]].
 	BSMap3[[ [x|xs] ^ (s, s_branch, s_global) ]] :=
 		new s_branch',
 		s_branch -IB-> s_branch',
