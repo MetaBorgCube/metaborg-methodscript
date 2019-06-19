@@ -60,6 +60,8 @@ signature
 		Lock : [Exp] -> Lock
 		
 		// Exceptions.
+		Throw : Exp * Exp * Exp -> Throw
+		ThrowArray : Exp -> ThrowArray
 		TryLegacy : [Statement] * CatchBlockLegacy -> TryLegacy
 		
 		// Math.
@@ -274,6 +276,10 @@ rules
 	desugar: ModifyEventArg(arg) -> arg
 	
 	// Desugar Exceptions nodes.
+	desugar: Throw(ex, msg, cause, _) -> Throw(ex, msg, cause)
+	desugar: ThrowArray(exArray, _)   -> ThrowArray(exArray)
+	desugar: ThrowCausedByArg(exp)    -> exp
+	
 	desugar: TryLegacy(code, catchBlock, _) -> TryLegacy(code, catchBlock)
 //	desugar: Some(CatchCodeLegacy(catchCode)) -> CatchCodeLegacy(catchCode)
 //	desugar: Some(CatchBlockLegacy(param, catchCode, exs)) -> CatchBlockLegacy(param, catchCode, exs)

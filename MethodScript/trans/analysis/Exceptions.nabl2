@@ -2,6 +2,24 @@ module analysis/Exceptions
 
 rules
 	
+	[[ Throw(exTypeExp, msgExp, Some(causeExp)) ^ (s, s', s_branch', s_global) : Void() ]] :=
+		[[ exTypeExp  ^ (s, s', s_branch', s_global) : exTypeExpType ]],
+		[[ msgExp  ^ (s, s', s_branch', s_global) : msgExpType ]],
+		[[ causeExp  ^ (s, s', s_branch', s_global) : causeExpType ]],
+		exTypeExpType <? String() | error $[Expected string, found [exTypeExpType]] @exTypeExp,
+		msgExp <? String() | error $[Expected string, found [msgExpType]] @msgExp,
+		causeExp <? Throwable() | error $[Expected throwable, found [causeExpType]] @causeExp.
+	
+	[[ Throw(exTypeExp, msgExp, None()) ^ (s, s', s_branch', s_global) : Void() ]] :=
+		[[ exTypeExp  ^ (s, s', s_branch', s_global) : exTypeExpType ]],
+		[[ msgExp  ^ (s, s', s_branch', s_global) : msgExpType ]],
+		exTypeExpType <? String() | error $[Expected string, found [exTypeExpType]] @exTypeExp,
+		msgExp <? String() | error $[Expected string, found [msgExpType]] @msgExp.
+	
+	[[ ThrowArray(exArrayExp) ^ (s, s', s_branch', s_global) : Void() ]] :=
+		[[ exArrayExp  ^ (s, s', s_branch', s_global) : exArrayExpType ]],
+		exArrayExpType <? Array() | error $[Expected array, found [exArrayExpType]] @exArrayExp.
+	
 	[[ TryLegacy(code, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
 		// Create and link a new s_branch' scope to resolve references in branch code.
