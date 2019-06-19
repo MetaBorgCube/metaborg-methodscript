@@ -72,6 +72,7 @@ signature
 		Mod      : BinOp
 		Pow      : BinOp
 		Neg      : UnOp
+		Pos      : UnOp
 		
 		Inc     : UnOp
 		PostInc : UnOp
@@ -312,6 +313,8 @@ rules
 	desugar: Pow(e1, e2)      -> BinExp(Pow(), e1, e2)
 	desugar: Neg(e)           -> UnExp(Neg(), e)
 	desugar: UnExp(Neg(), UnExp(Neg(), e)) -> Dec(e) // Desugar <--<Exp>> to dec().
+	desugar: Pos(e)           -> UnExp(Pos(), e)
+	desugar: UnExp(Pos(), UnExp(Pos(), e)) -> Inc(e) // Desugar <++<Exp>> to inc().
 	
 	desugar: Inc(exp)     -> UnExp(Inc(), exp)
 	desugar: PostInc(exp) -> UnExp(PostInc(), exp)

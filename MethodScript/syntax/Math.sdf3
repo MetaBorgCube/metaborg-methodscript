@@ -18,6 +18,9 @@ context-free syntax
 	Exp.Pow      = <<Exp> ** <Exp>> {left}
 	Exp.Neg      = <-<Exp>> {avoid} // Avoid to prevent matching signed numbers.
 	
+	// Pos isn't an actual function in MethodScript, but the syntax is allowed.
+	Exp.Pos      = <+<Exp>> {avoid} // Avoid to prevent matching signed numbers.
+	
 	Exp.AddLegacy      = <add(<Exp>, <Exp>)>
 	Exp.SubtractLegacy = <subtract(<Exp>, <Exp>)>
 	Exp.MultiplyLegacy = <multiply(<Exp>, <Exp>)>
@@ -27,11 +30,11 @@ context-free syntax
 	Exp.NegLegacy      = <neg(<Exp>)>
 	
 	// Statement expressions.
-	// Avoid postinc/postdec to apply the postinc/postdec on the smallest term (and not over assigns etc).
-	SExp.Inc     = <++<Exp>>
-	SExp.PostInc = <<Exp>++> {avoid}
-	Statement.Dec= <--<Exp>> // Expression desugared from Neg(Neg(exp)).
-	SExp.PostDec = <<Exp>--> {avoid}
+	// Avoid inc/postinc/postdec to apply the inc/postinc/postdec on the smallest term (and not over assigns etc).
+	Statement.Inc = <++<Exp>> // Expression desugared from Pos(Pos(exp)).
+	SExp.PostInc  = <<Exp>++> {avoid}
+	Statement.Dec = <--<Exp>> // Expression desugared from Neg(Neg(exp)).
+	SExp.PostDec  = <<Exp>--> {avoid}
 	
 	SExp.IncLegacy     = <inc(<Exp>)>
 	SExp.PostIncLegacy = <postinc(<Exp>)>

@@ -86,7 +86,7 @@ context-free priorities
 	// > {>, <, >=, <=} > {==, !=, ===, !==} > {&&&} > {|||} > {&&} > {||} > {assign, array_set}.
 	// Unary operator priorities (tested): {neg} > {postinc, postdec} > {inc, dec} > {not}.
 	{Exp.ArrayClone Exp.ArrayGet}
-			> {Exp.Neg Exp.Not}
+			> {Exp.Neg Exp.Pos Exp.Not}
 			> Exp.Pow
 			> {left: Exp.Multiply Exp.Divide Exp.Mod}
 			> {left: Exp.Add Exp.Subtract Exp.Concat}

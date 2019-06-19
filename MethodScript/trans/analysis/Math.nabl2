@@ -6,6 +6,9 @@ rules
 	[[ UnExp(Neg(), exp) ^ (s, s', s_branch, s_global) : Any() ]] :=
 		[[ exp ^ (s, s', s_branch, s_global) : expType ]],
 		expType <? Number() | error $[Expected number, found [expType]] @exp.
+	[[ UnExp(Pos(), exp) ^ (s, s', s_branch, s_global) : Any() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : expType ]],
+		expType <? Number() | error $[Expected number, found [expType]] @exp.
 	
 	[[ UnExp(Inc(), exp) ^ (s, s', s_branch, s_global) : retType ]] :=
 		[[ exp ^ (s, s', s_branch, s_global) : expType ]],
