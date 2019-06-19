@@ -91,17 +91,17 @@ rules
 	desugar: SExp(e) -> e
 	
 	// Desugar IVarParam legacy syntax.
-	desugar: IVarAssignParamLegacy(cTypeId, varName, valExp) -> IVarAssignParam(cTypeId, varName, valExp)
+	desugar: IVarAssignParamLegacy(cTypeId, varName, valExp)      -> IVarAssignParam(cTypeId, varName, valExp)
 	desugar: IVarAssignScopeParamLegacy(cTypeId, varName, valExp) -> IVarAssignScopeParam(cTypeId, varName, valExp)
-	desugar: IVarCTypeIdLegacy(cTypeId) -> cTypeId
+	desugar: IVarCTypeIdLegacy(cTypeId)                           -> cTypeId
 	
 	// TODO - Remove IVarAssignScopeParam, IVarScopeParam and its legacy variants entirely.
 	desugar: IVarAssignScopeParam(cTypeId, varName, valExp) -> IVarAssignParam(cTypeId, varName, valExp)
-	desugar: IVarScopeParam(cTypeId, varName) -> IVarParam(cTypeId, varName)
+	desugar: IVarScopeParam(cTypeId, varName)               -> IVarParam(cTypeId, varName)
 	
 	// Desugar command declarations.
 	desugar: CmdDecl(cmdNameParts, args, optArgs, body) -> CmdDecl(<glue-strings> cmdNameParts, args, optArgs, body)
-	desugar: CmdOptArgDecl(var)                    -> CmdArgDecl(var)
+	desugar: CmdOptArgDecl(var)                         -> CmdArgDecl(var)
 	glue-strings: [] -> ""
 	glue-strings: [str] -> str
 	glue-strings: [str | strs] -> <concat-strings> [str, " ", <glue-strings> strs]
@@ -167,8 +167,8 @@ rules
 	
 	desugar: IfElseLegacy(cond, ifCode, ifBlocks, elseCode, _) -> IfElse(ifBlocks', elseCode)
 		where ifBlocks' := <concat> [[IfElseIfBlock(cond, ifCode)], ifBlocks]
-	desugar: IfElseIfBlockLegacy(cond, code) -> IfElseIfBlock(cond, code)
-	desugar: IfElseBlockLegacy(code) -> IfElseBlock(code)
+	desugar: IfElseIfBlockLegacy(cond, code)                   -> IfElseIfBlock(cond, code)
+	desugar: IfElseBlockLegacy(code)                           -> IfElseBlock(code)
 	
 	// Desugar 'while' to While(cond, code).
 	desugar: WhileLegacy(cond, code, _) -> While(cond, code)
@@ -230,8 +230,8 @@ rules
 	
 	// Desugar ternary operator.
 	desugar: TernaryLegacy(cond, v1, v2) -> Ternary(cond, v1, v2)
-	desugar: TernaryExpCase(exp, _) -> TernaryExpCase(exp)
-	desugar: TernaryStmtsCase(stmts, _) -> TernaryStmtsCase(stmts)
+	desugar: TernaryExpCase(exp, _)      -> TernaryExpCase(exp)
+	desugar: TernaryStmtsCase(stmts, _)  -> TernaryStmtsCase(stmts)
 	
 	// Desugar DataHandling nodes.
 	// Desugar 'proc' to ProcDecl(name, vars, code).
@@ -245,7 +245,7 @@ rules
 	// Desugar 'array' and 'associative_array'.
 	desugar: Array(vals, _)      -> Array(vals)
 	desugar: AssocArray(vals, _) -> AssocArray(vals)
-	desugar: ArrayValEntry(exp) -> exp
+	desugar: ArrayValEntry(exp)  -> exp
 	
 	// Desugar 'closure' types.
 	desugar: ClosureLegacy(params, code, _)  -> Closure(params, code)
@@ -264,8 +264,8 @@ rules
 	
 	// Desugar EventBinding nodes.
 	desugar: Cancel(exp, _) -> Cancel(exp)
-	desugar: Consume(_) -> Consume()
-	desugar: Lock(exps, _) -> Lock(exps)
+	desugar: Consume(_)     -> Consume()
+	desugar: Lock(exps, _)  -> Lock(exps)
 	
 	// Desugar 'bind' to Bind(name, prio, filter, var, params, code).
 	desugar: BindLegacy(name, prio, filter, var, params, code) -> Bind(name, prio, filter, var, params, code)
