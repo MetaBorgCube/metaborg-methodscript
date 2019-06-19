@@ -48,7 +48,7 @@ rules
 	pp-proc-params: // No param.
 		[] -> ""
 	pp-proc-params: // Single param.
-		[IVarScopeParam(type, varName)] -> $[[type'] [varName]]
+		[IVarParam(type, varName)] -> $[[type'] [varName]]
 			where type' := <pp-var-type> type
 	pp-proc-params: // Multiple params.
 		[param | params] -> $[[param'], [params']]
