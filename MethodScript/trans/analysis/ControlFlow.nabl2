@@ -191,7 +191,7 @@ rules
 		DSMap4T[[ elseCode ^ (_, s_val', s_branch_elseblock, s_global) : _ ]],
 		arrayType <? ArrayAccess().
 	
-	[[ Switch(exp, cases, defaultCode) ^ (s, s', s_branch, s_global) : Void() ]] :=
+	[[ Switch(exp, cases, Some(defaultCode)) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
 		// Create and link a new s_branch_switch scope to resolve references in branch code.
 		new s_branch_switch,
@@ -211,6 +211,22 @@ rules
 		[[ exp ^ (s_exp, s_exp', s_branch_switch, s_global) : _ ]],
 		BSMap3[[ cases ^ (s_exp', s_branch_switch, s_global) ]],
 		DSMap4T[[ defaultCode ^ (_, s_exp', s_branch_defaultblock, s_global) : _ ]].
+	
+	[[ Switch(exp, cases, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		
+		// Create and link a new s_branch_switch scope to resolve references in branch code.
+		new s_branch_switch,
+		s_branch -NB-> s_branch_switch,
+		s' -BR-> s_branch_switch,
+		
+		// Create and link new exp scope.
+		new s_exp,
+		new s_exp',
+		s_exp' -P-> s_exp,
+		s_exp -P-> s,
+		
+		[[ exp ^ (s_exp, s_exp', s_branch_switch, s_global) : _ ]],
+		BSMap3[[ cases ^ (s_exp', s_branch_switch, s_global) ]].
 	
 	[[ SwitchCase(vals, code) ^ (s, s_branch, s_global) ]] :=
 		new s_vals,
