@@ -5,6 +5,7 @@ imports
 	nabl2/runtime
 	nabl2shared
 	nabl2runtime
+	flowspec/api
 	analysis/MethodScript
 	analysis/flow/uninitialized
 	desugar
