@@ -9,9 +9,8 @@ rules
 		Proc{procName} <- s_global,
 		// TODO - Store proc metadata (param types, return type).
 		
-		// Add s_params as child of the parent scope.
+		// Create s_params.
 		new s_params,
-		s_params ---> s,
 		
 		// Add s_proc as child of the params scope.
 		new s_proc,
@@ -24,10 +23,7 @@ rules
 		Map4T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
 		
 		// Resolve code in proc scope.
-		new s_proc',
-		s_proc' -P-> s_proc,
-		new s_branch_start,
-		DSMap4T[[ code ^ (_, s_proc', s_branch_start, s_global) : _ ]].
+		DSMap4T[[ code ^ (_, s_proc, s_branch_start, s_global) : _ ]].
 	
 	// Procedure calls.
 	[[ ProcCall(procName, argExps) ^ (s, s', s_branch, s_global) : Any() ]] :=
