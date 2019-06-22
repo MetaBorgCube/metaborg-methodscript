@@ -7,14 +7,14 @@ rules
 		[[ msgExp  ^ (s, s', s_branch', s_global) : msgExpType ]],
 		[[ causeExp  ^ (s, s', s_branch', s_global) : causeExpType ]],
 		exTypeExpType <? String() | error $[Expected string, found [exTypeExpType]] @exTypeExp,
-		msgExp <? String() | error $[Expected string, found [msgExpType]] @msgExp,
-		causeExp <? Throwable() | error $[Expected throwable, found [causeExpType]] @causeExp.
+		msgExpType <? String() | error $[Expected string, found [msgExpType]] @msgExp,
+		causeExpType <? Throwable() | error $[Expected throwable, found [causeExpType]] @causeExp.
 	
 	[[ Throw(exTypeExp, msgExp, None()) ^ (s, s', s_branch', s_global) : Void() ]] :=
 		[[ exTypeExp  ^ (s, s', s_branch', s_global) : exTypeExpType ]],
 		[[ msgExp  ^ (s, s', s_branch', s_global) : msgExpType ]],
 		exTypeExpType <? String() | error $[Expected string, found [exTypeExpType]] @exTypeExp,
-		msgExp <? String() | error $[Expected string, found [msgExpType]] @msgExp.
+		msgExpType <? String() | error $[Expected string, found [msgExpType]] @msgExp.
 	
 	[[ ThrowArray(exArrayExp) ^ (s, s', s_branch', s_global) : Void() ]] :=
 		[[ exArrayExp  ^ (s, s', s_branch', s_global) : exArrayExpType ]],
