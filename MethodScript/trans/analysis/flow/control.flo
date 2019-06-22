@@ -21,10 +21,6 @@ control-flow rules
 	Some(term) =
 		entry -> term -> exit
 	
-	// Statement brackets.
-	Block(statements) =
-		entry -> statements -> this -> exit
-	
 	// Unary and binary expressions.
 	UnExp(_, exp) =
 		entry -> exp -> this -> exit

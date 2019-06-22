@@ -166,7 +166,3 @@ rules
 	// Generic optional node argument.
 	[[ None() ^ (s, s', s_branch, s_global) : _ ]] :=
 		true.
-	
-	// Statement brackets.
-	[[ Block(statements) ^ (s, s', s_branch, s_global) : _ ]] :=
-		DSMap4T[[ statements ^ (s, s', s_branch, s_global) : _ ]].
