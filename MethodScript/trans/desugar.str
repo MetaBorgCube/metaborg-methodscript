@@ -79,6 +79,11 @@ signature
 		Dec     : UnOp
 		PostDec : UnOp
 		
+		Add      : Exp * Exp -> Exp
+		Subtract : Exp * Exp -> Exp
+		Pos      : Exp -> Exp
+		Neg      : Exp -> Exp
+		
 		// StringHandling.
 		Concat : BinOp
 
@@ -305,6 +310,13 @@ rules
 	desugar: DecLegacy(exp)     -> Dec(exp)
 	desugar: PostDecLegacy(exp) -> PostDec(exp)
 	
+	desugar: Add(e1, _, e2)      -> Add(e1, e2)
+	desugar: Subtract(e1, _, e2) -> Subtract(e1, e2)
+	desugar: Pos(_, e)           -> Pos(e)
+	desugar: Neg(_, e)           -> Neg(e)
+	desugar: Inc(_, e)           -> Inc(e)
+	desugar: Dec(_, e)           -> Inc(e)
+	
 	desugar: Add(e1, e2)      -> BinExp(Add(), e1, e2)
 	desugar: Subtract(e1, e2) -> BinExp(Subtract(), e1, e2)
 	desugar: Multiply(e1, e2) -> BinExp(Multiply(), e1, e2)
@@ -312,9 +324,7 @@ rules
 	desugar: Mod(e1, e2)      -> BinExp(Mod(), e1, e2)
 	desugar: Pow(e1, e2)      -> BinExp(Pow(), e1, e2)
 	desugar: Neg(e)           -> UnExp(Neg(), e)
-	desugar: UnExp(Neg(), UnExp(Neg(), e)) -> Dec(e) // Desugar <--<Exp>> to dec().
 	desugar: Pos(e)           -> UnExp(Pos(), e)
-	desugar: UnExp(Pos(), UnExp(Pos(), e)) -> Inc(e) // Desugar <++<Exp>> to inc().
 	
 	desugar: Inc(exp)     -> UnExp(Inc(), exp)
 	desugar: PostInc(exp) -> UnExp(PostInc(), exp)

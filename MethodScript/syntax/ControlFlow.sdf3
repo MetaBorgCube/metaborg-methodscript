@@ -194,11 +194,10 @@ context-free syntax
 	 * causes the switch cases to become the root node of disambiguations, rather than the entire 
 	 * Ternary or SwitchExp term.
 	 */
-	EmptyTerm.EmptyTerm = ""
 	 
 	// Ternary expression.
-	Exp.Ternary = <if(<Exp>) {<TernaryCase>} else {<TernaryCase>}> {avoid} // "@val = if(cond) {exp1} else {exp2}".
-	Exp.TernaryLegacy = <if(<Exp>, <TernaryCase>, <TernaryCase>)> {avoid} // "@val = if(cond, exp1, exp2}".
+	Exp.Ternary = <if(<Exp>) {<TernaryCase>} else {<TernaryCase>}> // "@val = if(cond) {exp1} else {exp2}".
+	Exp.TernaryLegacy = <if(<Exp>, <TernaryCase>, <TernaryCase>)> {avoid} // "@val = if(cond, exp1, exp2)".
 	TernaryCase.TernaryExpCase = <<Exp><EmptyTerm>>
 	TernaryCase.TernaryStmtsCase = <<Statement+><EmptyTerm>> {avoid} // Avoid to disambiguate SExp case to Exp case.
 	

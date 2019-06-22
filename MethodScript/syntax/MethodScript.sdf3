@@ -31,6 +31,21 @@ context-free syntax
 	Exp.SExp = SExp
 	SemiColon.SemiColon = ";"
 	
+	/*
+	 * Define an empty term that can be added to ambiguous terms where the root of the ambiguity occurs in a
+	 * parent term, allowing disambiguation using {prefer} or {avoid}.
+	 * Note that this only works if the parent terms have equal children, except for the ambiguous child term.
+	 */
+	 EmptyTerm = ""
+	
+	/* 
+	 * Allow extended statements in Statement+ and Statement*.
+	 * These are statements that might cause an ambiguity with the next or previous statement,
+	 * in which case the extended statement will be avoided.
+	 */
+	Statement+ = Statement+ StatementEx EmptyTerm {avoid}
+	Statement+ = StatementEx {avoid}
+	
 	// Statements.
 	Statement.Block = <(
 		<Statement*>
@@ -85,8 +100,13 @@ context-free priorities
 	// Operator priorities (tested): {array_clone, array_get} > {neg, not} > {**} > {*, /, %} > {+, -, .}
 	// > {>, <, >=, <=} > {==, !=, ===, !==} > {&&&} > {|||} > {&&} > {||} > {assign, array_set}.
 	// Unary operator priorities (tested): {neg} > {postinc, postdec} > {inc, dec} > {not}.
+	// Pos/Neg VS PostInc/PostDec priorities are swapped in the implementation for disambiguation of
+	// "@a = 1 + (func()++)" VS "@a = 1 (+ func()++)".
 	{Exp.ArrayClone Exp.ArrayGet}
-			> {Exp.Neg Exp.Pos Exp.Not}
+			> {SExp.PostInc SExp.PostDec}
+			> {Exp.Neg Exp.Pos}
+			> {Exp.Inc StatementEx.Inc Exp.Dec StatementEx.Dec}
+			> Exp.Not
 			> Exp.Pow
 			> {left: Exp.Multiply Exp.Divide Exp.Mod}
 			> {left: Exp.Add Exp.Subtract Exp.Concat}

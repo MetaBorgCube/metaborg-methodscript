@@ -34,6 +34,10 @@ lexical syntax
 	NewLineEOF     = EOF
 	EOF            = ""
 	COMMA          = ","
+	PLUS           = "+"
+	PLUSPLUS       = "++"
+	MINUS          = "-"
+	MINUSMINUS     = "--"
 	
 	/* Exclude function IDs that have custom handling.
 	 * This list contains all interesting functions for implementing the core of the language,
@@ -158,6 +162,8 @@ lexical restrictions
 	CMD-ID        -/- [a-zA-Z0-9\_]
 	CLASSTYPE-ID  -/- [a-zA-Z0-9\_\(] // '(' to prevent matching function IDs.
 	BARE-STRING   -/- [a-zA-Z0-9\_]
+	PLUS          -/- [\+] // Disallow PLUS to match PLUSPLUS.
+	MINUS         -/- [\-] // Disallow MINUS to match MINUSMINUS.
 	
 	// EOF may not be followed by any char.
 	EOF           -/- ~[]
