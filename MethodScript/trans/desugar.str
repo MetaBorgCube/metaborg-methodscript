@@ -241,6 +241,9 @@ rules
 	desugar: TernaryExpCase(exp, _)      -> TernaryExpCase(exp)
 	desugar: TernaryStmtsCase(stmts, _)  -> TernaryStmtsCase(stmts)
 	
+	// Desugar dynamic proc call arguments.
+	desugar: ProcCallArg(exp) -> exp
+	
 	// Desugar DataHandling nodes.
 	// Desugar 'proc' to ProcDecl(name, vars, code).
 	desugar: ProcDecl2(name, params, code)         -> ProcDecl(name, params, code)
