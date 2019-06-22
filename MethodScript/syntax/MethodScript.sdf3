@@ -47,9 +47,6 @@ context-free syntax
 	Statement+ = StatementEx {avoid}
 	
 	// Statements.
-	Statement.Block = <(
-		<Statement*>
-	)>
 	
 	// Expressions.
 	
@@ -93,7 +90,11 @@ context-free syntax
 		[Statement*]
 	<<<]
 	
-	// Brackets. These are allowed around statements and expressions.
+	/* Brackets.
+	 * These are allowed around expressions and statements. However, when put around statements which
+	 * have a statement before them, odds are high that it is lexed as a function in the official
+	 * MethodScript compiler. So don't support brackets around statements.
+	 */
 	Exp = <(<Exp>)> {bracket}
 
 context-free priorities
