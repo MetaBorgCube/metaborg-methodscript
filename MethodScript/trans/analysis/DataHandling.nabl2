@@ -40,7 +40,7 @@ rules
 		Map4T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
 		
 		// Resolve code in closure scope.
-		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
+		DSMap4T[[ code ^ (_, s_closure, s_branch_start, s_global) : _ ]].
 	
 	[[ IClosure(params, code) ^ (s, s', _, s_global) : Closure() ]] :=
 		// TODO - Store metadata (param types, return type).
@@ -55,15 +55,15 @@ rules
 		// Add parameters to params scope.
 		IVar{"@arguments"} <- s_params, // Automatically added.
 		IVar{"@arguments"} : Array(),
-		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		new s_branch_start, // Create new extra scope to prevent resolving to these params from elsewhere.
 		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
 		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
-		Map4T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		Map4T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
 		
 		// Resolve code in closure scope.
-		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
+		DSMap4T[[ code ^ (_, s_closure, s_branch_start, s_global) : _ ]].
 	
-	[[ RClosure(params, code) ^ (s, s', s_branch, s_global) : Closure() ]] :=
+	[[ RClosure(params, code) ^ (s, s', _, s_global) : Closure() ]] :=
 		// TODO - Store metadata (param types, return type).
 		
 		// Create s_params.
@@ -76,10 +76,10 @@ rules
 		// Add parameters to params scope.
 		IVar{"@arguments"} <- s_params, // Automatically added.
 		IVar{"@arguments"} : Array(),
-		new s_branch', // Create new extra scope to prevent resolving to these params from elsewhere.
+		new s_branch_start, // Create new extra scope to prevent resolving to these params from elsewhere.
 		// TODO - Params are actually solved in order (left to right). Use DSMap4T here?
 		// TODO - With DSMap4T, we won't be able to fetch the last scope to connect the code to. Fix this.
-		Map4T[[ params ^ (s, s_params, s_branch', s_global) : _ ]],
+		Map4T[[ params ^ (s, s_params, s_branch_start, s_global) : _ ]],
 		
 		// Resolve code in closure scope.
-		DSMap4T[[ code ^ (_, s_closure, s_branch', s_global) : _ ]].
+		DSMap4T[[ code ^ (_, s_closure, s_branch_start, s_global) : _ ]].
