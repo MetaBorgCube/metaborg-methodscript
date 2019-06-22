@@ -56,7 +56,7 @@ rules
 		exType <? Throwable() | error $[Invalid exception type: [exType]] @param,
 		DSMap4T[[ code ^ (_, s_param', s_branch, s_global) : _ ]].
 	
-	[[ CatchBlockLegacy(param, code, Some(exceptions)) ^ (s, s_branch, s_global) : _ ]] :=
+	[[ CatchBlockLegacy(param, code, Some(exArray)) ^ (s, s_branch, s_global) : _ ]] :=
 		new s_param,
 		new s_param',
 		s_param' -P-> s_param,
@@ -69,8 +69,8 @@ rules
 		exType is maybeTypedExType of rawExType,
 		exType <? Throwable() | error $[Invalid exception type: [exType]] @param,
 		DSMap4T[[ code ^ (_, s_param', s_branch, s_global) : _ ]],
-		[[ exceptions ^ (s_ex, s_ex', s_branch, s_global) : exArrayType ]],
-		exArraySize <? Array().
+		[[ exArray ^ (s_ex, s_ex', s_branch, s_global) : exArrayType ]],
+		exArrayType <? Array() | error $[Expected array, found [exArrayType]] @exArray.
 	
 	[[ CTry(code, catchBlocks, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
