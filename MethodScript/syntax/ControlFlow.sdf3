@@ -7,32 +7,32 @@ imports
 context-free syntax
 	
 	// Statements.
-	// 'if' syntax collides with 'ifelse' syntax.
-//	Statement.If = <if(<Exp>) {
-//		<Statement*>
-//	}<IfElseBlock?>>
+	// 'if' syntax is supported through 'ifelse' syntax.
 	
 	Statement.IfLegacy = <if(<Exp>,
 		<Statement+><IfElseBlockLegacy?>
 	)<SemiColon?>>
+	IfElseBlockLegacy.IfElseBlockLegacy = <
+	,
+		<Statement+>>
 	
 	Statement.IfElse = <if(<Exp>) {
 		<Statement*>
-	}<IfElseIfBlock*><IfElseBlock?>>
-	IfElseIfBlock.IfElseIfBlock = < else if(<Exp>) {
+	}<IfElseElseBlock?>>
+	IfElseElseBlock.IfElseElseIfBlock = < else if(<Exp>) {
 		<Statement*>
-	}>
-	IfElseBlock.IfElseBlock = < else {
+	}<IfElseElseBlock?>>
+	IfElseElseBlock.IfElseElseBlock = < else {
 		<Statement*>
 	}>
 	
 	Statement.IfElseLegacy = <ifelse(<Exp>,
-		<Statement+><IfElseIfBlockLegacy*><IfElseBlockLegacy?>
+		<Statement+><IfElseElseBlockLegacy?>
 	)<SemiColon?>>
-	IfElseIfBlockLegacy.IfElseIfBlockLegacy = <
+	IfElseElseBlockLegacy.IfElseElseIfBlockLegacy = <
 	, <Exp>,
-		<Statement+>>
-	IfElseBlockLegacy.IfElseBlockLegacy = <
+		<Statement+><IfElseElseBlockLegacy?>>
+	IfElseElseBlockLegacy.IfElseElseBlockLegacy = <
 	,
 		<Statement+>>
 	
