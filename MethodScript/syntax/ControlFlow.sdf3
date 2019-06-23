@@ -46,7 +46,7 @@ context-free syntax
 	
 	Statement.DoWhile = <do {
 		<Statement*>
-	while(<Exp>)<SemiColon?>>
+	} while(<Exp>)<SemiColon?>>
 	
 	Statement.DoWhileLegacy = <dowhile(
 		<Statement+>
