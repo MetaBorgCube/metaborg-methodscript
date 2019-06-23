@@ -2,30 +2,7 @@ module analysis/ControlFlow
 
 rules
 	
-	[[ IfElse(ifBlocks, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
-		
-		// Create a branch on the branch scope chain.
-		new s_branch_ifelse,
-		s_branch -NB-> s_branch_ifelse,
-		s' -BR-> s_branch_ifelse,
-		
-		BSMap3T[[ ifBlocks ^ (s, s_branch_ifelse, s_global) : _ ]].
-	
-	[[ IfElse(ifBlocks, Some(elseCode)) ^ (s, s', s_branch, s_global) : Void() ]] :=
-		
-		// Create and link a new s_branch' scope to resolve references in branch code.
-		new s_branch_ifelse,
-		s_branch -NB-> s_branch_ifelse,
-		s' -BR-> s_branch_ifelse,
-		
-		// Create low priority branch scope to prevent overlapping declarations from ifBlocks and elseCode.
-		new s_branch_elseblock,
-		s_branch_ifelse -LB-> s_branch_elseblock,
-		
-		BSMap3T[[ ifBlocks ^ (s, s_branch_ifelse, s_global) : _ ]],
-		DSMap4T[[ elseCode ^ (_, s, s_branch_elseblock, s_global) : _ ]].
-	
-	[[ IfElseIfBlock(cond, code) ^ (s, s_branch, s_global) : codeType ]] :=
+	[[ IfElse(cond, ifCode, elseCode) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
 		// Create and link new condition scope.
 		new s_cond,
@@ -33,12 +10,22 @@ rules
 		s_cond' -P-> s_cond,
 		s_cond -P-> s,
 		
-		new s_branch_ifblock,
-		s_branch -LB-> s_branch_ifblock,
+		// Create a branch on the branch scope chain.
+		new s_branch_if,
+		s_branch -NB-> s_branch_if,
+		s' -BR-> s_branch_if,
 		
-		[[ cond ^ (s_cond, s_cond', s_branch_ifblock, s_global) : condType ]],
-		DSMap4T[[ code ^ (_, s_cond', s_branch_ifblock, s_global) : codeType ]],
-		condType <? Booleanish() | error $[Expected booleanish, found [condType]] @cond.
+		// Create low priority branch scope to prevent overlapping declarations from ifCode and elseCode.
+		new s_branch_else,
+		s_branch_if -LB-> s_branch_else,
+		
+		// Resolve and type check condition.
+		[[ cond ^ (s_cond, s_cond', s_branch_if, s_global) : condType ]],
+		condType <? Booleanish() | error $[Expected booleanish, found [condType]] @cond,
+		
+		// Resolve ifCode and elseCode.
+		DSMap4T[[ ifCode ^ (_, s_cond', s_branch_if, s_global) : _ ]],
+		DSMap4T[[ elseCode ^ (_, s_cond', s_branch_else, s_global) : _ ]].
 	
 	[[ While(cond, code) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		

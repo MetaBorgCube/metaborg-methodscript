@@ -64,15 +64,9 @@ control-flow rules
 		entry -> statements -> this -> exit
 	
 	// ControlFlow.
-	// TODO - Flow could go through all if/elseif/else cases. Fix if necessary.
-	IfElse(ifBlocks, elseCode) =
-		entry -> ifBlocks -> this -> exit,
-		entry -> ifBlocks -> elseCode -> this -> exit
-	IfElseIfBlock(cond, code) =
-		entry -> cond -> this -> exit,
-		entry -> cond -> code -> this -> exit
-	IfElseBlock(code) =
-		entry -> code -> this -> exit
+	IfElse(cond, ifCode, elseCode) =
+		entry -> cond -> ifCode -> exit,
+		entry -> cond -> elseCode -> exit
 	
 	While(cond, code) =
 		entry -> cond -> code -> cond,

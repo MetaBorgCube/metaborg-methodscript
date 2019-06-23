@@ -35,7 +35,7 @@ signature
 		Gte     : BinOp
 		
 		// ControlFlow.
-		IfElse : [IfElseIfBlock] * IfElseBlock -> IfElse
+		IfElse : Exp * [Statement] * [Statement] -> IfElse
 		DoWhile : Exp * [Statement] -> DoWhile
 		For : Exp * Exp * Statement * [Statement] * [Statement] -> For
 		ForEach : IVAR * IVAR * Exp * [Statement] * [Statement] -> ForEach
@@ -165,18 +165,24 @@ rules
 	desugar: Gte(e1, e2) -> BinExp(Gte(), e1, e2)
 	
 	// Desugar ControlFlow nodes.
-	// Desugar legacy 'if' to IfElse(ifBlocks, elseCode).
-	desugar: IfLegacy(cond, ifCode, elseCode, _) -> IfElse([IfElseIfBlock(cond, ifCode)], elseCode)
+	// Desugar legacy 'if' to IfElse(cond, ifCode, elseCode).
+	desugar: IfLegacy(cond, ifCode, elseCode, _) -> IfElse(cond, ifCode, elseCode)
+	desugar: IfElseBlockLegacy(code)             -> IfElseBlock(code)
 	
-	// Desugar 'ifelse' to IfElse(ifBlocks, elseCode).
-	desugar: IfElse(cond, ifCode, ifBlocks, elseCode) -> IfElse(ifBlocks', elseCode)
-		where ifBlocks' := <concat> [[IfElseIfBlock(cond, ifCode)], ifBlocks]
+	// Desugar 'if' and 'ifelse' to IfElse(cond, IfElse(cond2, ..., elseCode2), elseCode).
+	desugar: IfElse(cond, ifCode, [], elseCode) -> IfElse(cond, ifCode, elseCode)
+	desugar: IfElse(cond, ifCode, [IfElseIfBlock(cond2, ifCode2)|ifBlocks], elseCode)
+			-> IfElse(cond, ifCode, [IfElse(cond2, ifCode2, ifBlocks, elseCode)])
 	desugar: IfElseBlock(code) -> code
 	
-	desugar: IfElseLegacy(cond, ifCode, ifBlocks, elseCode, _) -> IfElse(ifBlocks', elseCode)
-		where ifBlocks' := <concat> [[IfElseIfBlock(cond, ifCode)], ifBlocks]
-	desugar: IfElseIfBlockLegacy(cond, code)                   -> IfElseIfBlock(cond, code)
-	desugar: IfElseBlockLegacy(code)                           -> IfElseBlock(code)
+	// Desugar legacy 'ifelse' to IfElse(cond, IfElse(cond2, ..., elseCode2), elseCode).
+	desugar: IfElseLegacy(cond, ifCode, [], elseCode, _) -> IfElse(cond, ifCode, elseCode)
+	desugar: IfElseLegacy(cond, ifCode, [IfElseIfBlockLegacy(cond2, ifCode2)|ifBlocks], elseCode, _)
+			-> IfElse(cond, ifCode, [IfElseLegacy(cond2, ifCode2, ifBlocks, elseCode, None())])
+	
+	// Desugar IfElse's Some(elseCode) and None() to elseCode and [].
+	desugar: IfElse(cond, ifCode, Some(elseCode)) -> IfElse(cond, ifCode, elseCode)
+	desugar: IfElse(cond, ifCode, None()) -> IfElse(cond, ifCode, [])
 	
 	// Desugar 'while' to While(cond, code).
 	desugar: WhileLegacy(cond, code, _) -> While(cond, code)
