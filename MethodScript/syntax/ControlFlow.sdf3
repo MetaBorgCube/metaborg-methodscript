@@ -152,33 +152,30 @@ context-free syntax
 		<Statement+>
 	)<SemiColon?>>
 	
-	Statement.Switch = <switch(<Exp>) {
-		<SwitchCase*><SwitchDefault?>
+	Statement.Switch = <switch(<Exp>) {<SwitchCase?>
 	}>
 	SwitchCase.SwitchCase = <
 		<SwitchLabel+>
-			<Statement+>
+			<Statement+><SwitchCase?>
 	>
-	SwitchDefault.SwitchDefault = <
+	SwitchCase.SwitchDefault = <
 		default:
 			<Statement+>
 	>
 	SwitchLabel.SwitchLabel = <case <Exp>:
 	>
 	
-	Statement.SwitchLegacy = <switch(<Exp><SwitchCaseLegacy*><SwitchDefaultLegacy?>
+	Statement.SwitchLegacy = <switch(<Exp><SwitchCaseLegacy?>
 	)>
 	SwitchCaseLegacy.SwitchCaseLegacy = <,
 		<SwitchLabelLegacy>,
+			<Statement+><SwitchCaseLegacy?>
+		>
+	SwitchCaseLegacy.SwitchDefaultLegacy = <,
 			<Statement+>
 		>
-	SwitchDefaultLegacy.SwitchDefaultLegacy = <,
-			<Statement+>
-		>
-	SwitchDefaultLegacy.SwitchDefaultLegacyComma = <,> // Allow trailing comma.
-	
+	SwitchCaseLegacy.SwitchCaseLegacyComma = <,> // Allow trailing comma.
 	SwitchLabelLegacy.SwitchLabelLegacy = Exp
-//	SwitchLabelLegacy.SwitchLabelArrayLegacy = <array(<{Exp ","}+>)>
 	
 	Statement.Break = <break(<Exp?>)<SemiColon?>> // break([numLoops]).
 	Statement.Continue = <continue(<Exp?>)<SemiColon?>> // continue([numLoopsSkipped]).
@@ -203,42 +200,42 @@ context-free syntax
 	
 	// SwitchExp expression.
 	Exp.SwitchExp = <switch(<Exp>) {
-		<SwitchExpCase*><SwitchExpDefault?>
+		<SwitchExpCase?>
 	}>
 	SwitchExpCase.SwitchExpCase = <
 		<SwitchLabel+>
-			<Exp><EmptyTerm>
+			<Exp><SwitchExpCase?>
 	>
 	SwitchExpCase.SwitchExpStmtsCase = <
 		<SwitchLabel+>
-			<Statement+><EmptyTerm>
+			<Statement+><SwitchExpCase?>
 	> {avoid}
-	SwitchExpDefault.SwitchExpDefault = <
+	SwitchExpCase.SwitchExpDefault = <
 		default:
 			<Exp><EmptyTerm>
 	>
-	SwitchExpDefault.SwitchExpStmtsDefault = <
+	SwitchExpCase.SwitchExpStmtsDefault = <
 		default:
 			<Statement+><EmptyTerm>
 	> {avoid}
 	
 	// SwitchExp legacy expression.
-	Exp.SwitchExpLegacy = <switch(<Exp><SwitchExpCaseLegacy*><SwitchExpDefaultLegacy?>
+	Exp.SwitchExpLegacy = <switch(<Exp><SwitchExpCaseLegacy?>
 	)>
 	SwitchExpCaseLegacy.SwitchExpCaseLegacy = <,
 		<SwitchLabelLegacy>,
-			<Exp><EmptyTerm>>
+			<Exp><SwitchExpCaseLegacy?>>
 	SwitchExpCaseLegacy.SwitchExpStmtsCaseLegacy = <,
 		<SwitchLabelLegacy>,
-			<Statement+><EmptyTerm>
+			<Statement+><SwitchExpCaseLegacy?>
 		> {avoid}
-	SwitchExpDefaultLegacy.SwitchExpDefaultLegacy = <,
+	SwitchExpCaseLegacy.SwitchExpDefaultLegacy = <,
 			<Exp><EmptyTerm>
 		>
-	SwitchExpDefaultLegacy.SwitchExpStmtsDefaultLegacy = <,
+	SwitchExpCaseLegacy.SwitchExpStmtsDefaultLegacy = <,
 			<Statement+><EmptyTerm>
 		> {avoid}
-	SwitchExpDefaultLegacy.SwitchExpDefaultLegacyComma = <,>
+	SwitchExpCaseLegacy.SwitchExpDefaultLegacyComma = <,>
 	
 	// Statement expressions.
 	SExp.ProcCall = <<PROC-ID>(<{Exp ","}*>)>

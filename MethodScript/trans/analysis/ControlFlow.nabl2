@@ -178,9 +178,13 @@ rules
 		DSMap4T[[ elseCode ^ (_, s_val', s_branch_elseblock, s_global) : _ ]],
 		arrayType <? ArrayAccess().
 	
-	[[ Switch(exp, cases, Some(defaultCode)) ^ (s, s', s_branch, s_global) : Void() ]] :=
+	// Switch case statements.
+	[[ Switch(exp, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : _ ]].
+	
+	[[ Switch(exp, Some(case)) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		
-		// Create and link a new s_branch_switch scope to resolve references in branch code.
+		// Create a branch on the branch scope chain.
 		new s_branch_switch,
 		s_branch -NB-> s_branch_switch,
 		s' -BR-> s_branch_switch,
@@ -191,17 +195,56 @@ rules
 		s_exp' -P-> s_exp,
 		s_exp -P-> s,
 		
-		// Create low priority branch scope to prevent overlapping declarations from cases and default case.
-		new s_branch_defaultblock,
-		s_branch_switch -LB-> s_branch_defaultblock,
-		
-		[[ exp ^ (s_exp, s_exp', s_branch_switch, s_global) : _ ]],
-		BSMap3[[ cases ^ (s_exp', s_branch_switch, s_global) ]],
-		DSMap4T[[ defaultCode ^ (_, s_exp', s_branch_defaultblock, s_global) : _ ]].
+		[[ exp ^ (s_exp, s_exp', s_branch_switch, s_global) : expType ]],
+		[[ case ^ (s_exp', s_branch_switch, s_global, expType) ]].
 	
-	[[ Switch(exp, cases, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+	[[ SwitchCase(valExps, code, None()) ^ (s, s_branch, s_global, expType) ]] :=
+		// TODO - Use expType to give warnings on unreachable switch cases or labels.
 		
-		// Create and link a new s_branch_switch scope to resolve references in branch code.
+		// Create and link new vals scope.
+		new s_vals,
+		new s_vals',
+		s_vals' -P-> s_vals,
+		s_vals -P-> s,
+		
+		// Create new internal branch scope.
+		new s_branch_switchcase,
+		s_branch -IB-> s_branch_switchcase,
+		
+		// Resolve value expressions and code.
+		Map4T[[ valExps ^ (s_vals, s_vals', s_branch_switchcase, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_vals', s_branch_switchcase, s_global) : _ ]].
+	
+	[[ SwitchCase(valExps, code, Some(nextCase)) ^ (s, s_branch, s_global, expType) ]] :=
+		// TODO - Use expType to give warnings on unreachable switch cases or labels.
+		
+		// Create and link new vals scope.
+		new s_vals,
+		new s_vals',
+		s_vals' -P-> s_vals,
+		s_vals -P-> s,
+		
+		// Create new internal branch scopes.
+		new s_branch_switchcase_code,
+		s_branch -LB-> s_branch_switchcase_code,
+		new s_branch_switchcase,
+		s_branch -IB-> s_branch_switchcase,
+		
+		// Resolve value expressions, code and nextCase.
+		Map4T[[ valExps ^ (s_vals, s_vals', s_branch_switchcase_code, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_vals', s_branch_switchcase_code, s_global) : _ ]],
+		[[ nextCase ^ (s_vals', s_branch_switchcase, s_global, expType) ]].
+	
+	[[ SwitchDefault(code) ^ (s, s_branch, s_global, _) ]] :=
+		DSMap4T[[ code ^ (_, s, s_branch, s_global) : _ ]].
+	
+	// Switch case expressions.
+	[[ SwitchExp(exp, None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
+		[[ exp ^ (s, s', s_branch, s_global) : _ ]].
+	
+	[[ SwitchExp(exp, Some(case)) ^ (s, s', s_branch, s_global) : returnType ]] :=
+		
+		// Create a branch on the branch scope chain.
 		new s_branch_switch,
 		s_branch -NB-> s_branch_switch,
 		s' -BR-> s_branch_switch,
@@ -212,105 +255,112 @@ rules
 		s_exp' -P-> s_exp,
 		s_exp -P-> s,
 		
-		[[ exp ^ (s_exp, s_exp', s_branch_switch, s_global) : _ ]],
-		BSMap3[[ cases ^ (s_exp', s_branch_switch, s_global) ]].
+		[[ exp ^ (s_exp, s_exp', s_branch_switch, s_global) : expType ]],
+		[[ case ^ (s_exp', s_branch_switch, s_global, expType) : returnType ]].
 	
-	[[ SwitchCase(vals, code) ^ (s, s_branch, s_global) ]] :=
+	[[ SwitchExpCase(valExps, exp, None()) ^ (s, s_branch, s_global, expType) : returnType ]] :=
+		// TODO - Use expType to give warnings on unreachable switch cases or labels.
+		
+		// Create and link new vals scope.
 		new s_vals,
 		new s_vals',
 		s_vals' -P-> s_vals,
 		s_vals -P-> s,
 		
-		new s_branch_switchcaseblock,
-		s_branch -LB-> s_branch_switchcaseblock,
-		
-		Map4T[[ vals ^ (s_vals, s_vals', s_branch_switchcaseblock, s_global) : _ ]],
-		DSMap4T[[ code ^ (_, s_vals', s_branch_switchcaseblock, s_global) : _ ]].
-	
-	[[ SwitchExp(exp, cases, Some(defaultExp)) ^ (s, s', s_branch, s_global) : returnType ]] :=
-		
-		// Create and link a new s_branch_switchexp scope to resolve references in branch code.
-		new s_branch_switchexp,
-		s_branch -NB-> s_branch_switchexp,
-		s' -BR-> s_branch_switchexp,
-		
-		// Create and link new exp and default scope.
+		// Create and link new exp scope.
 		new s_exp,
 		new s_exp',
 		s_exp' -P-> s_exp,
-		s_exp -P-> s,
-		new s_default,
-		new s_default',
-		s_default' -P-> s_default,
-		s_default -P-> s_exp',
+		s_exp -P-> s_vals,
 		
-		// Create low priority branch scope to prevent overlapping declarations from cases and default case.
-		new s_branch_default,
-		s_branch_switchexp -LB-> s_branch_default,
+		// Create new internal branch scope.
+		new s_branch_switchcase,
+		s_branch -IB-> s_branch_switchcase,
 		
-		[[ exp ^ (s_exp, s_exp', s_branch_switchexp, s_global) : _ ]],
-		// TODO - Set returnType based on caseExpTypes and defaultType.
-		BSMap3T[[ cases ^ (s_exp', s_branch_switchexp, s_global) : caseExpTypes ]],
-		[[ defaultExp ^ (s_exp', s_branch_default, s_global) : defaultType ]],
-		returnType == Any().
+		// Resolve value expressions and code.
+		Map4T[[ valExps ^ (s_vals, s_vals', s_branch_switchcase, s_global) : _ ]],
+		[[ exp ^ (s_exp, s_exp', s_branch_switchcase, s_global) : returnType ]].
 	
-	[[ SwitchExp(exp, cases, None()) ^ (s, s', s_branch, s_global) : returnType ]] :=
+	[[ SwitchExpCase(valExps, code, Some(nextCase)) ^ (s, s_branch, s_global, expType) : returnType ]] :=
+		// TODO - Use expType to give warnings on unreachable switch cases or labels.
 		
-		// Create and link a new s_branch_switchexp scope to resolve references in branch code.
-		new s_branch_switchexp,
-		s_branch -NB-> s_branch_switchexp,
-		s' -BR-> s_branch_switchexp,
-		
-		// Create and link new exp and default scope.
-		new s_exp,
-		new s_exp',
-		s_exp' -P-> s_exp,
-		s_exp -P-> s,
-		
-		[[ exp ^ (s_exp, s_exp', s_branch_switchexp, s_global) : _ ]],
-		// TODO - Set returnType based on caseExpTypes.
-		BSMap3T[[ cases ^ (s_exp', s_branch_switchexp, s_global) : caseExpTypes ]],
-		returnType == Any().
-	
-	[[ SwitchExpCase(vals, exp) ^ (s, s_branch, s_global) : t ]] :=
-		new s_vals,
-		new s_vals',
-		s_vals' -P-> s_vals,
-		s_vals -P-> s,
-		new s_exp,
-		new s_exp',
-		s_exp' -P-> s_exp,
-		s_exp -P-> s_vals',
-		
-		new s_branch_switchexp_expblock,
-		s_branch -LB-> s_branch_switchexp_expblock,
-		
-		Map4T[[ vals ^ (s_vals, s_vals', s_branch_switchexp_expblock, s_global) : _ ]],
-		[[ exp ^ (s_exp, s_exp', s_branch_switchexp_expblock, s_global) : t ]].
-	
-	[[ SwitchExpStmtsCase(vals, stmts) ^ (s, s_branch, s_global) : Void() ]] :=
+		// Create and link new vals scope.
 		new s_vals,
 		new s_vals',
 		s_vals' -P-> s_vals,
 		s_vals -P-> s,
 		
-		new s_branch_switchexp_stmtblock,
-		s_branch -LB-> s_branch_switchexp_stmtblock,
+		// Create and link new exp scope.
+		new s_exp,
+		new s_exp',
+		s_exp' -P-> s_exp,
+		s_exp -P-> s_vals,
 		
-		Map4T[[ vals ^ (s_vals, s_vals', s_branch_switchexp_stmtblock, s_global) : _ ]],
-		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		DSMap4T[[ stmts ^ (_, s_vals', s_branch_switchexp_stmtblock, s_global) : _ ]].
+		// Create new internal branch scope.
+		new s_branch_switchcase,
+		s_branch -IB-> s_branch_switchcase,
+		
+		// Resolve value expressions, code and nextCase.
+		Map4T[[ valExps ^ (s_vals, s_vals', s_branch_switchcase, s_global) : _ ]],
+		[[ code ^ (s_exp, s_exp', s_branch_switchcase, s_global) : codeExpType ]],
+		[[ nextCase ^ (s_vals', s_branch_switchcase, s_global, expType) : nextCaseType ]],
+		returnType == Any(). // TODO - Use codeExpType and nextCaseType (multi)type to return.
 	
-	[[ SwitchExpDefault(exp) ^ (s, s_branch, s_global) : t ]] :=
+	[[ SwitchExpStmtsCase(valExps, code, None()) ^ (s, s_branch, s_global, expType) : Void() ]] :=
+		// TODO - Use expType to give warnings on unreachable switch cases or labels.
+		
+		// Create and link new vals scope.
+		new s_vals,
+		new s_vals',
+		s_vals' -P-> s_vals,
+		s_vals -P-> s,
+		
+		// Create new internal branch scope.
+		new s_branch_switchcase,
+		s_branch -IB-> s_branch_switchcase,
+		
+		// Resolve value expressions and code.
+		Map4T[[ valExps ^ (s_vals, s_vals', s_branch_switchcase, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_vals', s_branch_switchcase, s_global) : _ ]].
+	
+	[[ SwitchExpStmtsCase(valExps, code, Some(nextCase)) ^ (s, s_branch, s_global, expType) : returnType ]] :=
+		// TODO - Use expType to give warnings on unreachable switch cases or labels.
+		
+		// Create and link new vals scope.
+		new s_vals,
+		new s_vals',
+		s_vals' -P-> s_vals,
+		s_vals -P-> s,
+		
+		// Create and link new internal branch scopes.
+		new s_branch_switchcase_code,
+		s_branch -LB-> s_branch_switchcase_code,
+		new s_branch_switchcase,
+		s_branch -IB-> s_branch_switchcase,
+		
+		// Resolve value expressions, code and nextCase.
+		Map4T[[ valExps ^ (s_vals, s_vals', s_branch_switchcase_code, s_global) : _ ]],
+		DSMap4T[[ code ^ (_, s_vals', s_branch_switchcase_code, s_global) : _ ]],
+		[[ nextCase ^ (s_vals', s_branch_switchcase, s_global, expType) : nextCaseType ]],
+		returnType == Any(). // TODO - Use Void() and nextCaseType (multi)type to return.
+	
+	[[ SwitchExpDefault(exp) ^ (s, s_branch, s_global, _) : returnType ]] :=
+		
+		// Create and link new exp scope.
 		new s_exp,
 		new s_exp',
 		s_exp' -P-> s_exp,
 		s_exp -P-> s,
-		[[ exp ^ (s_exp, s_exp', s_branch, s_global) : t ]].
+		
+		// Create new internal branch scope.
+		new s_branch_switchdefault,
+		s_branch -IB-> s_branch_switchdefault,
+		
+		// Resolve code.
+		[[ exp ^ (s_exp, s_exp', s_branch_switchdefault, s_global) : returnType ]].
 	
-	[[ SwitchExpStmtsDefault(stmts) ^ (s, s_branch, s_global) : Void() ]] :=
-		// TODO - Ensure that the last stmt results in a throw, die, break, ...
-		DSMap4T[[ stmts ^ (_, s, s_branch, s_global) : _ ]].
+	[[ SwitchExpStmtsDefault(code) ^ (s, s_branch, s_global, _) : Void() ]] :=
+		DSMap4T[[ code ^ (_, s, s_branch, s_global) : _ ]].
 	
 	[[ Break(None()) ^ (s, s', s_branch, s_global) : Void() ]] :=
 		// TODO - Only allow in loops.

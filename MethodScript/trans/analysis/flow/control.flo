@@ -84,27 +84,26 @@ control-flow rules
 		entry -> array -> key -> val -> code -> code -> exit,
 		val -> elseCode -> exit
 	
-	// TODO - Flow could go through all cases. Fix if necessary.
-	Switch(exp, cases, defaultCode) =
-		entry -> exp -> cases -> defaultCode -> this -> exit
-	SwitchCase(vals, code) =
+	Switch(exp, case) =
+		entry -> exp -> case -> this -> exit
+	SwitchCase(vals, code, nextCase) =
 		entry -> vals -> code -> this -> exit,
-		entry -> vals -> this -> exit
+		entry -> vals -> nextCase -> this -> exit
+	SwitchDefault(code) =
+		entry -> code -> this -> exit
 	
-	// TODO - Flow could go through all cases. Fix if necessary.
-	SwitchExp(exp, cases, defaultExp) =
-		entry -> exp -> cases -> defaultExp -> this -> exit,
-		entry -> exp -> cases -> this -> exit
-	SwitchExpCase(vals, exp) =
-		entry -> vals -> this -> exit,
-		entry -> vals -> exp -> this -> exit
-	SwitchExpStmtsCase(vals, stmts) =
-		entry -> vals -> this -> exit,
-		entry -> vals -> stmts -> this -> exit
-	SwitchExpDefault(exp) =
-		entry -> exp -> this -> exit
-	SwitchExpStmtsDefault(stmts) =
-		entry -> stmts -> this -> exit
+	SwitchExp(exp, case) =
+		entry -> exp -> case -> this -> exit
+	SwitchExpCase(vals, code, nextCase) =
+		entry -> vals -> code -> this -> exit,
+		entry -> vals -> nextCase -> this -> exit
+	SwitchExpStmtsCase(vals, code, nextCase) =
+		entry -> vals -> code -> this -> exit,
+		entry -> vals -> nextCase -> this -> exit
+	SwitchExpDefault(code) =
+		entry -> code -> this -> exit
+	SwitchExpStmtsDefault(code) =
+		entry -> code -> this -> exit
 	
 	Break(numLoops) =
 		entry -> numLoops -> this -> exit // TODO - End here? Branch back?

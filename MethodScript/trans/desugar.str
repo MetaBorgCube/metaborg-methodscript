@@ -45,8 +45,6 @@ signature
 		Die : Exp -> Die
 		TernaryExpCase : Exp -> TernaryExpCase
 		TernaryStmtsCase : [Statement] -> TernaryStmtsCase
-		SwitchExpCase : [SwitchLabel] * Exp -> SwitchExpCase
-		SwitchExpStmtsCase : [SwitchLabel] * [Statement] -> SwitchExpStmtsCase
 		SwitchExpDefault : Exp -> SwitchExpDefault
 		SwitchExpStmtsDefault : [Statement] -> SwitchExpStmtsDefault
 		
@@ -210,28 +208,28 @@ rules
 	desugar: ForEachElseLegacy1(array, val, code, elseCode, _)      -> ForEach(None(), val, array, code, elseCode)
 	desugar: ForEachElseLegacy2(array, key, val, code, elseCode, _) -> ForEach(key   , val, array, code, elseCode)
 	
-	// Desugar 'switch' to Switch(exp, cases, defaultCode) and SwitchExp(exp, cases, defaultExp).
+	// Desugar 'switch' statements to Switch(exp, switchCase(labels, code, nextCase)).
 	desugar: SwitchLabel(val)                         -> val
-	desugar: SwitchDefault(code)                      -> code
 	
-	desugar: SwitchLegacy(exp, cases, defaultCode)    -> Switch(exp, cases, defaultCode)
-	desugar: SwitchCaseLegacy(vals, code)             -> SwitchCase(vals, code)
-	desugar: SwitchDefaultLegacy(code)                -> code
-	desugar: Some(SwitchDefaultLegacyComma())         -> None()
-	desugar: SwitchLabelLegacy(Array(vals))           -> vals
-	desugar: SwitchLabelLegacy(val)                   -> [val]
+	// Desugar legacy 'switch' statements to Switch(exp, switchCase(labels, code, nextCase)).
+	desugar: SwitchLegacy(exp, case)                -> Switch(exp, case)
+	desugar: SwitchCaseLegacy(vals, code, nextCase) -> SwitchCase(vals, code, nextCase)
+	desugar: SwitchDefaultLegacy(code)              -> SwitchDefault(code)
+	desugar: Some(SwitchCaseLegacyComma())          -> None()
+	desugar: SwitchLabelLegacy(Array(vals))         -> vals
+	desugar: SwitchLabelLegacy(val)                 -> [val]
 	
-	desugar: SwitchExpCase(labels, exp, _)            -> SwitchExpCase(labels, exp)
-	desugar: SwitchExpStmtsCase(labels, stmts, _)     -> SwitchExpStmtsCase(labels, stmts)
-	desugar: SwitchExpDefault(exp, _)                 -> SwitchExpDefault(exp)
-	desugar: SwitchExpStmtsDefault(stmts, _)          -> SwitchExpStmtsDefault(stmts)
+	// Desugar 'switch' expressions to SwitchExp(exp, switchExpCase/SwitchStmtCase(labels, code, nextCase)).
+	desugar: SwitchExpDefault(exp, _)                    -> SwitchExpDefault(exp)
+	desugar: SwitchExpStmtsDefault(stmts, _)             -> SwitchExpStmtsDefault(stmts)
 	
-	desugar: SwitchExpLegacy(exp, cases, default)     -> SwitchExp(exp, cases, default)
-	desugar: SwitchExpCaseLegacy(vals, exp, _)        -> SwitchExpCase(vals, exp)
-	desugar: SwitchExpStmtsCaseLegacy(vals, stmts, _) -> SwitchExpStmtsCase(vals, stmts)
-	desugar: SwitchExpDefaultLegacy(exp, _)           -> SwitchExpDefault(exp)
-	desugar: SwitchExpStmtsDefaultLegacy(stmts, _)    -> SwitchExpStmtsDefault(stmts)
-	desugar: Some(SwitchExpDefaultLegacyComma())      -> None()
+	// Desugar legacy 'switch' expressions to SwitchExp(exp, switchExpCase/SwitchStmtCase(labels, code, nextCase)).
+	desugar: SwitchExpLegacy(exp, case)                      -> SwitchExp(exp, case)
+	desugar: SwitchExpCaseLegacy(vals, exp, nextCase)        -> SwitchExpCase(vals, exp, nextCase)
+	desugar: SwitchExpStmtsCaseLegacy(vals, stmts, nextCase) -> SwitchExpStmtsCase(vals, stmts, nextCase)
+	desugar: SwitchExpDefaultLegacy(exp, _)                  -> SwitchExpDefault(exp)
+	desugar: SwitchExpStmtsDefaultLegacy(stmts, _)           -> SwitchExpStmtsDefault(stmts)
+	desugar: Some(SwitchExpDefaultLegacyComma())             -> None()
 	
 	// Desugar semicolons from ControlFlow statements.
 	desugar: Break(numLoops, _)    -> Break(numLoops)
