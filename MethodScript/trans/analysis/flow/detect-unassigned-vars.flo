@@ -1,0 +1,39 @@
+module analysis/flow/detect-unassigned-vars
+
+imports
+	analysis/flow/control
+	
+	external
+		analysis/MethodScript
+
+/*
+ * This module will perform a flow analysis to detect possibly unassigned variables and print a warning for these.
+ * Implementation:
+ *   Perform a back-to-front analysis.
+ *   When finding a variable reference, add it to a set.
+ *   When finding a variable assign, remove that variable from the set if it was in the set.
+ *     If it wasn't, print a warning about the variable being unused?
+ *   When finding a parameter, remove that variable from the set if it was in the set.
+ *   When program flow merges, take the union of both merging sets.
+ *   When reaching a code flow start point (program, proc, iclosure), print a warning on every variable usage left
+ *   in the list.
+ */
+
+properties
+	varRefs: MaySet(name * Option(position))
+
+property rules
+	
+	// Initialize variable reference set at the end of all program flow.
+	varRefs(Program(_).end) = {}
+	varRefs(IClosure(_, _, _, _).end) = {}
+	varRefs(RClosure(_, _, _, _).end) = {}
+	varRefs(Bind(_, _, _, _, _, _, _, _).end) = {}
+	varRefs(ProcDecl(_, _, _, _, _).end) = {}
+	
+	// Add variable references to the set.
+	varRefs(IVar(varName) -> next) = varRefs(next) \/ {(IVar{varName}, Some(position(varName)))}
+	
+	// Remove variable assigns from the set.
+	varRefs(IVarAssign(_, varName, _) -> next) =
+		{ m | m <- varRefs(next), m[0] != IVar{varName} }
